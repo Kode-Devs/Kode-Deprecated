@@ -78,6 +78,10 @@ public class KodeIO {
                 .withMinLength(0)
                 .read(obj.toString());
     }
+    
+    public static boolean resetLine() {
+        return textIO.getTextTerminal().resetLine();
+    }
 
     //
     private static Interpreter inter = new Interpreter();
@@ -99,6 +103,7 @@ public class KodeIO {
             inter.globals.define(item.getKey(), inter.toKodeValue(item.getValue()));
         });
     }
+    //
 
     public static final void free() {
         System.gc();

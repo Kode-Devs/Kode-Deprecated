@@ -25,24 +25,25 @@ class ValueNone extends Value {
 
     ValueNone(Interpreter interpreter) {
         super("NoneType", interpreter);
+        //<editor-fold defaultstate="collapsed" desc="init">
         this.methods.put(Kode.INIT_NAME, new KodeBuiltinFunction(Kode.INIT_NAME, null, interpreter) {
-
+            
             @Override
             public List<Pair<String, Object>> arity() {
                 return new ArrayList();
             }
-
+            
             @Override
             public Object call(Map<String, Object> arguments) {
                 Object This = closure.getAt(0, "this");
                 if (This instanceof KodeInstance) {
                     ((KodeInstance) This).fields.put(Kode.STR_NAME, new KodeBuiltinFunction(Kode.STR_NAME, null, interpreter) {
-
+                        
                         @Override
                         public List<Pair<String, Object>> arity() {
                             return new ArrayList();
                         }
-
+                        
                         @Override
                         public Object call(Map<String, Object> arguments) {
                             return ValueString.create(Kode.stringify(null), interpreter);
@@ -52,6 +53,7 @@ class ValueNone extends Value {
                 return This;
             }
         });
+//</editor-fold>
     }
 
     final static boolean isNone(KodeInstance i) {

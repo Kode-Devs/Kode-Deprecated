@@ -347,7 +347,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
                 }
             }
         }
-        throw new RuntimeError("Binary Operation '" + op.lexeme + "' can not be performed between operators of type '"
+        throw new RuntimeError("Binary Operation '" + op.lexeme + "' can not be performed between operands of type '"
                 + Kode.type(left) + "' and '" + Kode.type(right) + "'.", op);
     }
 
@@ -492,17 +492,25 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
 
         switch (expr.operator.type) {
             case BANG:
-                return !isTruthy(right);
+                return this.toKodeValue(!isTruthy(right));
             case MINUS:
-                checkNumberOperand(expr.operator, right);
-                return -(double) right;
+                if (right instanceof KodeInstance) {
+                    try {
+                        Object fun = ((KodeInstance) right).get(Kode.NEG);
+                        if (fun instanceof KodeFunction) {
+                            return ((KodeFunction) fun).call(Arrays.asList());
+                        }
+                    } catch (NotImplemented e2) {
+                    }
+                }
+                throw new RuntimeError("Unary Operation '" + expr.operator.lexeme
+                        + "' can not be performed on operand of type '" + Kode.type(right) + "'.", expr.operator);
             case PLUS:
-                checkNumberOperand(expr.operator, right);
-                return +(double) right;
+                return right;
         }
 
         // Unreachable.                              
-        return null;
+        return right;
     }
 
     @Override
@@ -567,9 +575,12 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
         if (object instanceof String) {
             return ((String) object).length() != 0;
         }
+        if (object instanceof List) {
+            return !((List) object).isEmpty();
+        }
         if (object instanceof KodeInstance) {
-            if (((KodeInstance) object).klass instanceof ValueBool) {
-                return ((KodeInstance) object).bool;
+            if (ValueBool.isBool((KodeInstance) object)) {
+                return ValueBool.toBoolean(object);
             }
             Object method = ((KodeInstance) object).get(Kode.BOOL_NAME);
             if (method instanceof KodeFunction) {

@@ -83,6 +83,7 @@ class KodeClass implements KodeCallable {
 
             case Kode.NUMBER_NAME:
             case Kode.LIST_NAME:
+            case Kode.NEG:
                 return new KodeBuiltinFunction(name, null, interpreter) {
                     @Override
                     public List<Pair<String, Object>> arity() {
@@ -94,8 +95,10 @@ class KodeClass implements KodeCallable {
                         throw new NotImplemented();
                     }
                 };
+
             case Kode.BOOL_NAME:
                 return new KodeBuiltinFunction(name, null, interpreter) {
+
                     @Override
                     public List<Pair<String, Object>> arity() {
                         return new ArrayList();
@@ -103,7 +106,27 @@ class KodeClass implements KodeCallable {
 
                     @Override
                     public Object call(Map<String, Object> arguments) {
-                        return interpreter.toKodeValue(true);
+                        Object This = closure.getAt(0, "this");
+                        if (This instanceof KodeInstance) {
+                            Object o = true;
+                            if (ValueNumber.isNumber((KodeInstance) This)) {
+                                o = ValueNumber.toNumber(This);
+                            }
+                            if (ValueNone.isNone((KodeInstance) This)) {
+                                o = null;
+                            }
+                            if (ValueBool.isBool((KodeInstance) This)) {
+                                o = ValueBool.toBoolean(This);
+                            }
+                            if (ValueString.isString((KodeInstance) This)) {
+                                o = ValueString.toStr(This);
+                            }
+                            if (ValueList.isList((KodeInstance) This)) {
+                                o = ValueList.toList(This);
+                            }
+                            return interpreter.toKodeValue(interpreter.isTruthy(o));
+                        }
+                        return interpreter.toKodeValue(interpreter.isTruthy(true));
                     }
                 };
 
@@ -156,8 +179,7 @@ class KodeClass implements KodeCallable {
     }
 
     @Override
-    public Object call(Map<String, Object> arguments
-    ) {
+    public Object call(Map<String, Object> arguments) {
         KodeInstance instance = new KodeInstance(this);
         KodeFunction initializer = findMethod(Kode.INIT_NAME);
         initializer.bind(instance).call(arguments);

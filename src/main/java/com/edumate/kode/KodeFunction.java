@@ -39,21 +39,17 @@ class KodeFunction implements KodeCallable {
     final boolean isInitializer;
     Interpreter interpreter;
 
-    private KodeFunction(Stmt.Function declaration, Environment closure, boolean isInitializer) {
+    KodeFunction(Stmt.Function declaration, Environment closure, Interpreter inter, boolean isInitializer) {
         this.isInitializer = isInitializer;
         this.closure = closure;
         this.declaration = declaration;
-    }
-
-    KodeFunction(Stmt.Function declaration, Environment closure, Interpreter inter, boolean isInitializer) {
-        this(declaration, closure, isInitializer);
         this.interpreter = inter;
     }
 
     KodeFunction bind(KodeInstance instance) {
         Environment environment = new Environment(closure);
         environment.define("this", instance);
-        return new KodeFunction(declaration, environment, isInitializer);
+        return new KodeFunction(declaration, environment, interpreter, isInitializer);
     }
 
     @Override

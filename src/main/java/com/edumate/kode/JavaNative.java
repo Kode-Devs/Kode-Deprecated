@@ -64,8 +64,12 @@ class JavaNative implements KodeCallable {
     public Object call(Map<String, Object> arguments) {
         Object p = arguments.get("params");
         Object[] params;
-        if (p instanceof List) {
-            params = ((List) p).toArray();
+        if (p instanceof KodeInstance) {
+            if (ValueList.isList((KodeInstance) p)) {
+                params = ValueList.toList(p).toArray();
+            } else {
+                throw new RuntimeError("Argument params must be of type List", null);
+            }
         } else {
             throw new RuntimeError("Argument params must be of type List", null);
         }
@@ -102,7 +106,7 @@ class JavaNative implements KodeCallable {
 
     @Override
     public String toString() {
-        return "<built-in function 'native'>";
+        return "<native function '"+this.methodName+"'>";
     }
 
 }

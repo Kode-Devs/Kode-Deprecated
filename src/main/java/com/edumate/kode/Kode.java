@@ -77,6 +77,8 @@ class Kode {
     static final String CLASS_NAME = "__class__";
     static final String HASH_NAME = "__hash__";
 
+    static final String NEG = "__neg__";
+
     static final String ADD = "__add__";
     static final String RADD = "__radd__";
 

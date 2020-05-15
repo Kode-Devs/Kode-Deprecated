@@ -56,7 +56,7 @@ class KodeClass implements KodeCallable {
         }
 
         switch (name) {
-            case Kode.INIT_NAME:
+            case Kode.INIT:
                 return new KodeBuiltinFunction(name, null, interpreter) {
                     @Override
                     public List<Pair<String, Object>> arity() {
@@ -68,7 +68,7 @@ class KodeClass implements KodeCallable {
                         return closure.getAt(0, "this");
                     }
                 };
-            case Kode.STR_NAME:
+            case Kode.STRING:
                 return new KodeBuiltinFunction(name, null, interpreter) {
                     @Override
                     public List<Pair<String, Object>> arity() {
@@ -81,8 +81,8 @@ class KodeClass implements KodeCallable {
                     }
                 };
 
-            case Kode.NUMBER_NAME:
-            case Kode.LIST_NAME:
+            case Kode.NUMBER:
+            case Kode.LIST:
             case Kode.NEG:
                 return new KodeBuiltinFunction(name, null, interpreter) {
                     @Override
@@ -96,7 +96,7 @@ class KodeClass implements KodeCallable {
                     }
                 };
 
-            case Kode.BOOL_NAME:
+            case Kode.BOOLEAN:
                 return new KodeBuiltinFunction(name, null, interpreter) {
 
                     @Override
@@ -130,7 +130,7 @@ class KodeClass implements KodeCallable {
                     }
                 };
 
-            case Kode.INDEX_NAME:
+            case Kode.GET_AT_INDEX:
                 return new KodeBuiltinFunction(name, null, interpreter) {
                     @Override
                     public List<Pair<String, Object>> arity() {
@@ -181,14 +181,14 @@ class KodeClass implements KodeCallable {
     @Override
     public Object call(Map<String, Object> arguments) {
         KodeInstance instance = new KodeInstance(this);
-        KodeFunction initializer = findMethod(Kode.INIT_NAME);
+        KodeFunction initializer = findMethod(Kode.INIT);
         initializer.bind(instance).call(arguments);
         return instance;
     }
 
     @Override
     public List<Pair<String, Object>> arity() {
-        KodeFunction initializer = findMethod(Kode.INIT_NAME);
+        KodeFunction initializer = findMethod(Kode.INIT);
         if (initializer == null) {
             return new ArrayList();
         }

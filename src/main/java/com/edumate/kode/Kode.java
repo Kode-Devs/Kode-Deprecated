@@ -68,14 +68,18 @@ class Kode {
     static boolean hadRuntimeError = false;
     static Map<String, KodeModule> ModuleRegistry = new HashMap();
 
-    static final String INIT_NAME = "__init__";
-    static final String STR_NAME = "__str__";
-    static final String NUMBER_NAME = "__num__";
-    static final String BOOL_NAME = "__bool__";
-    static final String LIST_NAME = "__list__";
-    static final String INDEX_NAME = "__index__";
-    static final String CLASS_NAME = "__class__";
-    static final String HASH_NAME = "__hash__";
+    static final String INIT = "__init__";
+    static final String STRING = "__str__";
+    static final String NUMBER = "__num__";
+    static final String BOOLEAN = "__bool__";
+    static final String LIST = "__list__";
+    
+    static final String GET_AT_INDEX = "__getAtIndex__";
+    static final String SET_AT_INDEX = "__setAtIndex__";
+    static final String CLASS = "__class__";
+    static final String HASH = "__hash__";
+
+    static final String BUILTIN_NAME = "__builtin__";
 
     static final String NEG = "__neg__";
 
@@ -188,7 +192,7 @@ class Kode {
         }
 
         byte[] bytes;
-        InputStream file = Kode.class.getResourceAsStream("/"+name+"."+Kode.EXTENSION);
+        InputStream file = Kode.class.getResourceAsStream("/" + name + "." + Kode.EXTENSION);
         if (file != null) {
             bytes = file.readAllBytes();
             run(name + "." + Kode.EXTENSION, new String(bytes, Charset.defaultCharset()), inter);
@@ -315,13 +319,13 @@ class Kode {
     }
 
     static String stringify(Object object) {
-        
-        if(object instanceof KodeInstance){
-            if(ValueList.isList((KodeInstance) object)){
-                
+
+        if (object instanceof KodeInstance) {
+            if (ValueList.isList((KodeInstance) object)) {
+
             }
         }
-        
+
         return _stringify(object);
     }
 
@@ -372,86 +376,103 @@ class Kode {
     static final Map<String, Object> DEF_GLOBALS = new HashMap();
 
     static {
-        final Interpreter inter = new Interpreter();
-        DEF_GLOBALS.put("NaN", inter.toKodeValue(Double.NaN));
-        DEF_GLOBALS.put("Infinity", inter.toKodeValue(Double.POSITIVE_INFINITY));
-        DEF_GLOBALS.put("type", new KodeBuiltinFunction("type", null, inter) {
-            @Override
-            public List<Pair<String, Object>> arity() {
-                return Arrays.asList(new Pair("obj", null));
+        KodeModule module;
+        try {
+            if (Kode.ModuleRegistry.containsKey(Kode.BUILTIN_NAME)) {
+                module = Kode.ModuleRegistry.get(Kode.BUILTIN_NAME);
+            } else {
+                module = new KodeModule(Kode.BUILTIN_NAME, Kode.BUILTIN_NAME);
+                Kode.ModuleRegistry.put(Kode.BUILTIN_NAME, module);
+                module.run();
             }
-
-            @Override
-            public Object call(Map<String, Object> arguments) {
-                return interpreter.toKodeValue("<type '" + Kode.type(arguments.get("obj")) + "'>");
+            if (module.hadError || module.hadRuntimeError) {
+                throw new Exception();
             }
-
-        });
-        DEF_GLOBALS.put("print", new KodeBuiltinFunction("print", null, inter) {
-            @Override
-            public List<Pair<String, Object>> arity() {
-                return Arrays.asList(new Pair("str", interpreter.toKodeValue(Arrays.asList(interpreter.toKodeValue(""))), true),
-                        new Pair("sep", interpreter.toKodeValue(" ")),
-                        new Pair("end", interpreter.toKodeValue("\n")));
-            }
-
-            @Override
-            public Object call(Map<String, Object> arguments) {
-                List str = ValueList.toList(arguments.get("str"));
-                String sep = ValueString.toStr(arguments.get("sep"));
-                String end = ValueString.toStr(arguments.get("end"));
-                if (str.size() > 0) {
-                    KodeIO.printf(ValueString.toStr(str.get(0)));
+            final Interpreter inter = module.inter;
+            DEF_GLOBALS.putAll(inter.globals.values);
+            DEF_GLOBALS.put("NaN", inter.toKodeValue(Double.NaN));
+            DEF_GLOBALS.put("Infinity", inter.toKodeValue(Double.POSITIVE_INFINITY));
+            DEF_GLOBALS.put("type", new KodeBuiltinFunction("type", null, inter) {
+                @Override
+                public List<Pair<String, Object>> arity() {
+                    return Arrays.asList(new Pair("obj", null));
                 }
-                for (int i = 1; i < str.size(); i++) {
-                    KodeIO.printf(sep);
-                    KodeIO.printf(ValueString.toStr(str.get(i)));
+
+                @Override
+                public Object call(Map<String, Object> arguments) {
+                    return interpreter.toKodeValue("<type '" + Kode.type(arguments.get("obj")) + "'>");
                 }
-                KodeIO.printf(end);
-                return null;
-            }
 
-        });
+            });
+            DEF_GLOBALS.put("print", new KodeBuiltinFunction("print", null, inter) {
+                @Override
+                public List<Pair<String, Object>> arity() {
+                    return Arrays.asList(new Pair("str", interpreter.toKodeValue(Arrays.asList(interpreter.toKodeValue(""))), true),
+                            new Pair("sep", interpreter.toKodeValue(" ")),
+                            new Pair("end", interpreter.toKodeValue("\n")));
+                }
 
-        ValueNumber valueNumber = new ValueNumber(inter);
-        DEF_GLOBALS.put(valueNumber.class_name, valueNumber);
+                @Override
+                public Object call(Map<String, Object> arguments) {
+                    List str = ValueList.toList(arguments.get("str"));
+                    String sep = ValueString.toStr(arguments.get("sep"));
+                    String end = ValueString.toStr(arguments.get("end"));
+                    if (str.size() > 0) {
+                        KodeIO.printf(ValueString.toStr(str.get(0)));
+                    }
+                    for (int i = 1; i < str.size(); i++) {
+                        KodeIO.printf(sep);
+                        KodeIO.printf(ValueString.toStr(str.get(i)));
+                    }
+                    KodeIO.printf(end);
+                    return null;
+                }
 
-        ValueString valueString = new ValueString(inter);
-        DEF_GLOBALS.put(valueString.class_name, valueString);
+            });
 
-        ValueBool valueBool = new ValueBool(inter);
-        DEF_GLOBALS.put(valueBool.class_name, valueBool);
+            ValueNumber valueNumber = new ValueNumber(inter);
+            DEF_GLOBALS.put(valueNumber.class_name, valueNumber);
 
-        ValueList valueList = new ValueList(inter);
-        DEF_GLOBALS.put(valueList.class_name, valueList);
+            ValueString valueString = new ValueString(inter);
+            DEF_GLOBALS.put(valueString.class_name, valueString);
 
-        DEF_GLOBALS.put("ins", new KodeBuiltinFunction("ins", null, inter) {
-            @Override
-            public List<Pair<String, Object>> arity() {
-                return Arrays.asList(new Pair("ins", null), new Pair("klass", null));
-            }
+            ValueBool valueBool = new ValueBool(inter);
+            DEF_GLOBALS.put(valueBool.class_name, valueBool);
 
-            @Override
-            public Object call(Map<String, Object> arguments) {
-                return this.interpreter.toKodeValue(Kode.instanceOf((KodeInstance) arguments.get("ins"),
-                        (KodeClass) arguments.get("klass")));
-            }
+            ValueList valueList = new ValueList(inter);
+            DEF_GLOBALS.put(valueList.class_name, valueList);
 
-        });
+            DEF_GLOBALS.put("ins", new KodeBuiltinFunction("ins", null, inter) {
+                @Override
+                public List<Pair<String, Object>> arity() {
+                    return Arrays.asList(new Pair("ins", null), new Pair("klass", null));
+                }
 
-        DEF_GLOBALS.put("exit", new KodeBuiltinFunction("exit", null, inter) {
-            @Override
-            public List<Pair<String, Object>> arity() {
-                return Arrays.asList(new Pair("status", interpreter.toKodeValue(Double.valueOf(0))));
-            }
+                @Override
+                public Object call(Map<String, Object> arguments) {
+                    return this.interpreter.toKodeValue(Kode.instanceOf((KodeInstance) arguments.get("ins"),
+                            (KodeClass) arguments.get("klass")));
+                }
 
-            @Override
-            public Object call(Map<String, Object> arguments) {
-                KodeIO.exit(ValueNumber.toNumber(arguments.get("status")).intValue());
-                return null;
-            }
+            });
 
-        });
+            DEF_GLOBALS.put("exit", new KodeBuiltinFunction("exit", null, inter) {
+                @Override
+                public List<Pair<String, Object>> arity() {
+                    return Arrays.asList(new Pair("status", interpreter.toKodeValue(Double.valueOf(0))));
+                }
+
+                @Override
+                public Object call(Map<String, Object> arguments) {
+                    KodeIO.exit(ValueNumber.toNumber(arguments.get("status")).intValue());
+                    return null;
+                }
+
+            });
+            
+        } catch (Exception ex) {
+            KodeIO.exit(1);
+        }
     }
 
 //</editor-fold>

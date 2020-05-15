@@ -17,6 +17,7 @@ import org.beryx.textio.TextIoFactory;
 public class KodeIO {
 
     public static final TextIO textIO = TextIoFactory.getTextIO();
+    
     private static final Color OUT_COLOR = Color.WHITE;
     private static final Color IN_COLOR = Color.CYAN;
     private static final Color ERR_COLOR = Color.YELLOW;

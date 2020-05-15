@@ -44,9 +44,9 @@ class KodeInstance {
     KodeInstance(KodeClass klass) {
         this.klass = klass;
         if (klass != null) {
-            fields.put(Kode.CLASS_NAME, klass);
+            fields.put(Kode.CLASS, klass);
         }
-        fields.put(Kode.HASH_NAME, new Hash(this));
+        fields.put(Kode.HASH, new Hash(this));
     }
 
     Object get(Token name) {

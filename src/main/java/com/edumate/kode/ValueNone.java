@@ -18,7 +18,7 @@ class ValueNone extends Value {
     static KodeInstance create(Interpreter interpreter) {
         Value val = new ValueNone(interpreter);
         KodeInstance instance = new KodeInstance(val);
-        KodeFunction initializer = val.findMethod(Kode.INIT_NAME);
+        KodeFunction initializer = val.findMethod(Kode.INIT);
         initializer.bind(instance).call(new ArrayList());
         return instance;
     }
@@ -26,7 +26,7 @@ class ValueNone extends Value {
     ValueNone(Interpreter interpreter) {
         super("NoneType", interpreter);
         //<editor-fold defaultstate="collapsed" desc="init">
-        this.methods.put(Kode.INIT_NAME, new KodeBuiltinFunction(Kode.INIT_NAME, null, interpreter) {
+        this.methods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, null, interpreter) {
             
             @Override
             public List<Pair<String, Object>> arity() {
@@ -37,7 +37,7 @@ class ValueNone extends Value {
             public Object call(Map<String, Object> arguments) {
                 Object This = closure.getAt(0, "this");
                 if (This instanceof KodeInstance) {
-                    ((KodeInstance) This).fields.put(Kode.STR_NAME, new KodeBuiltinFunction(Kode.STR_NAME, null, interpreter) {
+                    ((KodeInstance) This).fields.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, null, interpreter) {
                         
                         @Override
                         public List<Pair<String, Object>> arity() {

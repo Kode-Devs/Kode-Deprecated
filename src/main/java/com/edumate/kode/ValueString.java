@@ -15,7 +15,7 @@ class ValueString extends Value {
     static KodeInstance create(String x, Interpreter interpreter) {
         Value val = new ValueString(interpreter);
         KodeInstance instance = new KodeInstance(val);
-        KodeFunction initializer = val.findMethod(Kode.INIT_NAME);
+        KodeFunction initializer = val.findMethod(Kode.INIT);
         initializer.bind(instance).call(Arrays.asList(x));
         return instance;
     }
@@ -23,13 +23,13 @@ class ValueString extends Value {
     ValueString(Interpreter interpreter) {
         super("String", interpreter);
         //<editor-fold defaultstate="collapsed" desc="init">
-        this.methods.put(Kode.INIT_NAME, new KodeBuiltinFunction(Kode.INIT_NAME, null, interpreter) {
-            
+        this.methods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, null, interpreter) {
+
             @Override
             public List<Pair<String, Object>> arity() {
                 return Arrays.asList(new Pair("x", false));
             }
-            
+
             @Override
             public Object call(Map<String, Object> arguments) {
                 Object This = closure.getAt(0, "this");
@@ -41,117 +41,117 @@ class ValueString extends Value {
         });
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="str">
-this.methods.put(Kode.STR_NAME, new KodeBuiltinFunction(Kode.STR_NAME, null, interpreter) {
-    
-    @Override
-    public List<Pair<String, Object>> arity() {
-        return new ArrayList();
-    }
-    
-    @Override
-    public Object call(Map<String, Object> arguments) {
-        Object This = closure.getAt(0, "this");
-        if (This instanceof KodeInstance) {
-            return This;
-        }
-        throw new NotImplemented();
-    }
-});
+        this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, null, interpreter) {
+
+            @Override
+            public List<Pair<String, Object>> arity() {
+                return new ArrayList();
+            }
+
+            @Override
+            public Object call(Map<String, Object> arguments) {
+                Object This = closure.getAt(0, "this");
+                if (This instanceof KodeInstance) {
+                    return This;
+                }
+                throw new NotImplemented();
+            }
+        });
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="num">
-this.methods.put(Kode.NUMBER_NAME, new KodeBuiltinFunction(Kode.NUMBER_NAME, null, interpreter) {
-    
-    @Override
-    public List<Pair<String, Object>> arity() {
-        return new ArrayList();
-    }
-    
-    @Override
-    public Object call(Map<String, Object> arguments) {
-        Object This = closure.getAt(0, "this");
-        if (This instanceof KodeInstance) {
-            try {
-                return interpreter.toKodeValue(KodeTools.toNumber(((KodeInstance) This).str));
-            } catch (Exception ex) {
-                throw new RuntimeError(ex.getMessage(), null);
+        this.methods.put(Kode.NUMBER, new KodeBuiltinFunction(Kode.NUMBER, null, interpreter) {
+
+            @Override
+            public List<Pair<String, Object>> arity() {
+                return new ArrayList();
             }
-        }
-        throw new NotImplemented();
-    }
-});
+
+            @Override
+            public Object call(Map<String, Object> arguments) {
+                Object This = closure.getAt(0, "this");
+                if (This instanceof KodeInstance) {
+                    try {
+                        return interpreter.toKodeValue(toNumber.toNumber(((KodeInstance) This).str));
+                    } catch (Exception ex) {
+                        throw new RuntimeError(ex.getMessage(), null);
+                    }
+                }
+                throw new NotImplemented();
+            }
+        });
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="bool">
-this.methods.put(Kode.BOOL_NAME, new KodeBuiltinFunction(Kode.BOOL_NAME, null, interpreter) {
-    
-    @Override
-    public List<Pair<String, Object>> arity() {
-        return new ArrayList();
-    }
-    
-    @Override
-    public Object call(Map<String, Object> arguments) {
-        Object This = closure.getAt(0, "this");
-        if (This instanceof KodeInstance) {
-            return interpreter.toKodeValue(interpreter.isTruthy(((KodeInstance) This).str));
-        }
-        throw new NotImplemented();
-    }
-});
+        this.methods.put(Kode.BOOLEAN, new KodeBuiltinFunction(Kode.BOOLEAN, null, interpreter) {
+
+            @Override
+            public List<Pair<String, Object>> arity() {
+                return new ArrayList();
+            }
+
+            @Override
+            public Object call(Map<String, Object> arguments) {
+                Object This = closure.getAt(0, "this");
+                if (This instanceof KodeInstance) {
+                    return interpreter.toKodeValue(interpreter.isTruthy(((KodeInstance) This).str));
+                }
+                throw new NotImplemented();
+            }
+        });
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="list">
-this.methods.put(Kode.LIST_NAME, new KodeBuiltinFunction(Kode.LIST_NAME, null, interpreter) {
-    
-    @Override
-    public List<Pair<String, Object>> arity() {
-        return new ArrayList();
-    }
-    
-    @Override
-    public Object call(Map<String, Object> arguments) {
-        Object This = closure.getAt(0, "this");
-        if (This instanceof KodeInstance) {
-            try {
-                List ll = new ArrayList();
-                for (char ch : ((KodeInstance) This).str.toCharArray()) {
-                    ll.add(interpreter.toKodeValue("" + ch));
-                }
-                return interpreter.toKodeValue(ll);
-            } catch (Exception ex) {
-                throw new RuntimeError(ex.getMessage(), null);
+        this.methods.put(Kode.LIST, new KodeBuiltinFunction(Kode.LIST, null, interpreter) {
+
+            @Override
+            public List<Pair<String, Object>> arity() {
+                return new ArrayList();
             }
-        }
-        throw new NotImplemented();
-    }
-});
+
+            @Override
+            public Object call(Map<String, Object> arguments) {
+                Object This = closure.getAt(0, "this");
+                if (This instanceof KodeInstance) {
+                    try {
+                        List ll = new ArrayList();
+                        for (char ch : ((KodeInstance) This).str.toCharArray()) {
+                            ll.add(interpreter.toKodeValue("" + ch));
+                        }
+                        return interpreter.toKodeValue(ll);
+                    } catch (Exception ex) {
+                        throw new RuntimeError(ex.getMessage(), null);
+                    }
+                }
+                throw new NotImplemented();
+            }
+        });
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="index">
-this.methods.put(Kode.INDEX_NAME, new KodeBuiltinFunction(Kode.INDEX_NAME, null, interpreter) {
-    
-    @Override
-    public List<Pair<String, Object>> arity() {
-        return Arrays.asList(new Pair("idx", null));
-    }
-    
-    @Override
-    public Object call(Map<String, Object> arguments) {
-        Object This = closure.getAt(0, "this");
-        Object index = arguments.get("idx");
-        if (This instanceof KodeInstance && index instanceof KodeInstance) {
-            if (ValueNumber.isNumber((KodeInstance) index)) {
-                Double toNumber = ValueNumber.toNumber((KodeInstance) index);
-                if (toNumber.intValue() != toNumber) {
-                    throw new RuntimeError("String Indices must be Integer in Nature found " + Kode.stringify(toNumber), null);
-                }
-                try {
-                    return interpreter.toKodeValue("" + ((KodeInstance) This).str.charAt(toNumber.intValue()));
-                } catch (IndexOutOfBoundsException e) {
-                    throw new RuntimeError("String Index Out Of Bound : " + Kode.stringify(toNumber), null);
-                }
+        this.methods.put(Kode.GET_AT_INDEX, new KodeBuiltinFunction(Kode.GET_AT_INDEX, null, interpreter) {
+
+            @Override
+            public List<Pair<String, Object>> arity() {
+                return Arrays.asList(new Pair("idx", null));
             }
-        }
-        throw new NotImplemented();
-    }
-});
+
+            @Override
+            public Object call(Map<String, Object> arguments) {
+                Object This = closure.getAt(0, "this");
+                Object index = arguments.get("idx");
+                if (This instanceof KodeInstance && index instanceof KodeInstance) {
+                    if (ValueNumber.isNumber((KodeInstance) index)) {
+                        Double toNumber = ValueNumber.toNumber((KodeInstance) index);
+                        if (toNumber.intValue() != toNumber) {
+                            throw new RuntimeError("String Indices must be Integer in Nature found " + Kode.stringify(toNumber), null);
+                        }
+                        try {
+                            return interpreter.toKodeValue("" + ((KodeInstance) This).str.charAt(toNumber.intValue()));
+                        } catch (IndexOutOfBoundsException e) {
+                            throw new RuntimeError("String Index Out Of Bound : " + Kode.stringify(toNumber), null);
+                        }
+                    }
+                }
+                throw new NotImplemented();
+            }
+        });
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="Add">
         this.methods.put(Kode.ADD, new KodeBuiltinFunction(Kode.ADD, null, interpreter) {
@@ -256,25 +256,25 @@ this.methods.put(Kode.INDEX_NAME, new KodeBuiltinFunction(Kode.INDEX_NAME, null,
         });
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="concat">
-this.methods.put("concat", new KodeBuiltinFunction("concat", null, interpreter) {
-    
-    @Override
-    public List<Pair<String, Object>> arity() {
-        return Arrays.asList(new Pair("obj", null));
-    }
-    
-    @Override
-    public Object call(Map<String, Object> arguments) {
-        Object This = closure.getAt(0, "this");
-        Object obj = arguments.get("obj");
-        if (This instanceof KodeInstance && obj instanceof KodeInstance) {
-            if (ValueString.isString((KodeInstance) This) && ValueString.isString((KodeInstance) obj)) {
-                return interpreter.toKodeValue(ValueString.toStr(This).concat(ValueString.toStr(obj)));
+        this.methods.put("concat", new KodeBuiltinFunction("concat", null, interpreter) {
+
+            @Override
+            public List<Pair<String, Object>> arity() {
+                return Arrays.asList(new Pair("obj", null));
             }
-        }
-        throw new NotImplemented();
-    }
-});
+
+            @Override
+            public Object call(Map<String, Object> arguments) {
+                Object This = closure.getAt(0, "this");
+                Object obj = arguments.get("obj");
+                if (This instanceof KodeInstance && obj instanceof KodeInstance) {
+                    if (ValueString.isString((KodeInstance) This) && ValueString.isString((KodeInstance) obj)) {
+                        return interpreter.toKodeValue(ValueString.toStr(This).concat(ValueString.toStr(obj)));
+                    }
+                }
+                throw new NotImplemented();
+            }
+        });
 //</editor-fold>
 
     }
@@ -292,13 +292,13 @@ this.methods.put("concat", new KodeBuiltinFunction("concat", null, interpreter) 
                 return ((KodeInstance) x_).str;
             } else {
                 try {
-                    if (((KodeInstance) x_).fields.containsKey(Kode.STR_NAME)) {
-                        Object get = ((KodeInstance) x_).fields.get(Kode.STR_NAME);
+                    if (((KodeInstance) x_).fields.containsKey(Kode.STRING)) {
+                        Object get = ((KodeInstance) x_).fields.get(Kode.STRING);
                         if (get instanceof KodeFunction) {
                             return toStr(((KodeFunction) get).bind((KodeInstance) x_).call(new HashMap()), a);
                         }
                     }
-                    return toStr(((KodeInstance) x_).klass.findMethod(Kode.STR_NAME).bind((KodeInstance) x_).call(new HashMap()), a);
+                    return toStr(((KodeInstance) x_).klass.findMethod(Kode.STRING).bind((KodeInstance) x_).call(new HashMap()), a);
                 } catch (NotImplemented e) {
                     throw new RuntimeError("Object of type '" + Kode.type(a) + "' is not Printable in Nature", null);
                 }
@@ -312,5 +312,72 @@ this.methods.put("concat", new KodeBuiltinFunction("concat", null, interpreter) 
     final static boolean isString(KodeInstance i) {
         return instanceOf(i.klass, ValueString.class);
     }
+
+    //<editor-fold defaultstate="collapsed" desc="toNumber">
+    private static class toNumber {
+        
+        public static Double toNumber(Object num) throws Exception {
+            try {
+                if (checkNumberFormat(num.toString())) {
+                    return Double.parseDouble(num.toString());
+                } else {
+                    throw new Exception("Number Format Error : " + num);
+                }
+            } catch (Exception e) {
+                throw new Exception("Number Format Error : " + num);
+            }
+        }
+        
+        private static boolean checkNumberFormat(String num) {
+            if (num.isEmpty()) {
+                return false;
+            }
+            int i = 0;
+            if (charAt(num, 0) == '+' || charAt(num, 0) == '-') {
+                i++;
+            }
+            while (isDigit(charAt(num, i))) {
+                i++;
+            }
+            
+            // Look for a fractional part.
+            if (charAt(num, i) == '.' && isDigit(charAt(num, i + 1))) {
+                // Consume the "."
+                i++;
+                
+                while (isDigit(charAt(num, i))) {
+                    i++;
+                }
+            }
+            
+            // Look for a exponential part.
+            if ((charAt(num, i) == 'e' || charAt(num, i) == 'E') && (isDigit(charAt(num, i + 1)) || charAt(num, i + 1) == '+' || charAt(num, i + 1) == '-')) {
+                // Consume the "e"
+                i++;
+                if (charAt(num, i) == '+' || charAt(num, i) == '-') {
+                    i++;
+                }
+                
+                while (isDigit(charAt(num, i))) {
+                    i++;
+                }
+            }
+            
+            return i >= num.length();
+        }
+        
+        private static boolean isDigit(char c) {
+            return c >= '0' && c <= '9';
+        }
+        
+        private static char charAt(String s, int i) {
+            if (i < s.length()) {
+                return s.charAt(i);
+            } else {
+                return ' ';
+            }
+        }
+    }
+//</editor-fold>
 
 }

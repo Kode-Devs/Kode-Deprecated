@@ -271,7 +271,7 @@ class Parser {
         Token name = consume(IDENTIFIER, "Expect " + kind + " name.");
         consume(LEFT_PAREN, "Expect '(' after " + kind + " name.");
         List<Pair<Token, Expr>> parameters = new ArrayList<>();
-        if (!check(RIGHT_PAREN) && !name.lexeme.equals(Kode.STR_NAME) && !name.lexeme.equals(Kode.INDEX_NAME)) {
+        if (!check(RIGHT_PAREN)) {
             do {
                 boolean star = match(STAR);
                 Token token = consume(IDENTIFIER, "Expect parameter name.");
@@ -281,14 +281,6 @@ class Parser {
                 }
                 parameters.add(new Pair(token, def, star));
             } while (match(COMMA));
-        }
-        if (name.lexeme.equals(Kode.INDEX_NAME)) {
-            Token token = consume(IDENTIFIER, "Expect parameter idx. ( Default value is not expected here. )");
-            if (token.lexeme.equals("idx")) {
-                parameters.add(new Pair(token, null));
-            } else {
-                throw error(token, Kode.INDEX_NAME + " can only have one parameter named idx.");
-            }
         }
         consume(RIGHT_PAREN, "Expect ')' after parameters.");
 
@@ -321,6 +313,9 @@ class Parser {
             } else if (expr instanceof Expr.Get) {
                 Expr.Get get = (Expr.Get) expr;
                 return new Expr.Set(get.object, get.name, value);
+            } else if (expr instanceof Expr.GetAtIndex) {
+                Expr.GetAtIndex getAtIndex = (Expr.GetAtIndex) expr;
+                return new Expr.SetAtIndex(getAtIndex.array, getAtIndex.index, value, getAtIndex.paren);
             }
 
             throw error(equals, "Invalid assignment target.");
@@ -438,7 +433,7 @@ class Parser {
             } else if (match(LEFT_SQUARE)) {
                 Expr index = expression();
                 Token paren = consume(RIGHT_SQUARE, "Expect ']' after arguments.");
-                expr = new Expr.Index(expr, index, paren);
+                expr = new Expr.GetAtIndex(expr, index, paren);
             } else if (match(DOT)) {
                 Token name = consume(IDENTIFIER,
                         "Expect property name after '.'.");
@@ -510,7 +505,7 @@ class Parser {
 
             return new Expr.Array(paren, array);
         }
-        
+
         throw error(peek(), "Expect expression.");
     }
 

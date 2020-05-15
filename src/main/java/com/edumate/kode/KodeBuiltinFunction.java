@@ -51,7 +51,7 @@ abstract class KodeBuiltinFunction extends KodeFunction {
     
     @Override
     public String toString() {
-        return "<builtin function '" + fun_name +"'>";
+        return "<function '" + fun_name +"'>";
     }
     
     @Override

@@ -39,7 +39,9 @@ abstract class Expr {
 
         R visitCallExpr(Call expr);
 
-        R visitIndexExpr(Index expr);
+        R visitGetATIndexExpr(GetAtIndex expr);
+        
+        R visitSetATIndexExpr(SetAtIndex expr);
 
         R visitGetExpr(Get expr);
 
@@ -117,9 +119,9 @@ abstract class Expr {
         final List<Pair<Token, Expr>> arguments;
     }
     
-    static class Index extends Expr {
+    static class GetAtIndex extends Expr {
 
-        Index(Expr array,Expr index, Token paren) {
+        GetAtIndex(Expr array,Expr index, Token paren) {
             this.array= array;
             this.index = index;
             this.paren = paren;
@@ -127,11 +129,31 @@ abstract class Expr {
 
         @Override
         <R> R accept(Visitor<R> visitor) {
-            return visitor.visitIndexExpr(this);
+            return visitor.visitGetATIndexExpr(this);
         }
 
         final Expr array;
         final Expr index;
+        final Token paren;;
+    }
+    
+    static class SetAtIndex extends Expr {
+
+        SetAtIndex(Expr array,Expr index,Expr value, Token paren) {
+            this.array= array;
+            this.index = index;
+            this.value = value;
+            this.paren = paren;
+        }
+
+        @Override
+        <R> R accept(Visitor<R> visitor) {
+            return visitor.visitSetATIndexExpr(this);
+        }
+
+        final Expr array;
+        final Expr index;
+        final Expr value;
         final Token paren;;
     }
 

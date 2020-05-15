@@ -20,7 +20,7 @@ class Hash {
         this.hash = Hash.encode(obj.hashCode());
     }
 
-    private static String encode(int hash) {
+    private static String encode(Integer hash) {
         return "" + hash;
     }
 

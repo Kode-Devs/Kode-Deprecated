@@ -171,7 +171,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
 
         Map<String, KodeFunction> methods = new HashMap<>();
         stmt.methods.forEach((method) -> {
-            KodeFunction function = new KodeFunction(method, environment, this, method.name.lexeme.equals(Kode.INIT_NAME));
+            KodeFunction function = new KodeFunction(method, environment, this, method.name.lexeme.equals(Kode.INIT));
             methods.put(method.name.lexeme, function);
 
             method.params.forEach((par) -> {
@@ -452,20 +452,35 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     }
 
     @Override
-    public Object visitIndexExpr(Expr.Index expr) {
+    public Object visitGetATIndexExpr(Expr.GetAtIndex expr) {
         Object array = evaluate(expr.array);
         Object index = evaluate(expr.index);
         if (array instanceof KodeInstance) {
-            Map<String, Object> map = new HashMap<>();
-            KodeFunction method = ((KodeInstance) array).klass.findMethod(Kode.INDEX_NAME);
-            map.put("idx", index);
+            KodeFunction method = ((KodeInstance) array).klass.findMethod(Kode.GET_AT_INDEX);
             try {
-                return method.bind((KodeInstance) array).call(map);
+                return method.bind((KodeInstance) array).call(Arrays.asList(index));
             } catch (NotImplemented e) {
                 throw new RuntimeError("Non Indexable object as no attribute index.", expr.paren);
             }
         } else {
             throw new RuntimeError("Non Indexable object as no attribute index.", expr.paren);
+        }
+    }
+
+    @Override
+    public Object visitSetATIndexExpr(Expr.SetAtIndex expr) {
+        Object value = evaluate(expr.value);
+        Object array = evaluate(expr.array);
+        Object index = evaluate(expr.index);
+        if (array instanceof KodeInstance) {
+            KodeFunction method = ((KodeInstance) array).klass.findMethod(Kode.SET_AT_INDEX);
+            try {
+                return method.bind((KodeInstance) array).call(Arrays.asList(index, value));
+            } catch (NotImplemented e) {
+                throw new RuntimeError(Kode.type(array)+" object is non-indexable.", expr.paren);
+            }
+        } else {
+            throw new RuntimeError(Kode.type(array)+" object is non-indexable.", expr.paren);
         }
     }
 
@@ -582,7 +597,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
             if (ValueBool.isBool((KodeInstance) object)) {
                 return ValueBool.toBoolean(object);
             }
-            Object method = ((KodeInstance) object).get(Kode.BOOL_NAME);
+            Object method = ((KodeInstance) object).get(Kode.BOOLEAN);
             if (method instanceof KodeFunction) {
                 return isTruthy(((KodeFunction) method).bind((KodeInstance) object).call(new HashMap()));
             }

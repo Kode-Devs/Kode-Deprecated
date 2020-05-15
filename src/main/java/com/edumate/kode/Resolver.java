@@ -95,7 +95,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
         stmt.methods.forEach((method) -> {
             FunctionType declaration = FunctionType.METHOD;
-            if (method.name.lexeme.equals(Kode.INIT_NAME)) {
+            if (method.name.lexeme.equals(Kode.INIT)) {
                 declaration = FunctionType.INITIALIZER;
             }
 
@@ -241,7 +241,15 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     }
 
     @Override
-    public Void visitIndexExpr(Expr.Index expr) {
+    public Void visitGetATIndexExpr(Expr.GetAtIndex expr) {
+        resolve(expr.array);
+        resolve(expr.index);
+        return null;
+    }
+    
+    @Override
+    public Void visitSetATIndexExpr(Expr.SetAtIndex expr) {
+        resolve(expr.value);
         resolve(expr.array);
         resolve(expr.index);
         return null;

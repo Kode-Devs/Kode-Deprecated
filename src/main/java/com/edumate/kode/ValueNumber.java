@@ -15,7 +15,7 @@ class ValueNumber extends Value {
     static KodeInstance create(Double x, Interpreter interpreter) {
         Value val = new ValueNumber(interpreter);
         KodeInstance instance = new KodeInstance(val);
-        KodeFunction initializer = val.findMethod(Kode.INIT_NAME);
+        KodeFunction initializer = val.findMethod(Kode.INIT);
         initializer.bind(instance).call(Arrays.asList(x));
         return instance;
     }
@@ -23,7 +23,7 @@ class ValueNumber extends Value {
     ValueNumber(Interpreter interpreter) {
         super("Number", interpreter);
         //<editor-fold defaultstate="collapsed" desc="init">
-        this.methods.put(Kode.INIT_NAME, new KodeBuiltinFunction(Kode.INIT_NAME, null, interpreter) {
+        this.methods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, null, interpreter) {
             
             @Override
             public List<Pair<String, Object>> arity() {
@@ -41,7 +41,7 @@ class ValueNumber extends Value {
         });
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="str">
-        this.methods.put(Kode.STR_NAME, new KodeBuiltinFunction(Kode.STR_NAME, null, interpreter) {
+        this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, null, interpreter) {
             
             @Override
             public List<Pair<String, Object>> arity() {
@@ -405,13 +405,13 @@ class ValueNumber extends Value {
                 return ((KodeInstance) x_).num;
             } else {
                 try {
-                    if (((KodeInstance) x_).fields.containsKey(Kode.NUMBER_NAME)) {
-                        Object get = ((KodeInstance) x_).fields.get(Kode.NUMBER_NAME);
+                    if (((KodeInstance) x_).fields.containsKey(Kode.NUMBER)) {
+                        Object get = ((KodeInstance) x_).fields.get(Kode.NUMBER);
                         if (get instanceof KodeFunction) {
                             return toNumber(((KodeFunction) get).bind((KodeInstance) x_).call(new HashMap()), a);
                         }
                     }
-                    return toNumber(((KodeInstance) x_).klass.findMethod(Kode.NUMBER_NAME).bind((KodeInstance) x_).call(new HashMap()), a);
+                    return toNumber(((KodeInstance) x_).klass.findMethod(Kode.NUMBER).bind((KodeInstance) x_).call(new HashMap()), a);
                 } catch (NotImplemented e) {
                     throw new RuntimeError("Object of type '" + Kode.type(a) + "' is not Numeric in Nature", null);
                 }

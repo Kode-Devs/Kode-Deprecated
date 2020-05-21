@@ -104,7 +104,7 @@ class Kode {
     static void start_console(String[] args) {
         try {
             if (args.length > 1) {
-                KodeIO.printfln_err(Kode.USAGE);
+                KodeHelper.printfln_err(Kode.USAGE);
                 System.exit(64);
             } else if (args.length == 1) {
                 switch (args[0]) {
@@ -113,39 +113,39 @@ class Kode {
                         break;
                     case "-v":
                     case "--version":
-                        KodeIO.printfln(Kode.getVersion());
+                        KodeHelper.printfln(Kode.getVersion());
                         break;
                     default:
                         Path path = Paths.get(args[0]);
                         if (path.getFileName().toString().endsWith("." + Kode.EXTENSION)) {
                             runFile(path.toAbsolutePath().toString(), new Interpreter());
                         } else {
-                            KodeIO.printfln_err("Not a " + Kode.NAME + " runnable file");
+                            KodeHelper.printfln_err("Not a " + Kode.NAME + " runnable file");
                             System.exit(64);
                         }
                         break;
                 }
             } else {
-                KodeIO.printfln(Kode.getIntro());
-                KodeIO.printfln("Call exit() to quit shell.");
+                KodeHelper.printfln(Kode.getIntro());
+                KodeHelper.printfln("Call exit() to quit shell.");
                 Interpreter interpreter = new Interpreter();
                 for (;;) {
                     hadError = false;
                     hadRuntimeError = false;
                     try {
-                        Object run = run("<shell>", KodeIO.scanf(">>>"), interpreter);
+                        Object run = run("<shell>", KodeHelper.scanf(">>>"), interpreter);
                         if (run != null) {
-                            KodeIO.printfln(run);
+                            KodeHelper.printfln(run);
                         }
                     } catch (RuntimeError error) {
                         Kode.runtimeError(error);
                     } catch (Error | Exception e) {
-                        KodeIO.printfln_err("Fatal Error : " + e);
+                        KodeHelper.printfln_err("Fatal Error : " + e);
                     }
                 }
             }
         } catch (Error | Exception e) {
-            KodeIO.printfln_err("Fatal Error : " + e);
+            KodeHelper.printfln_err("Fatal Error : " + e);
         }
     }
 
@@ -235,7 +235,7 @@ class Kode {
     }
 
     static void report(int line, String where, String message) {
-        KodeIO.printfln_err(
+        KodeHelper.printfln_err(
                 "[line " + line + "] Error " + where + ": " + message);
         hadError = true;
     }
@@ -249,16 +249,16 @@ class Kode {
     }
 
     static void warning(String message) {
-        KodeIO.printfln_err("Warning: " + message);
+        KodeHelper.printfln_err("Warning: " + message);
     }
 
     static void runtimeError(RuntimeError error) {
-        KodeIO.printfln_err("Runtime Error : " + error.getMessage());
+        KodeHelper.printfln_err("Runtime Error : " + error.getMessage());
         error.token.forEach((line) -> {
             if (line != null) {
-                KodeIO.printfln_err("in file " + line.fn + " [ at line " + line.line + " ] near '" + line.lexeme + "'");
+                KodeHelper.printfln_err("in file " + line.fn + " [ at line " + line.line + " ] near '" + line.lexeme + "'");
                 if (line.line_text != null) {
-                    KodeIO.printfln_err("->\t" + line.line_text.trim());
+                    KodeHelper.printfln_err("->\t" + line.line_text.trim());
                 }
             }
         });
@@ -418,13 +418,13 @@ class Kode {
                     String sep = ValueString.toStr(arguments.get("sep"));
                     String end = ValueString.toStr(arguments.get("end"));
                     if (str.size() > 0) {
-                        KodeIO.printf(ValueString.toStr(str.get(0)));
+                        KodeHelper.printf(ValueString.toStr(str.get(0)));
                     }
                     for (int i = 1; i < str.size(); i++) {
-                        KodeIO.printf(sep);
-                        KodeIO.printf(ValueString.toStr(str.get(i)));
+                        KodeHelper.printf(sep);
+                        KodeHelper.printf(ValueString.toStr(str.get(i)));
                     }
-                    KodeIO.printf(end);
+                    KodeHelper.printf(end);
                     return null;
                 }
 
@@ -464,14 +464,14 @@ class Kode {
 
                 @Override
                 public Object call(Map<String, Object> arguments) {
-                    KodeIO.exit(ValueNumber.toNumber(arguments.get("status")).intValue());
+                    KodeHelper.exit(ValueNumber.toNumber(arguments.get("status")).intValue());
                     return null;
                 }
 
             });
             
         } catch (Exception ex) {
-            KodeIO.exit(1);
+            KodeHelper.exit(1);
         }
     }
 

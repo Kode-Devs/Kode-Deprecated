@@ -130,7 +130,7 @@ class ValueList extends Value {
 
             @Override
             public List<Pair<String, Object>> arity() {
-                return Arrays.asList(new Pair("idx", null));
+                return Arrays.asList(new Pair("idx", null),new Pair("obj",null));
             }
 
             @Override
@@ -144,7 +144,8 @@ class ValueList extends Value {
                             throw new RuntimeError("List Indices must be Integer in Nature found " + Kode.stringify(toNumber), null);
                         }
                         try {
-                            return ((KodeInstance) This).list.get(toNumber.intValue());
+                            ((KodeInstance) This).list.set(toNumber.intValue(), arguments.get("obj"));
+                            return null;
                         } catch (IndexOutOfBoundsException e) {
                             throw new RuntimeError("List Index Out Of Bound : " + Kode.stringify(toNumber), null);
                         }

@@ -319,6 +319,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     public Object visitAssignExpr(Expr.Assign expr) {
         Object value = evaluate(expr.value);
         if (value == null) {
+            //TODO change it with None
             throw new RuntimeError("The expression associated with variable '" + expr.name.lexeme + "' does not return any value.", expr.name);
         }
         Integer distance = locals.get(expr);

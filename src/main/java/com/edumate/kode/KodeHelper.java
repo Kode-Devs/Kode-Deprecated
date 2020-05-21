@@ -14,7 +14,7 @@ import org.beryx.textio.TextIoFactory;
  *
  * @author dell
  */
-public class KodeIO {
+public class KodeHelper {
 
     public static final TextIO textIO = TextIoFactory.getTextIO();
     
@@ -23,8 +23,8 @@ public class KodeIO {
     private static final Color ERR_COLOR = Color.YELLOW;
     
     public static final void main(String... args) {
-        textIO.getTextTerminal().getProperties().setPromptColor(KodeIO.OUT_COLOR);
-        textIO.getTextTerminal().getProperties().setInputColor(KodeIO.IN_COLOR);
+        textIO.getTextTerminal().getProperties().setPromptColor(KodeHelper.OUT_COLOR);
+        textIO.getTextTerminal().getProperties().setInputColor(KodeHelper.IN_COLOR);
         textIO.getTextTerminal().getProperties().setPromptBold(false);
         textIO.getTextTerminal().getProperties().setInputBold(false);
         textIO.getTextTerminal().getProperties().setPromptItalic(false);
@@ -49,8 +49,7 @@ public class KodeIO {
     }
 
     public static void printf_err(Object obj) {
-        textIO.getTextTerminal().executeWithPropertiesConfigurator(
-                props -> props.setPromptColor(KodeIO.ERR_COLOR),
+        textIO.getTextTerminal().executeWithPropertiesConfigurator(props -> props.setPromptColor(KodeHelper.ERR_COLOR),
                 term -> term.print(obj.toString()));
     }
 

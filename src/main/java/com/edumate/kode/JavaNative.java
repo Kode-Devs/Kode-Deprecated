@@ -710,7 +710,7 @@ class JavaNative implements KodeCallable {
 
     @Override
     public List<Pair<String, Object>> arity() {
-        return Arrays.asList(new Pair("params", ValueList.create(new ArrayList(), inter), true));
+        return Arrays.asList(new Pair("params", ValueList.create(new ArrayList()), true));
     }
 
     @Override

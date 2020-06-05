@@ -683,6 +683,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  *
@@ -929,7 +930,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     @Override
     public Void visitVarStmt(Stmt.Var stmt) {
         for (int i = 0; i < stmt.name.size(); i++) {
-            Object value = ValueNone.create(this);
+            Object value = ValueNone.create();
             if (stmt.initial.get(i) != null) {
                 value = evaluate(stmt.initial.get(i));
                 if (value == null) {
@@ -1002,6 +1003,12 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
                 }
             }
         }
+        if (lop.equals(rop) && lop.equals(Kode.EQ)) {
+            return this.toKodeValue(Objects.equals(left, right));
+        }
+        if (lop.equals(rop) && lop.equals(Kode.NE)) {
+            return this.toKodeValue(!Objects.equals(left, right));
+        }
         throw new RuntimeError("Binary Operation '" + op.lexeme + "' can not be performed between operands of type '"
                 + Kode.type(left) + "' and '" + Kode.type(right) + "'.", op);
     }
@@ -1013,17 +1020,13 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
 
         switch (expr.operator.type) {
             case GREATER:
-                checkNumberOperands(expr.operator, left, right);
-                return (double) left > (double) right;
+                return BinOP(left, right, Kode.GT, Kode.GT, expr.operator);
             case GREATER_EQUAL:
-                checkNumberOperands(expr.operator, left, right);
-                return (double) left >= (double) right;
+                return BinOP(left, right, Kode.GE, Kode.GE, expr.operator);
             case LESS:
-                checkNumberOperands(expr.operator, left, right);
-                return (double) left < (double) right;
+                return BinOP(left, right, Kode.LT, Kode.LT, expr.operator);
             case LESS_EQUAL:
-                checkNumberOperands(expr.operator, left, right);
-                return (double) left <= (double) right;
+                return BinOP(left, right, Kode.LE, Kode.LE, expr.operator);
             case MINUS:
                 return BinOP(left, right, Kode.SUB, Kode.RSUB, expr.operator);
             case PLUS:
@@ -1037,9 +1040,9 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
             case BACKSLASH:
                 return BinOP(left, right, Kode.FLOOR_DIV, Kode.RFLOOR_DIV, expr.operator);
             case BANG_EQUAL:
-                return !isEqual(left, right);
+                return BinOP(left, right, Kode.NE, Kode.NE, expr.operator);
             case EQUAL_EQUAL:
-                return isEqual(left, right);
+                return BinOP(left, right, Kode.EQ, Kode.EQ, expr.operator);
         }
 
         // Unreachable.                                
@@ -1217,21 +1220,6 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
         }
     }
 
-    private void checkNumberOperand(Token operator, Object operand) {
-        if (operand instanceof Double) {
-            return;
-        }
-        throw new RuntimeError("Operand must be a number.", operator);
-    }
-
-    private void checkNumberOperands(Token operator, Object left, Object right) {
-        if (left instanceof Double && right instanceof Double) {
-            return;
-        }
-
-        throw new RuntimeError("Operands must be numbers.", operator);
-    }
-
     boolean isTruthy(Object object) {
         if (object == null) {
             return false;
@@ -1261,38 +1249,26 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
         return true;
     }
 
-    private boolean isEqual(Object a, Object b) {
-        // nil is only equal to nil.               
-        if (a == null && b == null) {
-            return true;
-        }
-        if (a == null) {
-            return false;
-        }
-
-        return a.equals(b);
-    }
-
     Object toKodeValue(Object value) {
         if (value == null) {
-            return ValueNone.create(this);
+            return ValueNone.create();
         } else if (value instanceof Double) {
-            return ValueNumber.create((Double) value, this);
+            return ValueNumber.create((Double) value);
         } else if (value instanceof Number) {
-            return ValueNumber.create(((Number) value).doubleValue(), this);
+            return ValueNumber.create(((Number) value).doubleValue());
         } else if (value instanceof String) {
-            return ValueString.create((String) value, this);
+            return ValueString.create((String) value);
         } else if (value instanceof Character) {
-            return ValueString.create("" + value, this);
+            return ValueString.create("" + value);
         } else if (value instanceof Boolean) {
-            return ValueBool.create((Boolean) value, this);
+            return ValueBool.create((Boolean) value);
         } else if (value instanceof List) {
             List ll = new ArrayList();
             for (Object item : (List) value) {
                 ll.add(this.toKodeValue(item));
             }
-            return ValueList.create(ll, this);
-        } // TODO Arrays to List
+            return ValueList.create(ll);
+        }
         else if (value.getClass().isArray()) {
             return this.toKodeValue(convertToObjectArray(value));
         }

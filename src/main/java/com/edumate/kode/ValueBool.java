@@ -688,10 +688,9 @@ import java.util.Map;
  */
 class ValueBool extends Value {
 
-    private Boolean x;
+    static Value val = new ValueBool(new Interpreter());
 
-    static KodeInstance create(Boolean x, Interpreter interpreter) {
-        Value val = new ValueBool(interpreter);
+    static KodeInstance create(Boolean x) {
         KodeInstance instance = new KodeInstance(val);
         KodeFunction initializer = val.findMethod(Kode.INIT);
         initializer.bind(instance).call(Arrays.asList(x));
@@ -731,7 +730,7 @@ class ValueBool extends Value {
             public Object call(Map<String, Object> arguments) {
                 Object This = closure.getAt(0, "this");
                 if (This instanceof KodeInstance) {
-                    return ValueString.create(Kode.stringify(((KodeInstance) This).bool), interpreter);
+                    return interpreter.toKodeValue(Kode.stringify(((KodeInstance) This).bool));
                 }
                 throw new NotImplemented();
             }

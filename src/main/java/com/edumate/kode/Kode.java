@@ -753,6 +753,13 @@ class Kode {
 
     static final String FLOOR_DIV = "__floordiv__";
     static final String RFLOOR_DIV = "__rfloordiv__";
+    
+    static final String EQ = "__eq__";
+    static final String NE = "__ne__";
+    static final String LT = "__lt__";
+    static final String LE = "__le__";
+    static final String GT = "__gt__";
+    static final String GE = "__ge__";
 
     static void start_console(String[] args) {
         try {
@@ -1083,20 +1090,13 @@ class Kode {
 
             });
 
-            ValueNumber valueNumber = new ValueNumber(inter);
-            DEF_GLOBALS.put(valueNumber.class_name, valueNumber);
+            DEF_GLOBALS.put(ValueNumber.val.class_name, ValueNumber.val);
 
-            ValueString valueString = new ValueString(inter);
-            DEF_GLOBALS.put(valueString.class_name, valueString);
+            DEF_GLOBALS.put(ValueString.val.class_name, ValueString.val);
 
-            ValueBool valueBool = new ValueBool(inter);
-            DEF_GLOBALS.put(valueBool.class_name, valueBool);
+            DEF_GLOBALS.put(ValueBool.val.class_name, ValueBool.val);
 
-            ValueList valueList = new ValueList(inter);
-            DEF_GLOBALS.put(valueList.class_name, valueList);
-
-            ValueNone valueNone = new ValueNone(inter);
-            DEF_GLOBALS.put(valueNone.class_name, valueNone);
+            DEF_GLOBALS.put(ValueList.val.class_name, ValueList.val);
 
             DEF_GLOBALS.put("instanceof", new KodeBuiltinFunction("ins", null, inter) {
                 @Override

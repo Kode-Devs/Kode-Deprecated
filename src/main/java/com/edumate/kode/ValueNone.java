@@ -686,8 +686,9 @@ import java.util.Map;
  */
 class ValueNone extends Value {
 
-    static KodeInstance create(Interpreter interpreter) {
-        Value val = new ValueNone(interpreter);
+    static Value val = new ValueNone(new Interpreter());
+
+    static KodeInstance create() {
         KodeInstance instance = new KodeInstance(val);
         KodeFunction initializer = val.findMethod(Kode.INIT);
         initializer.bind(instance).call(new ArrayList());
@@ -698,12 +699,12 @@ class ValueNone extends Value {
         super("NoneType", interpreter);
         //<editor-fold defaultstate="collapsed" desc="init">
         this.methods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, null, interpreter) {
-            
+
             @Override
             public List<Pair<String, Object>> arity() {
                 return new ArrayList();
             }
-            
+
             @Override
             public Object call(Map<String, Object> arguments) {
                 return closure.getAt(0, "this");
@@ -713,17 +714,17 @@ class ValueNone extends Value {
 
         //<editor-fold defaultstate="collapsed" desc="str">
         this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, null, interpreter) {
-            
+
             @Override
             public List<Pair<String, Object>> arity() {
                 return new ArrayList();
             }
-            
+
             @Override
             public Object call(Map<String, Object> arguments) {
                 Object This = closure.getAt(0, "this");
                 if (This instanceof KodeInstance) {
-                    return ValueString.create(Kode.stringify(null), interpreter);
+                    return interpreter.toKodeValue(Kode.stringify(null));
                 }
                 throw new NotImplemented();
             }

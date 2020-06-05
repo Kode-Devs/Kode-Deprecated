@@ -687,25 +687,26 @@ import java.util.Map;
  * @author dell
  */
 class ValueNumber extends Value {
-    
-    static KodeInstance create(Double x, Interpreter interpreter) {
-        Value val = new ValueNumber(interpreter);
+
+    static Value val = new ValueNumber(new Interpreter());
+
+    static KodeInstance create(Double x) {
         KodeInstance instance = new KodeInstance(val);
         KodeFunction initializer = val.findMethod(Kode.INIT);
         initializer.bind(instance).call(Arrays.asList(x));
         return instance;
     }
-    
+
     ValueNumber(Interpreter interpreter) {
         super("Number", interpreter);
         //<editor-fold defaultstate="collapsed" desc="init">
         this.methods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, null, interpreter) {
-            
+
             @Override
             public List<Pair<String, Object>> arity() {
                 return Arrays.asList(new Pair("x", false));
             }
-            
+
             @Override
             public Object call(Map<String, Object> arguments) {
                 Object This = closure.getAt(0, "this");
@@ -719,28 +720,28 @@ class ValueNumber extends Value {
 
         //<editor-fold defaultstate="collapsed" desc="str">
         this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, null, interpreter) {
-            
+
             @Override
             public List<Pair<String, Object>> arity() {
                 return new ArrayList();
             }
-            
+
             @Override
             public Object call(Map<String, Object> arguments) {
                 Object This = closure.getAt(0, "this");
                 if (This instanceof KodeInstance) {
-                    return ValueString.create(Kode.stringify(((KodeInstance) This).num), interpreter);
+                    return interpreter.toKodeValue(Kode.stringify(((KodeInstance) This).num));
                 }
                 throw new NotImplemented();
             }
         });
 //</editor-fold>
     }
-    
+
     static Double toNumber(Object x_) {
         return ValueNumber.toNumber(x_, x_);
     }
-    
+
     //<editor-fold defaultstate="collapsed" desc="toNumber">
     private static Double toNumber(Object x_, Object a) {
         if (x_ instanceof Double) {
@@ -766,9 +767,9 @@ class ValueNumber extends Value {
         }
     }
 //</editor-fold>
-    
+
     final static boolean isNumber(KodeInstance i) {
         return instanceOf(i.klass, ValueNumber.class);
     }
-    
+
 }

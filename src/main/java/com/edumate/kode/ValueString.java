@@ -688,8 +688,9 @@ import java.util.Map;
  */
 class ValueString extends Value {
 
-    static KodeInstance create(String x, Interpreter interpreter) {
-        Value val = new ValueString(interpreter);
+    static Value val = new ValueString(new Interpreter());
+
+    static KodeInstance create(String x) {
         KodeInstance instance = new KodeInstance(val);
         KodeFunction initializer = val.findMethod(Kode.INIT);
         initializer.bind(instance).call(Arrays.asList(x));
@@ -862,7 +863,7 @@ class ValueString extends Value {
 
     //<editor-fold defaultstate="collapsed" desc="toNumber">
     private static class toNumber {
-        
+
         public static Double toNumber(Object num) throws Exception {
             try {
                 if (checkNumberFormat(num.toString())) {
@@ -874,7 +875,7 @@ class ValueString extends Value {
                 throw new Exception("Number Format Error : " + num);
             }
         }
-        
+
         private static boolean checkNumberFormat(String num) {
             if (num.isEmpty()) {
                 return false;
@@ -886,17 +887,17 @@ class ValueString extends Value {
             while (isDigit(charAt(num, i))) {
                 i++;
             }
-            
+
             // Look for a fractional part.
             if (charAt(num, i) == '.' && isDigit(charAt(num, i + 1))) {
                 // Consume the "."
                 i++;
-                
+
                 while (isDigit(charAt(num, i))) {
                     i++;
                 }
             }
-            
+
             // Look for a exponential part.
             if ((charAt(num, i) == 'e' || charAt(num, i) == 'E') && (isDigit(charAt(num, i + 1)) || charAt(num, i + 1) == '+' || charAt(num, i + 1) == '-')) {
                 // Consume the "e"
@@ -904,19 +905,19 @@ class ValueString extends Value {
                 if (charAt(num, i) == '+' || charAt(num, i) == '-') {
                     i++;
                 }
-                
+
                 while (isDigit(charAt(num, i))) {
                     i++;
                 }
             }
-            
+
             return i >= num.length();
         }
-        
+
         private static boolean isDigit(char c) {
             return c >= '0' && c <= '9';
         }
-        
+
         private static char charAt(String s, int i) {
             if (i < s.length()) {
                 return s.charAt(i);

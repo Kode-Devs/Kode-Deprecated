@@ -688,8 +688,9 @@ import java.util.Map;
  */
 class ValueList extends Value {
 
-    static KodeInstance create(List x, Interpreter interpreter) {
-        Value val = new ValueList(interpreter);
+    static Value val = new ValueList(new Interpreter());
+
+    static KodeInstance create(List x) {
         KodeInstance instance = new KodeInstance(val);
         KodeFunction initializer = val.findMethod(Kode.INIT);
         initializer.bind(instance).call(Arrays.asList(x));
@@ -733,9 +734,9 @@ class ValueList extends Value {
                     try {
                         if (!((KodeInstance) This).reccured) {
                             ((KodeInstance) This).reccured = true;
-                            i = ValueString.create(Kode.stringify(((KodeInstance) This).list), interpreter);
+                            i = interpreter.toKodeValue(Kode.stringify(((KodeInstance) This).list));
                         } else {
-                            i = ValueString.create(Kode.stringify("[...]"), interpreter);
+                            i = interpreter.toKodeValue(Kode.stringify("[...]"));
                         }
                         ((KodeInstance) This).reccured = false;
                         return i;

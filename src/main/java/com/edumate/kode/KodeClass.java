@@ -736,8 +736,8 @@ class KodeClass implements KodeCallable {
 
             case Kode.NUMBER:
             case Kode.LIST:
-            case Kode.NEG:
                 return new KodeBuiltinFunction(name, null, interpreter) {
+
                     @Override
                     public List<Pair<String, Object>> arity() {
                         return new ArrayList();
@@ -761,30 +761,52 @@ class KodeClass implements KodeCallable {
                     public Object call(Map<String, Object> arguments) {
                         Object This = closure.getAt(0, "this");
                         if (This instanceof KodeInstance) {
-                            Object o = true;
+                            Object o;
                             if (ValueNumber.isNumber((KodeInstance) This)) {
                                 o = ValueNumber.toNumber(This);
-                            }
-                            if (ValueNone.isNone((KodeInstance) This)) {
+                            } else if (ValueNone.isNone((KodeInstance) This)) {
                                 o = null;
-                            }
-                            if (ValueBool.isBool((KodeInstance) This)) {
+                            } else if (ValueBool.isBool((KodeInstance) This)) {
                                 o = ValueBool.toBoolean(This);
-                            }
-                            if (ValueString.isString((KodeInstance) This)) {
+                            } else if (ValueString.isString((KodeInstance) This)) {
                                 o = ValueString.toStr(This);
-                            }
-                            if (ValueList.isList((KodeInstance) This)) {
+                            } else if (ValueList.isList((KodeInstance) This)) {
                                 o = ValueList.toList(This);
+                            } else {
+                                o = true;
                             }
                             return interpreter.toKodeValue(interpreter.isTruthy(o));
                         }
                         return interpreter.toKodeValue(interpreter.isTruthy(true));
                     }
                 };
+                
+            case Kode.NEG:
+                return new KodeBuiltinFunction(name, null, interpreter) {
+
+                    @Override
+                    public List<Pair<String, Object>> arity() {
+                        return new ArrayList();
+                    }
+
+                    @Override
+                    public Object call(Map<String, Object> arguments) {
+                        Object This = closure.getAt(0, "this");
+                        if (This instanceof KodeInstance) {
+                            if (ValueBool.isBool((KodeInstance) This)) {
+                                This = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) This) ? 1 : 0));
+                            }
+                            if (ValueNumber.isNumber((KodeInstance) This)) {
+                                return interpreter.toKodeValue(-ValueNumber.toNumber(This));
+                            }
+                        }
+                        throw new NotImplemented();
+                    }
+                };
 
             case Kode.GET_AT_INDEX:
                 return new KodeBuiltinFunction(name, null, interpreter) {
+
                     @Override
                     public List<Pair<String, Object>> arity() {
                         return Arrays.asList(new Pair("idx", null));
@@ -792,21 +814,428 @@ class KodeClass implements KodeCallable {
 
                     @Override
                     public Object call(Map<String, Object> arguments) {
+                        Object This = closure.getAt(0, "this");
+                        Object index = arguments.get("idx");
+                        if (This instanceof KodeInstance && index instanceof KodeInstance) {
+                            if (ValueNumber.isNumber((KodeInstance) index)) {
+                                Double toNumber = ValueNumber.toNumber(index);
+                                if (toNumber.intValue() != toNumber) {
+                                    throw new RuntimeError("List Indices must be Integer in Nature found " + Kode.stringify(toNumber), null);
+                                }
+                                if (ValueList.isList((KodeInstance) This)) {
+                                    try {
+                                        return interpreter.toKodeValue(ValueList.toList(This).get(toNumber.intValue()));
+                                    } catch (IndexOutOfBoundsException e) {
+                                        throw new RuntimeError("List Index Out Of Bound : " + Kode.stringify(toNumber), null);
+                                    }
+                                }
+                                if (ValueString.isString((KodeInstance) This)) {
+                                    try {
+                                        return interpreter.toKodeValue(ValueList.toList(This).get(toNumber.intValue()));
+                                    } catch (IndexOutOfBoundsException e) {
+                                        throw new RuntimeError("List Index Out Of Bound : " + Kode.stringify(toNumber), null);
+                                    }
+                                }
+                            } else if (ValueList.isList((KodeInstance) index)) {
+
+                            }
+                        }
+                        throw new NotImplemented();
+                    }
+                };
+
+            case Kode.SET_AT_INDEX:
+                return new KodeBuiltinFunction(name, null, interpreter) {
+
+                    @Override
+                    public List<Pair<String, Object>> arity() {
+                        return Arrays.asList(new Pair("idx", null), new Pair("obj", null));
+                    }
+
+                    @Override
+                    public Object call(Map<String, Object> arguments) {
+                        Object This = closure.getAt(0, "this");
+                        Object index = arguments.get("idx");
+                        if (This instanceof KodeInstance && index instanceof KodeInstance) {
+                            if (ValueNumber.isNumber((KodeInstance) index)) {
+                                Double toNumber = ValueNumber.toNumber(index);
+                                if (toNumber.intValue() != toNumber) {
+                                    throw new RuntimeError("List Indices must be Integer in Nature found " + Kode.stringify(toNumber), null);
+                                }
+                                if (ValueList.isList((KodeInstance) This)) {
+                                    try {
+                                        ValueList.toList(This).set(toNumber.intValue(), arguments.get("obj"));
+                                        return null;
+                                    } catch (IndexOutOfBoundsException e) {
+                                        throw new RuntimeError("List Index Out Of Bound : " + Kode.stringify(toNumber), null);
+                                    }
+                                }
+                            }
+                        }
                         throw new NotImplemented();
                     }
                 };
 
             case Kode.ADD:
+                return new KodeBuiltinFunction(name, null, interpreter) {
+
+                    @Override
+                    public List<Pair<String, Object>> arity() {
+                        return Arrays.asList(new Pair("obj", null));
+                    }
+
+                    @Override
+                    public Object call(Map<String, Object> arguments) {
+                        Object left = closure.getAt(0, "this");
+                        Object right = arguments.get("obj");
+                        if (left instanceof KodeInstance && right instanceof KodeInstance) {
+                            if (ValueString.isString((KodeInstance) left) && ValueString.isString((KodeInstance) right)) {
+                                return interpreter.toKodeValue(ValueString.toStr(left).concat(ValueString.toStr(right)));
+                            } else if (ValueList.isList((KodeInstance) left) && ValueList.isList((KodeInstance) right)) {
+                                List ll = new ArrayList();
+                                ll.addAll(ValueList.toList(left));
+                                ll.addAll(ValueList.toList(right));
+                                return interpreter.toKodeValue(ll);
+                            } else {
+                                if (ValueBool.isBool((KodeInstance) left)) {
+                                    left = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0));
+                                }
+                                if (ValueBool.isBool((KodeInstance) right)) {
+                                    right = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0));
+                                }
+                                if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
+                                    return interpreter.toKodeValue(ValueNumber.toNumber(left) + ValueNumber.toNumber(right));
+                                }
+                            }
+                        }
+                        throw new NotImplemented();
+                    }
+                };
             case Kode.RADD:
+                return new KodeBuiltinFunction(name, null, interpreter) {
+
+                    @Override
+                    public List<Pair<String, Object>> arity() {
+                        return Arrays.asList(new Pair("obj", null));
+                    }
+
+                    @Override
+                    public Object call(Map<String, Object> arguments) {
+                        Object right = closure.getAt(0, "this");
+                        Object left = arguments.get("obj");
+                        if (left instanceof KodeInstance && right instanceof KodeInstance) {
+                            if (ValueString.isString((KodeInstance) left) && ValueString.isString((KodeInstance) right)) {
+                                return interpreter.toKodeValue(ValueString.toStr(left).concat(ValueString.toStr(right)));
+                            } else if (ValueList.isList((KodeInstance) left) && ValueList.isList((KodeInstance) right)) {
+                                List ll = new ArrayList();
+                                ll.addAll(ValueList.toList(left));
+                                ll.addAll(ValueList.toList(right));
+                                return interpreter.toKodeValue(ll);
+                            } else {
+                                if (ValueBool.isBool((KodeInstance) left)) {
+                                    left = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0));
+                                }
+                                if (ValueBool.isBool((KodeInstance) right)) {
+                                    right = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0));
+                                }
+                                if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
+                                    return interpreter.toKodeValue(ValueNumber.toNumber(left) + ValueNumber.toNumber(right));
+                                }
+                            }
+                        }
+                        throw new NotImplemented();
+                    }
+                };
             case Kode.SUB:
+                return new KodeBuiltinFunction(name, null, interpreter) {
+
+                    @Override
+                    public List<Pair<String, Object>> arity() {
+                        return Arrays.asList(new Pair("obj", null));
+                    }
+
+                    @Override
+                    public Object call(Map<String, Object> arguments) {
+                        Object left = closure.getAt(0, "this");
+                        Object right = arguments.get("obj");
+                        if (left instanceof KodeInstance && right instanceof KodeInstance) {
+                            if (ValueBool.isBool((KodeInstance) left)) {
+                                left = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0));
+                            }
+                            if (ValueBool.isBool((KodeInstance) right)) {
+                                right = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0));
+                            }
+                            if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
+                                return interpreter.toKodeValue(ValueNumber.toNumber(left) - ValueNumber.toNumber(right));
+                            }
+                        }
+                        throw new NotImplemented();
+                    }
+                };
             case Kode.RSUB:
+                return new KodeBuiltinFunction(name, null, interpreter) {
+
+                    @Override
+                    public List<Pair<String, Object>> arity() {
+                        return Arrays.asList(new Pair("obj", null));
+                    }
+
+                    @Override
+                    public Object call(Map<String, Object> arguments) {
+                        Object right = closure.getAt(0, "this");
+                        Object left = arguments.get("obj");
+                        if (left instanceof KodeInstance && right instanceof KodeInstance) {
+                            if (ValueBool.isBool((KodeInstance) left)) {
+                                left = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0));
+                            }
+                            if (ValueBool.isBool((KodeInstance) right)) {
+                                right = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0));
+                            }
+                            if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
+                                return interpreter.toKodeValue(ValueNumber.toNumber(left) - ValueNumber.toNumber(right));
+                            }
+                        }
+                        throw new NotImplemented();
+                    }
+                };
             case Kode.MUL:
+                return new KodeBuiltinFunction(name, null, interpreter) {
+
+                    @Override
+                    public List<Pair<String, Object>> arity() {
+                        return Arrays.asList(new Pair("obj", null));
+                    }
+
+                    @Override
+                    public Object call(Map<String, Object> arguments) {
+                        Object left = closure.getAt(0, "this");
+                        Object right = arguments.get("obj");
+                        if (left instanceof KodeInstance && right instanceof KodeInstance) {
+                            if (ValueBool.isBool((KodeInstance) left)) {
+                                left = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0));
+                            }
+                            if (ValueBool.isBool((KodeInstance) right)) {
+                                right = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0));
+                            }
+                            if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
+                                return interpreter.toKodeValue(ValueNumber.toNumber(left) * ValueNumber.toNumber(right));
+                            }
+                            if (ValueString.isString((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
+                                String str = "";
+                                for (int i = 0; i < ValueNumber.toNumber(right); i++) {
+                                    str = str.concat(ValueString.toStr(left));
+                                }
+                                return interpreter.toKodeValue(str);
+                            }
+                            if (ValueString.isString((KodeInstance) right) && ValueNumber.isNumber((KodeInstance) left)) {
+                                String str = "";
+                                for (int i = 0; i < ValueNumber.toNumber(left); i++) {
+                                    str = str.concat(ValueString.toStr(right));
+                                }
+                                return interpreter.toKodeValue(str);
+                            }
+                            if (ValueList.isList((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
+                                List ll = new ArrayList();
+                                for (int i = 0; i < ValueNumber.toNumber(right); i++) {
+                                    ll.addAll(ValueList.toList(left));
+                                }
+                                return interpreter.toKodeValue(ll);
+                            }
+                            if (ValueList.isList((KodeInstance) right) && ValueNumber.isNumber((KodeInstance) left)) {
+                                List ll = new ArrayList();
+                                for (int i = 0; i < ValueNumber.toNumber(left); i++) {
+                                    ll.addAll(ValueList.toList(right));
+                                }
+                                return interpreter.toKodeValue(ll);
+                            }
+                        }
+                        throw new NotImplemented();
+                    }
+                };
             case Kode.RMUL:
+                return new KodeBuiltinFunction(name, null, interpreter) {
+
+                    @Override
+                    public List<Pair<String, Object>> arity() {
+                        return Arrays.asList(new Pair("obj", null));
+                    }
+
+                    @Override
+                    public Object call(Map<String, Object> arguments) {
+                        Object right = closure.getAt(0, "this");
+                        Object left = arguments.get("obj");
+                        if (left instanceof KodeInstance && right instanceof KodeInstance) {
+                            if (ValueBool.isBool((KodeInstance) left)) {
+                                left = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0));
+                            }
+                            if (ValueBool.isBool((KodeInstance) right)) {
+                                right = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0));
+                            }
+                            if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
+                                return interpreter.toKodeValue(ValueNumber.toNumber(left) * ValueNumber.toNumber(right));
+                            }
+                            if (ValueString.isString((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
+                                String str = "";
+                                for (int i = 0; i < ValueNumber.toNumber(right); i++) {
+                                    str = str.concat(ValueString.toStr(left));
+                                }
+                                return interpreter.toKodeValue(str);
+                            }
+                            if (ValueString.isString((KodeInstance) right) && ValueNumber.isNumber((KodeInstance) left)) {
+                                String str = "";
+                                for (int i = 0; i < ValueNumber.toNumber(left); i++) {
+                                    str = str.concat(ValueString.toStr(right));
+                                }
+                                return interpreter.toKodeValue(str);
+                            }
+                            if (ValueList.isList((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
+                                List ll = new ArrayList();
+                                for (int i = 0; i < ValueNumber.toNumber(right); i++) {
+                                    ll.addAll(ValueList.toList(left));
+                                }
+                                return interpreter.toKodeValue(ll);
+                            }
+                            if (ValueList.isList((KodeInstance) right) && ValueNumber.isNumber((KodeInstance) left)) {
+                                List ll = new ArrayList();
+                                for (int i = 0; i < ValueNumber.toNumber(left); i++) {
+                                    ll.addAll(ValueList.toList(right));
+                                }
+                                return interpreter.toKodeValue(ll);
+                            }
+                        }
+                        throw new NotImplemented();
+                    }
+                };
             case Kode.DIV:
+                return new KodeBuiltinFunction(name, null, interpreter) {
+
+                    @Override
+                    public List<Pair<String, Object>> arity() {
+                        return Arrays.asList(new Pair("obj", null));
+                    }
+
+                    @Override
+                    public Object call(Map<String, Object> arguments) {
+                        Object left = closure.getAt(0, "this");
+                        Object right = arguments.get("obj");
+                        if (left instanceof KodeInstance && right instanceof KodeInstance) {
+                            if (ValueBool.isBool((KodeInstance) left)) {
+                                left = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0));
+                            }
+                            if (ValueBool.isBool((KodeInstance) right)) {
+                                right = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0));
+                            }
+                            if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
+                                return interpreter.toKodeValue(ValueNumber.toNumber(left) / ValueNumber.toNumber(right));
+                            }
+                        }
+                        throw new NotImplemented();
+                    }
+                };
             case Kode.RDIV:
+                return new KodeBuiltinFunction(name, null, interpreter) {
+
+                    @Override
+                    public List<Pair<String, Object>> arity() {
+                        return Arrays.asList(new Pair("obj", null));
+                    }
+
+                    @Override
+                    public Object call(Map<String, Object> arguments) {
+                        Object right = closure.getAt(0, "this");
+                        Object left = arguments.get("obj");
+                        if (left instanceof KodeInstance && right instanceof KodeInstance) {
+                            if (ValueBool.isBool((KodeInstance) left)) {
+                                left = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0));
+                            }
+                            if (ValueBool.isBool((KodeInstance) right)) {
+                                right = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0));
+                            }
+                            if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
+                                return interpreter.toKodeValue(ValueNumber.toNumber(left) / ValueNumber.toNumber(right));
+                            }
+                        }
+                        throw new NotImplemented();
+                    }
+                };
             case Kode.MOD:
+                return new KodeBuiltinFunction(name, null, interpreter) {
+
+                    @Override
+                    public List<Pair<String, Object>> arity() {
+                        return Arrays.asList(new Pair("obj", null));
+                    }
+
+                    @Override
+                    public Object call(Map<String, Object> arguments) {
+                        Object left = closure.getAt(0, "this");
+                        Object right = arguments.get("obj");
+                        if (left instanceof KodeInstance && right instanceof KodeInstance) {
+                            if (ValueBool.isBool((KodeInstance) left)) {
+                                left = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0));
+                            }
+                            if (ValueBool.isBool((KodeInstance) right)) {
+                                right = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0));
+                            }
+                            if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
+                                return interpreter.toKodeValue(ValueNumber.toNumber(left) % ValueNumber.toNumber(right));
+                            }
+                        }
+                        throw new NotImplemented();
+                    }
+                };
             case Kode.RMOD:
+                return new KodeBuiltinFunction(name, null, interpreter) {
+
+                    @Override
+                    public List<Pair<String, Object>> arity() {
+                        return Arrays.asList(new Pair("obj", null));
+                    }
+
+                    @Override
+                    public Object call(Map<String, Object> arguments) {
+                        Object right = closure.getAt(0, "this");
+                        Object left = arguments.get("obj");
+                        if (left instanceof KodeInstance && right instanceof KodeInstance) {
+                            if (ValueBool.isBool((KodeInstance) left)) {
+                                left = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0));
+                            }
+                            if (ValueBool.isBool((KodeInstance) right)) {
+                                right = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0));
+                            }
+                            if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
+                                return interpreter.toKodeValue(ValueNumber.toNumber(left) % ValueNumber.toNumber(right));
+                            }
+                        }
+                        throw new NotImplemented();
+                    }
+                };
             case Kode.FLOOR_DIV:
+                return new KodeBuiltinFunction(name, null, interpreter) {
+
+                    @Override
+                    public List<Pair<String, Object>> arity() {
+                        return Arrays.asList(new Pair("obj", null));
+                    }
+
+                    @Override
+                    public Object call(Map<String, Object> arguments) {
+                        Object left = closure.getAt(0, "this");
+                        Object right = arguments.get("obj");
+                        if (left instanceof KodeInstance && right instanceof KodeInstance) {
+                            if (ValueBool.isBool((KodeInstance) left)) {
+                                left = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0));
+                            }
+                            if (ValueBool.isBool((KodeInstance) right)) {
+                                right = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0));
+                            }
+                            if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
+                                return interpreter.toKodeValue(Math.floor(ValueNumber.toNumber(left) / ValueNumber.toNumber(right)));
+                            }
+                        }
+                        throw new NotImplemented();
+                    }
+                };
             case Kode.RFLOOR_DIV:
                 return new KodeBuiltinFunction(name, null, interpreter) {
 
@@ -817,10 +1246,22 @@ class KodeClass implements KodeCallable {
 
                     @Override
                     public Object call(Map<String, Object> arguments) {
+                        Object right = closure.getAt(0, "this");
+                        Object left = arguments.get("obj");
+                        if (left instanceof KodeInstance && right instanceof KodeInstance) {
+                            if (ValueBool.isBool((KodeInstance) left)) {
+                                left = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0));
+                            }
+                            if (ValueBool.isBool((KodeInstance) right)) {
+                                right = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0));
+                            }
+                            if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
+                                return interpreter.toKodeValue(Math.floor(ValueNumber.toNumber(left) / ValueNumber.toNumber(right)));
+                            }
+                        }
                         throw new NotImplemented();
                     }
                 };
-
         }
 
         return null;

@@ -706,22 +706,26 @@ class ValueNone extends Value {
             
             @Override
             public Object call(Map<String, Object> arguments) {
+                return closure.getAt(0, "this");
+            }
+        });
+//</editor-fold>
+
+        //<editor-fold defaultstate="collapsed" desc="str">
+        this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, null, interpreter) {
+            
+            @Override
+            public List<Pair<String, Object>> arity() {
+                return new ArrayList();
+            }
+            
+            @Override
+            public Object call(Map<String, Object> arguments) {
                 Object This = closure.getAt(0, "this");
                 if (This instanceof KodeInstance) {
-                    ((KodeInstance) This).fields.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, null, interpreter) {
-                        
-                        @Override
-                        public List<Pair<String, Object>> arity() {
-                            return new ArrayList();
-                        }
-                        
-                        @Override
-                        public Object call(Map<String, Object> arguments) {
-                            return ValueString.create(Kode.stringify(null), interpreter);
-                        }
-                    });
+                    return ValueString.create(Kode.stringify(null), interpreter);
                 }
-                return This;
+                throw new NotImplemented();
             }
         });
 //</editor-fold>

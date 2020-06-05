@@ -718,6 +718,7 @@ class ValueBool extends Value {
             }
         });
 //</editor-fold>
+
         //<editor-fold defaultstate="collapsed" desc="str">
         this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, null, interpreter) {
             
@@ -736,28 +737,6 @@ class ValueBool extends Value {
             }
         });
 //</editor-fold>
-        //<editor-fold defaultstate="collapsed" desc="neg">
-        this.methods.put(Kode.NEG, new KodeBuiltinFunction(Kode.NEG, null, interpreter) {
-            
-            @Override
-            public List<Pair<String, Object>> arity() {
-                return new ArrayList();
-            }
-            
-            @Override
-            public Object call(Map<String, Object> arguments) {
-                Object This = closure.getAt(0, "this");
-                if (This instanceof KodeInstance) {
-                    if(ValueBool.isBool((KodeInstance) This))
-                        This = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) This) ? 1 : 0));
-                    if (ValueNumber.isNumber((KodeInstance) This)) {
-                        return interpreter.toKodeValue(-((KodeInstance) This).num);
-                    }
-                }
-                throw new NotImplemented();
-            }
-        });
-        //</editor-fold>
     }
 
     static Boolean toBoolean(Object x_) {

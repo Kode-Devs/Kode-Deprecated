@@ -1095,7 +1095,10 @@ class Kode {
             ValueList valueList = new ValueList(inter);
             DEF_GLOBALS.put(valueList.class_name, valueList);
 
-            DEF_GLOBALS.put("ins", new KodeBuiltinFunction("ins", null, inter) {
+            ValueNone valueNone = new ValueNone(inter);
+            DEF_GLOBALS.put(valueNone.class_name, valueNone);
+
+            DEF_GLOBALS.put("instanceof", new KodeBuiltinFunction("ins", null, inter) {
                 @Override
                 public List<Pair<String, Object>> arity() {
                     return Arrays.asList(new Pair("ins", null), new Pair("klass", null));

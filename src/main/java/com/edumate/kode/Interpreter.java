@@ -677,6 +677,7 @@
 package com.edumate.kode;
 
 import java.io.File;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -1114,10 +1115,10 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
             try {
                 return method.bind((KodeInstance) array).call(Arrays.asList(index));
             } catch (NotImplemented e) {
-                throw new RuntimeError("Non Indexable object as no attribute index.", expr.paren);
+                throw new RuntimeError(Kode.type(array) + " object is non-indexable.", expr.paren);
             }
         } else {
-            throw new RuntimeError("Non Indexable object as no attribute index.", expr.paren);
+            throw new RuntimeError(Kode.type(array) + " object is non-indexable.", expr.paren);
         }
     }
 
@@ -1131,10 +1132,10 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
             try {
                 return method.bind((KodeInstance) array).call(Arrays.asList(index, value));
             } catch (NotImplemented e) {
-                throw new RuntimeError(Kode.type(array)+" object is non-indexable.", expr.paren);
+                throw new RuntimeError(Kode.type(array) + " object does not support item assignment.", expr.paren);
             }
         } else {
-            throw new RuntimeError(Kode.type(array)+" object is non-indexable.", expr.paren);
+            throw new RuntimeError(Kode.type(array) + " object is non-indexable.", expr.paren);
         }
     }
 
@@ -1277,14 +1278,39 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
             return ValueNone.create(this);
         } else if (value instanceof Double) {
             return ValueNumber.create((Double) value, this);
+        } else if (value instanceof Number) {
+            return ValueNumber.create(((Number) value).doubleValue(), this);
         } else if (value instanceof String) {
             return ValueString.create((String) value, this);
+        } else if (value instanceof Character) {
+            return ValueString.create("" + value, this);
         } else if (value instanceof Boolean) {
             return ValueBool.create((Boolean) value, this);
         } else if (value instanceof List) {
-            return ValueList.create((List) value, this);
+            List ll = new ArrayList();
+            for (Object item : (List) value) {
+                ll.add(this.toKodeValue(item));
+            }
+            return ValueList.create(ll, this);
+        } // TODO Arrays to List
+        else if (value.getClass().isArray()) {
+            return this.toKodeValue(convertToObjectArray(value));
         }
         return value;
+    }
+
+    private List convertToObjectArray(Object array) {
+        Class ofArray = array.getClass().getComponentType();
+        if (ofArray.isPrimitive()) {
+            List ar = new ArrayList();
+            int length = Array.getLength(array);
+            for (int i = 0; i < length; i++) {
+                ar.add(Array.get(array, i));
+            }
+            return ar;
+        } else {
+            return Arrays.asList((Object[]) array);
+        }
     }
 
     Object toJava(Object value) {

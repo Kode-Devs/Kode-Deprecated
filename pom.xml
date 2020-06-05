@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.edumate</groupId>
     <artifactId>kode</artifactId>
-    <version>1.0.1</version>
+    <version>v1.0.1-alpha</version>
     <packaging>jar</packaging>
     <dependencies>
         
@@ -41,7 +41,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>com.edumate.kode.KodeIO</mainClass>
+                            <mainClass>com.edumate.kode.KodeHelper</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

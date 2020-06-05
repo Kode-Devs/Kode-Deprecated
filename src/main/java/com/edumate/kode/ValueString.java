@@ -716,6 +716,7 @@ class ValueString extends Value {
             }
         });
 //</editor-fold>
+
         //<editor-fold defaultstate="collapsed" desc="str">
         this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, null, interpreter) {
 
@@ -800,137 +801,7 @@ class ValueString extends Value {
             }
         });
 //</editor-fold>
-        //<editor-fold defaultstate="collapsed" desc="index">
-        this.methods.put(Kode.GET_AT_INDEX, new KodeBuiltinFunction(Kode.GET_AT_INDEX, null, interpreter) {
 
-            @Override
-            public List<Pair<String, Object>> arity() {
-                return Arrays.asList(new Pair("idx", null));
-            }
-
-            @Override
-            public Object call(Map<String, Object> arguments) {
-                Object This = closure.getAt(0, "this");
-                Object index = arguments.get("idx");
-                if (This instanceof KodeInstance && index instanceof KodeInstance) {
-                    if (ValueNumber.isNumber((KodeInstance) index)) {
-                        Double toNumber = ValueNumber.toNumber((KodeInstance) index);
-                        if (toNumber.intValue() != toNumber) {
-                            throw new RuntimeError("String Indices must be Integer in Nature found " + Kode.stringify(toNumber), null);
-                        }
-                        try {
-                            return interpreter.toKodeValue("" + ((KodeInstance) This).str.charAt(toNumber.intValue()));
-                        } catch (IndexOutOfBoundsException e) {
-                            throw new RuntimeError("String Index Out Of Bound : " + Kode.stringify(toNumber), null);
-                        }
-                    }
-                }
-                throw new NotImplemented();
-            }
-        });
-//</editor-fold>
-        //<editor-fold defaultstate="collapsed" desc="Add">
-        this.methods.put(Kode.ADD, new KodeBuiltinFunction(Kode.ADD, null, interpreter) {
-
-            @Override
-            public List<Pair<String, Object>> arity() {
-                return Arrays.asList(new Pair("obj", null));
-            }
-
-            @Override
-            public Object call(Map<String, Object> arguments) {
-                Object left = closure.getAt(0, "this");
-                Object right = arguments.get("obj");
-                if (left instanceof KodeInstance && right instanceof KodeInstance) {
-                    if (ValueString.isString((KodeInstance) left) && ValueString.isString((KodeInstance) right)) {
-                        return interpreter.toKodeValue(ValueString.toStr(left).concat(ValueString.toStr(right)));
-                    }
-                }
-                throw new NotImplemented();
-            }
-        });
-        this.methods.put(Kode.RADD, new KodeBuiltinFunction(Kode.RADD, null, interpreter) {
-
-            @Override
-            public List<Pair<String, Object>> arity() {
-                return Arrays.asList(new Pair("obj", null));
-            }
-
-            @Override
-            public Object call(Map<String, Object> arguments) {
-                Object right = closure.getAt(0, "this");
-                Object left = arguments.get("obj");
-                if (left instanceof KodeInstance && right instanceof KodeInstance) {
-                    if (ValueString.isString((KodeInstance) left) && ValueString.isString((KodeInstance) right)) {
-                        return interpreter.toKodeValue(ValueString.toStr(left).concat(ValueString.toStr(right)));
-                    }
-                }
-                throw new NotImplemented();
-            }
-        });
-//</editor-fold>
-        //<editor-fold defaultstate="collapsed" desc="Mul">
-        this.methods.put(Kode.MUL, new KodeBuiltinFunction(Kode.MUL, null, interpreter) {
-
-            @Override
-            public List<Pair<String, Object>> arity() {
-                return Arrays.asList(new Pair("obj", null));
-            }
-
-            @Override
-            public Object call(Map<String, Object> arguments) {
-                Object left = closure.getAt(0, "this");
-                Object right = arguments.get("obj");
-                if (left instanceof KodeInstance && right instanceof KodeInstance) {
-                    if (ValueString.isString((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
-                        String str = "";
-                        for (int i = 0; i < ValueNumber.toNumber(right); i++) {
-                            str = str.concat(ValueString.toStr(left));
-                        }
-                        return interpreter.toKodeValue(str);
-                    }
-                    if (ValueString.isString((KodeInstance) right) && ValueNumber.isNumber((KodeInstance) left)) {
-                        String str = "";
-                        for (int i = 0; i < ValueNumber.toNumber(left); i++) {
-                            str = str.concat(ValueString.toStr(right));
-                        }
-                        return interpreter.toKodeValue(str);
-                    }
-                }
-                throw new NotImplemented();
-            }
-        });
-        this.methods.put(Kode.RMUL, new KodeBuiltinFunction(Kode.RMUL, null, interpreter) {
-
-            @Override
-            public List<Pair<String, Object>> arity() {
-                return Arrays.asList(new Pair("obj", null));
-            }
-
-            @Override
-            public Object call(Map<String, Object> arguments) {
-                Object right = closure.getAt(0, "this");
-                Object left = arguments.get("obj");
-                if (left instanceof KodeInstance && right instanceof KodeInstance) {
-                    if (ValueString.isString((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
-                        String str = "";
-                        for (int i = 0; i < ValueNumber.toNumber(right); i++) {
-                            str = str.concat(ValueString.toStr(left));
-                        }
-                        return interpreter.toKodeValue(str);
-                    }
-                    if (ValueString.isString((KodeInstance) right) && ValueNumber.isNumber((KodeInstance) left)) {
-                        String str = "";
-                        for (int i = 0; i < ValueNumber.toNumber(left); i++) {
-                            str = str.concat(ValueString.toStr(right));
-                        }
-                        return interpreter.toKodeValue(str);
-                    }
-                }
-                throw new NotImplemented();
-            }
-        });
-//</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="concat">
         this.methods.put("concat", new KodeBuiltinFunction("concat", null, interpreter) {
 

@@ -775,11 +775,11 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
         return evaluate(expr.expression);
     }
 
-    private Object evaluate(Expr expr) {
+    Object evaluate(Expr expr) {
         return expr.accept(this);
     }
 
-    private Object execute(Stmt stmt) {
+    Object execute(Stmt stmt) {
         return stmt.accept(this);
     }
 
@@ -886,17 +886,19 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
             } else {
                 module = new KodeModule(String.join(".", dir), join);
                 Kode.ModuleRegistry.put(join, module);
+                module.inter.globals.define(Kode.__NAME__, 
+                        module.inter.toKodeValue(stmt.imp.fn));
                 module.run();
             }
             if (module.hadError || module.hadRuntimeError) {
-                throw new Exception();
+                return null;
             }
             if (stmt.methods != null) {
                 stmt.methods.forEach((item) -> {
-                    this.globals.define(item.lexeme, module.get(item));
+                    environment.define(item.lexeme, module.get(item));
                 });
             } else {
-                this.globals.define(stmt.alias != null ? stmt.alias.lexeme : dir.get(dir.size() - 1), module);
+                environment.define(stmt.alias != null ? stmt.alias.lexeme : dir.get(dir.size() - 1), module);
             }
         } catch (RuntimeError e) {
             e.token.add(stmt.imp);
@@ -1226,10 +1228,8 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
                     throw new RuntimeError(c.ErrorType.name.lexeme + " is not a Error class name", c.ErrorType.name);
                 }
                 if (Kode.instanceOf(instance, cls)) {
-                    if (c.alias != null) {
-                        environment.define(c.alias.lexeme, instance);
-                    }
-                    executeBlock(c.catchStmt, new Environment(this.environment));
+                    c.instance = instance;
+                    this.execute(c);
                     return null;
                 }
             }
@@ -1240,6 +1240,11 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
 
     @Override
     public Object visitCatchStmt(Stmt.Catch stmt) {
+        Environment env = new Environment(this.environment);
+        if (stmt.alias != null) {
+            env.define(stmt.alias.lexeme, stmt.instance);
+        }
+        executeBlock(stmt.catchStmt, env);
         return null;
     }
 

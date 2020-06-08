@@ -726,6 +726,8 @@ class Kode {
     static final String NUMBER = "__num__";
     static final String BOOLEAN = "__bool__";
     static final String LIST = "__list__";
+    static final String __NAME__ = "__name__";
+    static final String __MAIN__ = "__main__";
 
     static final String GET_AT_INDEX = "__getAtIndex__";
     static final String SET_AT_INDEX = "__setAtIndex__";
@@ -789,6 +791,7 @@ class Kode {
                 KodeHelper.printfln(Kode.getIntro());
                 KodeHelper.printfln("Call exit() to quit shell.");
                 Interpreter interpreter = new Interpreter();
+                interpreter.globals.define(Kode.__NAME__, interpreter.toKodeValue(Kode.__MAIN__));
                 for (;;) {
                     hadError = false;
                     hadRuntimeError = false;
@@ -811,6 +814,7 @@ class Kode {
 
     static void runFile(String path, Interpreter inter) throws Exception {
         byte[] bytes = Files.readAllBytes(Paths.get(path));
+        inter.globals.define(Kode.__NAME__, inter.toKodeValue(Kode.__MAIN__));
         run(Paths.get(path).toFile().getName(), new String(bytes, Charset.defaultCharset()), inter);
 
         // Indicate an error in the exit code.
@@ -823,7 +827,9 @@ class Kode {
     }
 
     private static void runBenchMark() throws Exception {
-        runLib("benchmark", false, new Interpreter());
+        Interpreter inter = new Interpreter();
+        inter.globals.define(Kode.__NAME__, inter.toKodeValue(Kode.__MAIN__));
+        runLib("benchmark", false, inter);
     }
 
     static void runLib(String name, Interpreter inter) throws Exception {
@@ -896,15 +902,15 @@ class Kode {
 
     static void report(int line, String where, String message) {
         KodeHelper.printfln_err(
-                "[line " + line + "] Error " + where + ": " + message);
+                "[line " + line + "] Error" + where + ": " + message);
         hadError = true;
     }
 
     static void error(Token token, String message) {
         if (token.type == TokenType.EOF) {
-            report(token.line, "at end in file " + token.fn, message);
+            report(token.line, " at end in file " + token.fn, message);
         } else {
-            report(token.line, "at '" + token.lexeme + "' in file " + token.fn, message);
+            report(token.line, " at '" + token.lexeme + "' in file " + token.fn, message);
         }
         if (token.line_text != null) {
             KodeHelper.printfln_err("->\t" + token.line_text.trim());
@@ -1004,14 +1010,14 @@ class Kode {
             }
             return "function." + ((KodeFunction) object).declaration.name.lexeme;
         }
+        if (object instanceof JavaNative) {
+            return "native.function." + ((JavaNative) object).className + "." + ((JavaNative) object).methodName;
+        }
         if (object instanceof KodeInstance) {
             if (object instanceof KodeModule) {
                 return "module." + ((KodeModule) object).name;
             }
             return ((KodeInstance) object).klass.class_name;
-        }
-        if (object instanceof JavaNative) {
-            return "native.function." + ((JavaNative) object).className + "." + ((JavaNative) object).methodName;
         }
         if (object instanceof Hash) {
             return "hash";

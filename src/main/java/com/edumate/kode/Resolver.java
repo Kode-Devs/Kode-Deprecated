@@ -681,6 +681,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Stack;
+import java.util.function.Consumer;
 
 /**
  *
@@ -797,6 +798,18 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 //    }
     @Override
     public Void visitRequireStmt(Stmt.Require stmt) {
+        if (stmt.methods != null) {
+            stmt.methods.forEach((name) -> {
+                declare(name);
+                define(name);
+            });
+        } else if (stmt.alias != null) {
+            declare(stmt.alias);
+            define(stmt.alias);
+        } else{
+            declare(stmt.dir.get(stmt.dir.size()-1));
+            define(stmt.dir.get(stmt.dir.size()-1));
+        }
         return null;
     }
 
@@ -1000,6 +1013,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         beginScope();
         resolve(stmt.tryStmt);
         endScope();
+        stmt.catchs.forEach(this::resolve);
         return null;
     }
 
@@ -1007,6 +1021,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     public Void visitCatchStmt(Stmt.Catch stmt) {
         beginScope();
         if (stmt.alias != null) {
+            System.out.print(stmt.alias);
             declare(stmt.alias);
             define(stmt.alias);
         }

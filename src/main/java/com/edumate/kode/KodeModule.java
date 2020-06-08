@@ -676,6 +676,8 @@
  */
 package com.edumate.kode;
 
+import java.util.List;
+
 /**
  *
  * @author dell
@@ -683,19 +685,30 @@ package com.edumate.kode;
 class KodeModule extends KodeInstance {
 
     String name;
-    Interpreter inter = new Interpreter();
+    Interpreter inter = new Interpreter() {
+        @Override
+        Object interpret(List<Stmt> statements) {
+            Object ret = null;
+            for (Stmt statement : statements) {
+                ret = execute(statement);
+            }
+            return ret;
+        }
+    };
     boolean hadError = false;
     boolean hadRuntimeError = false;
     private final String path;
 
-    KodeModule(String name,String path) {
+    KodeModule(String name, String path) {
         super(null);
         this.name = name;
         this.path = path;
     }
-    
-    void run() throws Exception{
+
+    void run() throws Exception {
         Kode.runLib(path, inter);
+        this.hadError = Kode.hadError;
+        this.hadRuntimeError = Kode.hadRuntimeError;
     }
 
     @Override

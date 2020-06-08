@@ -726,7 +726,7 @@ class Kode {
     static final String NUMBER = "__num__";
     static final String BOOLEAN = "__bool__";
     static final String LIST = "__list__";
-    
+
     static final String GET_AT_INDEX = "__getAtIndex__";
     static final String SET_AT_INDEX = "__setAtIndex__";
     static final String CLASS = "__class__";
@@ -753,7 +753,7 @@ class Kode {
 
     static final String FLOOR_DIV = "__floordiv__";
     static final String RFLOOR_DIV = "__rfloordiv__";
-    
+
     static final String EQ = "__eq__";
     static final String NE = "__ne__";
     static final String LT = "__lt__";
@@ -902,9 +902,12 @@ class Kode {
 
     static void error(Token token, String message) {
         if (token.type == TokenType.EOF) {
-            report(token.line, " at end", message);
+            report(token.line, "at end in file " + token.fn, message);
         } else {
-            report(token.line, " at '" + token.lexeme + "' in file '" + token.fn + "'", message);
+            report(token.line, "at '" + token.lexeme + "' in file " + token.fn, message);
+        }
+        if (token.line_text != null) {
+            KodeHelper.printfln_err("->\t" + token.line_text.trim());
         }
     }
 
@@ -913,7 +916,7 @@ class Kode {
     }
 
     static void runtimeError(RuntimeError error) {
-        KodeHelper.printfln_err("Runtime Error : " + error.getMessage());
+        KodeHelper.printfln_err(error.getMessage());
         error.token.forEach((line) -> {
             if (line != null) {
                 KodeHelper.printfln_err("in file " + line.fn + " [ at line " + line.line + " ] near '" + line.lexeme + "'");
@@ -1098,6 +1101,8 @@ class Kode {
 
             DEF_GLOBALS.put(ValueList.val.class_name, ValueList.val);
 
+            DEF_GLOBALS.put(ValueError.val.class_name, ValueError.val);
+
             DEF_GLOBALS.put("instanceof", new KodeBuiltinFunction("ins", null, inter) {
                 @Override
                 public List<Pair<String, Object>> arity() {
@@ -1125,7 +1130,7 @@ class Kode {
                 }
 
             });
-            
+
         } catch (Exception ex) {
             KodeHelper.exit(1);
         }

@@ -674,29 +674,86 @@
  * Public License instead of this License.  But first, please read
  * <https://www.gnu.org/licenses/why-not-lgpl.html>.
  */
-package com.edumate.kode.tools;
+package com.edumate.kode;
 
-import ch.obermuhlner.scriptengine.jshell.JShellScriptEngineFactory;
-import javax.script.ScriptEngine;
-import javax.script.ScriptException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  *
  * @author dell
  */
-public class NewClass {
+class ValueError extends Value {
 
-    @Deprecated
-    public static void eval(String src) {
-        try {
-            ScriptEngine engine = new JShellScriptEngineFactory().getScriptEngine();
-            Object eval = engine.eval(src);
-            if (eval != null) {
-                System.out.println(eval);
+    static Value val = new ValueError(new Interpreter());
+
+    static KodeInstance create(String msg) {
+        KodeInstance instance = new KodeInstance(val);
+        KodeFunction initializer = val.findMethod(Kode.INIT);
+        Map par = new HashMap();
+        par.put("args", val.interpreter.toKodeValue(Arrays.asList(val.interpreter.toKodeValue(msg))));
+        initializer.bind(instance).call(par);
+        return instance;
+    }
+
+    ValueError(Interpreter interpreter) {
+        super("Error", interpreter);
+        //<editor-fold defaultstate="collapsed" desc="init">
+        this.methods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, null, interpreter) {
+
+            @Override
+            public List<Pair<String, Object>> arity() {
+                return Arrays.asList(new Pair("args", interpreter.toKodeValue(Arrays.asList()), true));
             }
-        } catch (ScriptException e) {
-            System.err.println(e.getMessage());
-        }
+
+            @Override
+            public Object call(Map<String, Object> arguments) {
+                Object at = closure.getAt(0, "this");
+                if (at instanceof KodeInstance) {
+                    ((KodeInstance) at).set("args", arguments.get("args"));
+                }
+                return at;
+            }
+        });
+//</editor-fold>
+
+        //<editor-fold defaultstate="collapsed" desc="str">
+        this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, null, interpreter) {
+
+            @Override
+            public List<Pair<String, Object>> arity() {
+                return new ArrayList();
+            }
+
+            @Override
+            public Object call(Map<String, Object> arguments) {
+                Object This = closure.getAt(0, "this");
+                if (This instanceof KodeInstance) {
+                    Object get = ((KodeInstance) This).get("args");
+                    if (get == null) {
+                        get = "<Missing Error Details>";
+                    }
+                    if (get instanceof KodeInstance) {
+                        if (ValueList.isList((KodeInstance) get)) {
+                            get = ValueList.toList(get).stream()
+                                    .map(n -> n.toString())
+                                    .collect(Collectors.joining("\n"));
+                        }
+                    }
+                    return interpreter.toKodeValue(get.toString());
+                }
+                throw new NotImplemented();
+            }
+        });
+//</editor-fold>
+    }
+
+    final static boolean isNone(KodeInstance i) {
+        return instanceOf(i.klass, ValueError.class);
     }
 
 }

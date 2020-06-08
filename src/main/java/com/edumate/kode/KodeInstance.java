@@ -735,6 +735,10 @@ class KodeInstance {
     void set(Token name, Object value) {
         fields.put(name.lexeme, value);
     }
+    
+    void set(String name, Object value) {
+        fields.put(name, value);
+    }
 
     @Override
     public String toString() {

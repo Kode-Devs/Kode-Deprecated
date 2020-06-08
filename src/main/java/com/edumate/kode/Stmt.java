@@ -697,8 +697,6 @@ abstract class Stmt {
 
         R visitIfStmt(If stmt);
 
-//        R visitPrintStmt(Print stmt);
-
         R visitRequireStmt(Require stmt);
 
         R visitReturnStmt(Return stmt);
@@ -712,6 +710,10 @@ abstract class Stmt {
         R visitWhileStmt(While stmt);
 
         R visitForStmt(For stmt);
+
+        R visitTryStmt(Try stmt);
+
+        R visitCatchStmt(Catch stmt);
     }
 
     // Nested Stmt classes here...
@@ -763,7 +765,7 @@ abstract class Stmt {
 
     static class Function extends Stmt {
 
-        Function(Token name, List<Pair<Token,Expr>> params, List<Stmt> body) {
+        Function(Token name, List<Pair<Token, Expr>> params, List<Stmt> body) {
             this.name = name;
             this.params = params;
             this.body = body;
@@ -775,8 +777,8 @@ abstract class Stmt {
         }
 
         final Token name;
-        final List<Pair<Token,Expr>> params;
-        final List<Pair<Token,Object>> args = new ArrayList();
+        final List<Pair<Token, Expr>> params;
+        final List<Pair<Token, Object>> args = new ArrayList();
         final List<Stmt> body;
     }
 
@@ -797,20 +799,6 @@ abstract class Stmt {
         final Stmt thenBranch;
         final Stmt elseBranch;
     }
-
-//    static class Print extends Stmt {
-//
-//        Print(Expr dir) {
-//            this.dir = dir;
-//        }
-//
-//        @Override
-//        <R> R accept(Visitor<R> visitor) {
-//            return visitor.visitPrintStmt(this);
-//        }
-//
-//        final Expr dir;
-//    }
 
     static class Require extends Stmt {
 
@@ -847,7 +835,7 @@ abstract class Stmt {
         final Token keyword;
         final Expr value;
     }
-    
+
     static class Break extends Stmt {
 
         Break(Token keyword) {
@@ -861,7 +849,7 @@ abstract class Stmt {
 
         final Token keyword;
     }
-    
+
     static class Continue extends Stmt {
 
         Continue(Token keyword) {
@@ -907,10 +895,10 @@ abstract class Stmt {
         final Expr condition;
         final Stmt body;
     }
-    
+
     static class For extends Stmt {
 
-        For(Stmt init,Expr condition,Stmt increment, Stmt body) {
+        For(Stmt init, Expr condition, Stmt increment, Stmt body) {
             this.init = init;
             this.condition = condition;
             this.increment = increment;
@@ -926,6 +914,41 @@ abstract class Stmt {
         final Expr condition;
         final Stmt increment;
         final Stmt body;
+    }
+
+    static class Try extends Stmt {
+
+        Try(List<Stmt> tryStmt, List<Stmt.Catch> catchs) {
+            this.tryStmt = tryStmt;
+            this.catchs = catchs;
+        }
+
+        @Override
+        <R> R accept(Visitor<R> visitor) {
+            return visitor.visitTryStmt(this);
+        }
+
+        final List<Stmt> tryStmt;
+        final List<Stmt.Catch> catchs;
+    }
+
+    static class Catch extends Stmt {
+
+        Catch(Expr.Variable ErrorType, Token alias, List<Stmt> catchStmt) {
+            this.ErrorType = ErrorType;
+            this.alias = alias;
+            this.catchStmt = catchStmt;
+        }
+
+        @Override
+        <R> R accept(Visitor<R> visitor) {
+            return visitor.visitCatchStmt(this);
+        }
+
+        final Expr.Variable ErrorType;
+        final Token alias;
+        final List<Stmt> catchStmt;
+        KodeInstance instance;
     }
 
     abstract <R> R accept(Visitor<R> visitor);

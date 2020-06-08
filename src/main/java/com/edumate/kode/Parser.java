@@ -680,6 +680,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.edumate.kode.TokenType.*;
+import java.util.Arrays;
 
 /**
  *
@@ -720,12 +721,43 @@ class Parser {
             if (match(VAR)) {
                 return varDeclaration();
             }
+            if (match(TRY)) {
+                return tryCatch();
+            }
+            if (match(CATCH)) {
+                throw error(previous(), "'except' without 'try' is not possible");
+            }
 
             return statement();
         } catch (ParseError error) {
             synchronize();
             return null;
         }
+    }
+
+    private Stmt tryCatch() {
+        consume(LEFT_BRACE, "Expect '{' after 'try'.");
+        List<Stmt> tryStmt = block();
+        List<Stmt.Catch> catches = new ArrayList();
+        consume(CATCH, "'try' without 'except' is not possible");
+        do {
+            Expr.Variable ErrorType = null;
+            Token alias = null;
+
+            if (match(LEFT_PAREN)) {
+                consume(IDENTIFIER, "Expect superclass name.");
+                ErrorType = new Expr.Variable(previous());
+
+                if (match(AS)) {
+                    alias = consume(IDENTIFIER, "Expect alias name.");
+                }
+                consume(RIGHT_PAREN, "Expect ')' after for clauses.");
+            }
+            consume(LEFT_BRACE, "Expect '{' after 'expect'.");
+            List<Stmt> catchStmt = block();
+            catches.add(new Stmt.Catch(ErrorType, alias, catchStmt));
+        } while (match(CATCH));
+        return new Stmt.Try(tryStmt, catches);
     }
 
     private Stmt classDeclaration() {
@@ -768,9 +800,6 @@ class Parser {
         if (match(CONTINUE)) {
             return continueStatement();
         }
-//        if (match(PRINT)) {
-//            return printStatement();
-//        }
         if (match(IMPORT)) {
             return requireStatement(previous());
         }
@@ -1231,8 +1260,11 @@ class Parser {
                 case FOR:
                 case IF:
                 case WHILE:
-//                case PRINT:
                 case RETURN:
+                case IMPORT:
+                case FROM:
+                case BREAK:
+                case CONTINUE:
                     return;
             }
 

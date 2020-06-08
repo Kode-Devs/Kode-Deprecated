@@ -11,6 +11,7 @@ print("The program took "+time+"ms to compleate "+n+" additions inside a for loo
 print((time/n)+" ms/it\t"+(n/time)+" it/ms");
 */
 
+/*
 class Breakfast {
   __init__(meat, bread) {
     this.meat = meat;
@@ -35,7 +36,6 @@ var baconAndToast1 = Breakfast("bacon", "toast");
 var baconAndToast2 = Breakfast("bacon", "toaster");
 print(baconAndToast1.__class__==baconAndToast2.__class__);
 
-/*
 baconAndToast.serve("Dear Reader");
 print(baconAndToast[5]);
 
@@ -46,3 +46,13 @@ fun b(){
 b();
 print(c);
 */
+
+try
+{
+var a=5;
+print(a);
+}
+except{
+    var b = 10;
+}
+print(a);

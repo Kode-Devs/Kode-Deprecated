@@ -684,6 +684,7 @@ class NotImplemented extends RuntimeError {
     
     NotImplemented() {
         super("This method is not implemented yet.");
+        this.type = "Not-Implemented Error";
     }
     
 }

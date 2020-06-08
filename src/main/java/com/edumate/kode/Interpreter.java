@@ -787,13 +787,13 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
         locals.put(expr, depth);
     }
 
-    void executeBlock(List<Stmt> statements, Environment environment) {
+    void executeBlock(List<Stmt> statements, Environment env) {
         Environment previous = this.environment;
         try {
-            this.environment = environment;
-            statements.forEach((statement) -> {
+            this.environment = env;
+            for (Stmt statement : statements) {
                 execute(statement);
-            });
+            };
         } finally {
             this.environment = previous;
         }
@@ -1211,6 +1211,38 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
         return new JavaNative(className, methodName, null, this);
     }
 
+    @Override
+    public Object visitTryStmt(Stmt.Try stmt) {
+        try {
+            executeBlock(stmt.tryStmt, new Environment(environment));
+        } catch (RuntimeError e) {
+            KodeInstance instance = e.instance;
+            for (Stmt.Catch c : stmt.catchs) {
+                Object err_type = c.ErrorType == null ? ValueError.val : evaluate(c.ErrorType);
+                KodeClass cls;
+                if (err_type instanceof ValueError) {
+                    cls = (ValueError) err_type;
+                } else {
+                    throw new RuntimeError(c.ErrorType.name.lexeme + " is not a Error class name", c.ErrorType.name);
+                }
+                if (Kode.instanceOf(instance, cls)) {
+                    if (c.alias != null) {
+                        environment.define(c.alias.lexeme, instance);
+                    }
+                    executeBlock(c.catchStmt, new Environment(this.environment));
+                    return null;
+                }
+            }
+            throw e;
+        }
+        return null;
+    }
+
+    @Override
+    public Object visitCatchStmt(Stmt.Catch stmt) {
+        return null;
+    }
+
     private Object lookUpVariable(Token name, Expr expr) {
         Integer distance = locals.get(expr);
         if (distance != null) {
@@ -1268,8 +1300,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
                 ll.add(this.toKodeValue(item));
             }
             return ValueList.create(ll);
-        }
-        else if (value.getClass().isArray()) {
+        } else if (value.getClass().isArray()) {
             return this.toKodeValue(convertToObjectArray(value));
         }
         return value;

@@ -899,7 +899,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         resolve(expr.index);
         return null;
     }
-    
+
     @Override
     public Void visitSetATIndexExpr(Expr.SetAtIndex expr) {
         resolve(expr.value);
@@ -992,6 +992,26 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
     @Override
     public Void visitNativeExpr(Expr.Native expr) {
+        return null;
+    }
+
+    @Override
+    public Void visitTryStmt(Stmt.Try stmt) {
+        beginScope();
+        resolve(stmt.tryStmt);
+        endScope();
+        return null;
+    }
+
+    @Override
+    public Void visitCatchStmt(Stmt.Catch stmt) {
+        beginScope();
+        if (stmt.alias != null) {
+            declare(stmt.alias);
+            define(stmt.alias);
+        }
+        resolve(stmt.catchStmt);
+        endScope();
         return null;
     }
 

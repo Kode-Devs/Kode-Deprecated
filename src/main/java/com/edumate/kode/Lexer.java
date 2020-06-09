@@ -724,6 +724,7 @@ class Lexer {
         KEYWORDS.put("while", WHILE);
         KEYWORDS.put("try", TRY);
         KEYWORDS.put("except", CATCH);
+        KEYWORDS.put("raise", RAISE);
     }
 
     static {

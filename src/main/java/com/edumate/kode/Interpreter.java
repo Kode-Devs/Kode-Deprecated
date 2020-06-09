@@ -846,8 +846,6 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
 
     @Override
     public Object visitExpressionStmt(Stmt.Expression stmt) {
-//        evaluate(stmt.expression);
-//        return null;
         return evaluate(stmt.expression);
     }
 
@@ -886,7 +884,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
             } else {
                 module = new KodeModule(String.join(".", dir), join);
                 Kode.ModuleRegistry.put(join, module);
-                module.inter.globals.define(Kode.__NAME__, 
+                module.inter.globals.define(Kode.__NAME__,
                         module.inter.toKodeValue(stmt.imp.fn));
                 module.run();
             }
@@ -904,9 +902,23 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
             e.token.add(stmt.imp);
             throw e;
         } catch (Error | Exception e) {
-            throw new RuntimeError("Failed to Import Module '" + String.join(".", dir) + "'", stmt.imp);
+            throw new RuntimeError("Failed to Import Module '" + String.join(".", dir) + "'.", stmt.imp);
         }
         return null;
+    }
+
+    @Override
+    public Void visitRaiseStmt(Stmt.Raise stmt) {
+        Object value = evaluate(stmt.value);
+        if (value instanceof KodeInstance) {
+            if (Kode.instanceOf((KodeInstance) value, ValueError.val)) {
+                RuntimeError e = new RuntimeError((KodeInstance) value);
+                e.token.add(stmt.keyword);
+                throw e;
+            }
+        }
+        throw new RuntimeError("Can only raise intances of Error class or its sub-classes but found element of type '"
+                + Kode.type(value) + "'.", stmt.keyword);
     }
 
     @Override

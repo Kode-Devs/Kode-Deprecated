@@ -699,6 +699,8 @@ abstract class Stmt {
 
         R visitRequireStmt(Require stmt);
 
+        R visitRaiseStmt(Raise stmt);
+
         R visitReturnStmt(Return stmt);
 
         R visitBreakStmt(Break stmt);
@@ -818,6 +820,22 @@ abstract class Stmt {
         final List<Token> dir;
         final Token alias;
         final List<Token> methods;
+    }
+
+    static class Raise extends Stmt {
+
+        Raise(Token keyword, Expr value) {
+            this.keyword = keyword;
+            this.value = value;
+        }
+
+        @Override
+        <R> R accept(Visitor<R> visitor) {
+            return visitor.visitRaiseStmt(this);
+        }
+
+        final Token keyword;
+        final Expr value;
     }
 
     static class Return extends Stmt {

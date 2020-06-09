@@ -805,6 +805,9 @@ class Parser {
         if (match(FROM)) {
             return requireStatementFrom(previous());
         }
+        if (match(RAISE)){
+            return raiseStatement();
+        }
         if (match(LEFT_BRACE)) {
             return new Stmt.Block(block());
         }
@@ -890,6 +893,13 @@ class Parser {
         } while (match(COMMA));
         consume(SEMICOLON, "Expect ';' after value.");
         return new Stmt.Require(imp, value, null, field);
+    }
+    
+    private Stmt raiseStatement(){
+        Token keyword = previous();
+        Expr value = expression();
+        consume(SEMICOLON, "Expect ';' after raise value.");
+        return new Stmt.Raise(keyword,value);
     }
 
     private Stmt returnStatement() {

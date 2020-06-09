@@ -681,7 +681,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Stack;
-import java.util.function.Consumer;
 
 /**
  *
@@ -810,6 +809,12 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
             declare(stmt.dir.get(stmt.dir.size()-1));
             define(stmt.dir.get(stmt.dir.size()-1));
         }
+        return null;
+    }
+    
+    @Override
+    public Void visitRaiseStmt(Stmt.Raise stmt) {
+        resolve(stmt.value);
         return null;
     }
 

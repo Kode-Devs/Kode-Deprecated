@@ -688,6 +688,10 @@ class Value extends KodeClass {
         super(name, null, new HashMap(), interpreter);
     }
 
+    Value(String name, KodeClass superclass, Interpreter interpreter) {
+        super(name, superclass, new HashMap(), interpreter);
+    }
+
     final static boolean instanceOf(KodeClass i, Class c) {
         if (i == null) {
             return false;

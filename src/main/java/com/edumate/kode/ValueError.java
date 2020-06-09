@@ -752,7 +752,7 @@ class ValueError extends Value {
 //</editor-fold>
     }
 
-    final static boolean isNone(KodeInstance i) {
+    final static boolean isError(KodeInstance i) {
         return instanceOf(i.klass, ValueError.class);
     }
 

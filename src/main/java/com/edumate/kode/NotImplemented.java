@@ -683,8 +683,11 @@ package com.edumate.kode;
 class NotImplemented extends RuntimeError {
 
     NotImplemented() {
-        super("This method is not implemented yet.");
-        this.type = "Not-Implemented Error";
+        super(ValueNotImplemented.instance);
+    }
+    
+    NotImplemented(KodeInstance instance){
+        super(instance);
     }
 
 }

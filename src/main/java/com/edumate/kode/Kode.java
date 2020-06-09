@@ -1109,6 +1109,8 @@ class Kode {
 
             DEF_GLOBALS.put(ValueError.val.class_name, ValueError.val);
 
+            DEF_GLOBALS.put(ValueNotImplemented.val.class_name, ValueNotImplemented.val);
+
             DEF_GLOBALS.put("instanceof", new KodeBuiltinFunction("ins", null, inter) {
                 @Override
                 public List<Pair<String, Object>> arity() {

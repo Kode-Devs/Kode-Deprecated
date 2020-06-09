@@ -683,7 +683,7 @@ package com.edumate.kode;
 class NotImplemented extends RuntimeError {
 
     NotImplemented() {
-        super(ValueNotImplemented.instance);
+        super(ValueNotImplemented.create());
     }
     
     NotImplemented(KodeInstance instance){

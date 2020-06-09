@@ -691,9 +691,7 @@ class ValueNotImplemented extends Value {
 
     static Value val = new ValueNotImplemented(new Interpreter());
 
-    static KodeInstance instance = create();
-
-    private static KodeInstance create() {
+    static KodeInstance create() {
         KodeInstance ins = new KodeInstance(val);
         KodeFunction initializer = val.findMethod(Kode.INIT);
         initializer.bind(ins).call(new HashMap());

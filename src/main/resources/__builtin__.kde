@@ -2,3 +2,7 @@
 fun reset(){
     native com.edumate.kode.KodeHelper.resetLine();
 }
+
+fun free(){
+    native com.edumate.kode.KodeHelper.free();
+}

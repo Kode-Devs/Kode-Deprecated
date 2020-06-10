@@ -1097,7 +1097,8 @@ class Kode {
                 public List<Pair<String, Object>> arity() {
                     return Arrays.asList(new Pair("str", interpreter.toKodeValue(Arrays.asList(interpreter.toKodeValue(""))), true),
                             new Pair("sep", interpreter.toKodeValue(" ")),
-                            new Pair("end", interpreter.toKodeValue("")));
+                            new Pair("end", interpreter.toKodeValue("")),
+                            new Pair("mask", interpreter.toKodeValue(false)));
                 }
 
                 @Override
@@ -1106,6 +1107,7 @@ class Kode {
                     String sep = ValueString.toStr(arguments.get("sep"));
                     String end = ValueString.toStr(arguments.get("end"));
                     String msg = str.stream().map(ValueString::toStr).collect(Collectors.joining(sep)) + end;
+                    if(ValueBool.toBoolean(arguments.get("mask"))) return interpreter.toKodeValue(KodeHelper.scanf_pwd(msg));
                     return interpreter.toKodeValue(KodeHelper.scanf(msg));
                 }
 

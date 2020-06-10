@@ -677,7 +677,6 @@
 package com.edumate.kode;
 
 import java.awt.Color;
-import java.util.Map;
 import org.beryx.textio.TextIO;
 import org.beryx.textio.TextIoFactory;
 
@@ -729,18 +728,10 @@ public class KodeHelper {
         printf_err(System.lineSeparator());
     }
 
-    public static String scanf() {
-        return scanf("");
-    }
-
     public static String scanf(Object obj) {
         return textIO.newStringInputReader()
                 .withMinLength(0)
                 .read(obj.toString());
-    }
-
-    public static String scanf_pwd() {
-        return scanf_pwd("");
     }
 
     public static String scanf_pwd(Object obj) {
@@ -753,28 +744,6 @@ public class KodeHelper {
     public static boolean resetLine() {
         return textIO.getTextTerminal().resetLine();
     }
-
-    //
-    private static Interpreter inter = new Interpreter();
-
-    public static final void reset() {
-        inter = new Interpreter();
-    }
-
-    public static final Object eval(String cmd) throws Exception {
-        return eval(cmd, "<eval>");
-    }
-
-    public static final Object eval(String cmd, String fn) throws Exception {
-        return inter.toJava(Kode.run(fn, cmd, inter));
-    }
-
-    public static final void bind(Map<String, Object> var_list) {
-        var_list.entrySet().forEach((item) -> {
-            inter.globals.define(item.getKey(), inter.toKodeValue(item.getValue()));
-        });
-    }
-    //
 
     public static final void free() {
         System.gc();

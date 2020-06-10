@@ -736,6 +736,10 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     public Object visitSetExpr(Expr.Set expr) {
         Object object = evaluate(expr.object);
 
+        if (expr.name.lexeme.equals(Kode.CLASS) || expr.name.lexeme.equals(Kode.HASH)) {
+            throw new RuntimeError("Can not change '" + expr.name.lexeme + "' attribute of any instance.", expr.name);
+        }
+
         if (object instanceof KodeInstance) {
             Object value = evaluate(expr.value);
             ((KodeInstance) object).set(expr.name, value);
@@ -911,7 +915,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     public Void visitRaiseStmt(Stmt.Raise stmt) {
         Object value = evaluate(stmt.value);
         if (value instanceof KodeInstance) {
-            if (ValueNotImplemented.isNotImplemented((KodeInstance) value)){
+            if (ValueNotImplemented.isNotImplemented((KodeInstance) value)) {
                 RuntimeError e = new NotImplemented((KodeInstance) value);
                 e.token.add(stmt.keyword);
                 throw e;
@@ -1051,7 +1055,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
             case PLUS:
                 return BinOP(left, right, Kode.ADD, Kode.RADD, expr.operator);
             case SLASH:
-                return BinOP(left, right, Kode.DIV, Kode.RDIV, expr.operator);
+                return BinOP(left, right, Kode.TRUE_DIV, Kode.RTRUE_DIV, expr.operator);
             case STAR:
                 return BinOP(left, right, Kode.MUL, Kode.RMUL, expr.operator);
             case PERCENT:
@@ -1135,7 +1139,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
         Object array = evaluate(expr.array);
         Object index = evaluate(expr.index);
         if (array instanceof KodeInstance) {
-            KodeFunction method = ((KodeInstance) array).klass.findMethod(Kode.GET_AT_INDEX);
+            KodeFunction method = ((KodeInstance) array).klass.findMethod(Kode.GET_ITEM);
             try {
                 return method.bind((KodeInstance) array).call(Arrays.asList(index));
             } catch (NotImplemented e) {
@@ -1152,7 +1156,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
         Object array = evaluate(expr.array);
         Object index = evaluate(expr.index);
         if (array instanceof KodeInstance) {
-            KodeFunction method = ((KodeInstance) array).klass.findMethod(Kode.SET_AT_INDEX);
+            KodeFunction method = ((KodeInstance) array).klass.findMethod(Kode.SET_ITEM);
             try {
                 return method.bind((KodeInstance) array).call(Arrays.asList(index, value));
             } catch (NotImplemented e) {

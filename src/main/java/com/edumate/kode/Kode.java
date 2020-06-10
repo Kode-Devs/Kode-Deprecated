@@ -688,6 +688,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 /**
@@ -725,8 +727,8 @@ class Kode {
     static final String __NAME__ = "__name__";
     static final String __MAIN__ = "__main__";
 
-    static final String GET_AT_INDEX = "__getItem__";
-    static final String SET_AT_INDEX = "__setItem__";
+    static final String GET_ITEM = "__getItem__";
+    static final String SET_ITEM = "__setItem__";
     static final String CLASS = "__class__";
     static final String HASH = "__hash__";
 
@@ -748,8 +750,8 @@ class Kode {
     static final String MUL = "__mul__";
     static final String RMUL = "__rmul__";
 
-    static final String DIV = "__truediv__";
-    static final String RDIV = "__rtruediv__";
+    static final String TRUE_DIV = "__truediv__";
+    static final String RTRUE_DIV = "__rtruediv__";
 
     static final String MOD = "__mod__";
     static final String RMOD = "__rmod__";
@@ -1093,7 +1095,6 @@ class Kode {
                 }
 
             });
-
             DEF_GLOBALS.put("input", new KodeBuiltinFunction("input", null, inter) {
                 @Override
                 public List<Pair<String, Object>> arity() {
@@ -1116,7 +1117,6 @@ class Kode {
                 }
 
             });
-
             DEF_GLOBALS.put("len", new KodeBuiltinFunction("len", null, inter) {
                 @Override
                 public List<Pair<String, Object>> arity() {
@@ -1140,19 +1140,44 @@ class Kode {
                 }
 
             });
+            DEF_GLOBALS.put("dir", new KodeBuiltinFunction("dir", null, inter) {
+                @Override
+                public List<Pair<String, Object>> arity() {
+                    return Arrays.asList(new Pair("obj", null));
+                }
 
+                @Override
+                public Object call(Map<String, Object> arguments) {
+                    Object obj = arguments.get("obj");
+                    Set<String> dir = new TreeSet();
+                    if (obj instanceof KodeInstance) {
+                        dir.addAll(((KodeInstance) obj).fields.keySet());
+                        if (obj instanceof KodeModule) {
+                            dir.addAll(((KodeModule) obj).inter.globals.values.keySet());
+                        }
+                        else if (((KodeInstance) obj).klass != null) {
+                            KodeClass kls = ((KodeInstance) obj).klass;
+                            for (;;) {
+                                if (kls != null) {
+                                    dir.addAll(kls.methods.keySet());
+                                    dir.addAll(kls.specialMethods().keySet());
+                                } else {
+                                    break;
+                                }
+                                kls = kls.superclass;
+                            }
+                        }
+                    }
+                    return interpreter.toKodeValue(Arrays.asList(dir.toArray()));
+                }
+
+            });
             DEF_GLOBALS.put(ValueNumber.val.class_name, ValueNumber.val);
-
             DEF_GLOBALS.put(ValueString.val.class_name, ValueString.val);
-
             DEF_GLOBALS.put(ValueBool.val.class_name, ValueBool.val);
-
             DEF_GLOBALS.put(ValueList.val.class_name, ValueList.val);
-
             DEF_GLOBALS.put(ValueError.val.class_name, ValueError.val);
-
             DEF_GLOBALS.put(ValueNotImplemented.val.class_name, ValueNotImplemented.val);
-
             DEF_GLOBALS.put("instanceof", new KodeBuiltinFunction("ins", null, inter) {
                 @Override
                 public List<Pair<String, Object>> arity() {
@@ -1166,7 +1191,6 @@ class Kode {
                 }
 
             });
-
             DEF_GLOBALS.put("exit", new KodeBuiltinFunction("exit", null, inter) {
                 @Override
                 public List<Pair<String, Object>> arity() {
@@ -1180,7 +1204,6 @@ class Kode {
                 }
 
             });
-
         } catch (Exception ex) {
             KodeHelper.exit(1);
         }

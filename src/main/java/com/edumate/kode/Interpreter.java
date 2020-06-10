@@ -1058,6 +1058,8 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
                 return BinOP(left, right, Kode.MOD, Kode.RMOD, expr.operator);
             case BACKSLASH:
                 return BinOP(left, right, Kode.FLOOR_DIV, Kode.RFLOOR_DIV, expr.operator);
+            case POWER:
+                return BinOP(left, right, Kode.POWER, Kode.RPOWER, expr.operator);
             case BANG_EQUAL:
                 return BinOP(left, right, Kode.NE, Kode.NE, expr.operator);
             case EQUAL_EQUAL:

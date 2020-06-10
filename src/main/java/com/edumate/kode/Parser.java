@@ -1094,7 +1094,19 @@ class Parser {
             return new Expr.Unary(operator, right);
         }
 
-        return call();
+        return power();
+    }
+    
+    private Expr power() {
+        Expr expr = call();
+
+        while (match(POWER)) {
+            Token operator = previous();
+            Expr right = call();
+            expr = new Expr.Binary(expr, operator, right);
+        }
+
+        return expr;
     }
 
     private Expr finishCall(Expr callee) {

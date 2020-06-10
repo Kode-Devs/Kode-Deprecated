@@ -801,10 +801,10 @@ class Lexer {
             case ';':
                 addToken(SEMICOLON);
                 break;
-            case '*':
-                addToken(STAR);
-                break;
             // Double Character Lexemes
+            case '*':
+                addToken(match('*') ? POWER : STAR);
+                break;
             case '!':
                 addToken(match('=') ? BANG_EQUAL : BANG);
                 break;

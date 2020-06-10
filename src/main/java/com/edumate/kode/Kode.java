@@ -722,10 +722,6 @@ class Kode {
     static Map<String, KodeModule> ModuleRegistry = new HashMap();
 
     static final String INIT = "__init__";
-    static final String STRING = "__str__";
-    static final String NUMBER = "__num__";
-    static final String BOOLEAN = "__bool__";
-    static final String LIST = "__list__";
     static final String __NAME__ = "__name__";
     static final String __MAIN__ = "__main__";
 
@@ -737,6 +733,10 @@ class Kode {
     static final String BUILTIN_NAME = "__builtin__";
 
     static final String NEG = "__neg__";
+    static final String STRING = "__str__";
+    static final String NUMBER = "__num__";
+    static final String BOOLEAN = "__bool__";
+    static final String LIST = "__list__";
 
     static final String ADD = "__add__";
     static final String RADD = "__radd__";
@@ -747,14 +747,17 @@ class Kode {
     static final String MUL = "__mul__";
     static final String RMUL = "__rmul__";
 
-    static final String DIV = "__div__";
-    static final String RDIV = "__rdiv__";
+    static final String DIV = "__truediv__";
+    static final String RDIV = "__rtruediv__";
 
     static final String MOD = "__mod__";
     static final String RMOD = "__rmod__";
 
     static final String FLOOR_DIV = "__floordiv__";
     static final String RFLOOR_DIV = "__rfloordiv__";
+
+    static final String POWER = "__pow__";
+    static final String RPOWER = "__rpow__";
 
     static final String EQ = "__eq__";
     static final String NE = "__ne__";

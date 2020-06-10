@@ -1027,9 +1027,15 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
             }
         }
         if (lop.equals(rop) && lop.equals(Kode.EQ)) {
+            if (left instanceof Hash && right instanceof Hash) {
+                return this.toKodeValue(Objects.equals(((Hash) left).hash, ((Hash) right).hash));
+            }
             return this.toKodeValue(Objects.equals(left, right));
         }
         if (lop.equals(rop) && lop.equals(Kode.NE)) {
+            if (left instanceof Hash && right instanceof Hash) {
+                return this.toKodeValue(!Objects.equals(((Hash) left).hash, ((Hash) right).hash));
+            }
             return this.toKodeValue(!Objects.equals(left, right));
         }
         throw new RuntimeError("Binary Operation '" + op.lexeme + "' can not be performed between operands of type '"

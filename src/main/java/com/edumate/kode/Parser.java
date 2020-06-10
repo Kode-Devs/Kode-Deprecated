@@ -862,12 +862,7 @@ class Parser {
 
         return new Stmt.If(condition, thenBranch, elseBranch);
     }
-
-//    private Stmt printStatement() {
-//        Expr value = expression();
-//        consume(SEMICOLON, "Expect ';' after value.");
-//        return new Stmt.Print(value);
-//    }
+    
     private Stmt requireStatement(Token imp) {
         List<Token> value = new ArrayList();
         do {

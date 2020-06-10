@@ -683,7 +683,7 @@ package com.edumate.kode;
 class Hash {
 
     final String hash;
-    
+
     final KodeInstance obj;
 
     Hash(KodeInstance obj) {
@@ -692,12 +692,12 @@ class Hash {
     }
 
     private static String encode(Integer hash) {
-        return "" + hash;
+        return Integer.toHexString(hash);
     }
 
     @Override
     public String toString() {
-        return this.hash;
+        return "Hash : " + this.hash;
     }
 
 }

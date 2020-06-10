@@ -911,7 +911,7 @@ class Lexer {
             }
 
             if (peek() == '\n') {
-                line++;
+                break;
             }
 
             if (peek() == '\\') {
@@ -925,13 +925,41 @@ class Lexer {
         }
 
         // Unterminated string.
-        if (isAtEnd()) {
+        if(!match(quote)) {
             Kode.error(fn, line, "Unterminated string.");
             return;
         }
 
-        // The closing ".
-        advance();
+        addToken(STRING, text);
+    }
+    
+    private void multilineString(char quote) {
+        String text = "";
+
+        while (!isAtEnd()) {
+            if (peek() == quote) {
+                break;
+            }
+
+            if (peek() == '\n') {
+                break;
+            }
+
+            if (peek() == '\\') {
+                advance();
+                String ch = "" + advance();
+                text += ESCAPE.getOrDefault(ch, ch);
+                continue;
+            }
+
+            text += advance();
+        }
+
+        // Unterminated string.
+        if(!match(quote)) {
+            Kode.error(fn, line, "Unterminated string.");
+            return;
+        }
 
         addToken(STRING, text);
     }

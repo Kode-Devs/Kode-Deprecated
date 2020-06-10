@@ -912,9 +912,9 @@ class Kode {
 
     static void error(Token token, String message) {
         if (token.type == TokenType.EOF) {
-            report(token.line, " at end in file " + token.fn, message);
+            report(token.line, " during parsing near end in file " + token.fn, message);
         } else {
-            report(token.line, " at '" + token.lexeme + "' in file " + token.fn, message);
+            report(token.line, " during parsing near '" + token.lexeme + "' in file " + token.fn, message);
         }
         if (token.line_text != null) {
             KodeHelper.printfln_err("->\t" + token.line_text.trim());
@@ -1169,6 +1169,18 @@ class Kode {
                         }
                     }
                     return interpreter.toKodeValue(Arrays.asList(dir.toArray()));
+                }
+
+            });
+            DEF_GLOBALS.put("id", new KodeBuiltinFunction("id", null, inter) {
+                @Override
+                public List<Pair<String, Object>> arity() {
+                    return Arrays.asList(new Pair("obj", null));
+                }
+
+                @Override
+                public Object call(Map<String, Object> arguments) {
+                    return interpreter.toKodeValue(arguments.get("obj").hashCode());
                 }
 
             });

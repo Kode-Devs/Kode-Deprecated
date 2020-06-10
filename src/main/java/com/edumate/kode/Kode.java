@@ -725,14 +725,15 @@ class Kode {
     static final String __NAME__ = "__name__";
     static final String __MAIN__ = "__main__";
 
-    static final String GET_AT_INDEX = "__getAtIndex__";
-    static final String SET_AT_INDEX = "__setAtIndex__";
+    static final String GET_AT_INDEX = "__getItem__";
+    static final String SET_AT_INDEX = "__setItem__";
     static final String CLASS = "__class__";
     static final String HASH = "__hash__";
 
     static final String BUILTIN_NAME = "__builtin__";
 
     static final String NEG = "__neg__";
+    static final String LEN = "__len__";
     static final String STRING = "__str__";
     static final String NUMBER = "__num__";
     static final String BOOLEAN = "__bool__";
@@ -843,7 +844,6 @@ class Kode {
 
         if (fromDir) {
             FileSearch path = new FileSearch("./", name + "." + Kode.EXTENSION);
-            //KodeIO.printfln(path.path);
             if (path.exists()) {
                 byte[] bytes = Files.readAllBytes(path.path.toAbsolutePath());
                 run(path.path.toAbsolutePath().toFile().getName(), new String(bytes, Charset.defaultCharset()), inter);
@@ -851,7 +851,6 @@ class Kode {
             }
 
             String p = Paths.get(Paths.get(Kode.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getParent().toFile().getAbsolutePath(), "libs").toString();
-            //KodeIO.printfln(p);
             path = new FileSearch(p, name + "." + Kode.EXTENSION);
             if (path.exists()) {
                 byte[] bytes = Files.readAllBytes(path.path.toAbsolutePath());
@@ -1110,8 +1109,34 @@ class Kode {
                     String sep = ValueString.toStr(arguments.get("sep"));
                     String end = ValueString.toStr(arguments.get("end"));
                     String msg = str.stream().map(ValueString::toStr).collect(Collectors.joining(sep)) + end;
-                    if(ValueBool.toBoolean(arguments.get("mask"))) return interpreter.toKodeValue(KodeHelper.scanf_pwd(msg));
+                    if (ValueBool.toBoolean(arguments.get("mask"))) {
+                        return interpreter.toKodeValue(KodeHelper.scanf_pwd(msg));
+                    }
                     return interpreter.toKodeValue(KodeHelper.scanf(msg));
+                }
+
+            });
+
+            DEF_GLOBALS.put("len", new KodeBuiltinFunction("len", null, inter) {
+                @Override
+                public List<Pair<String, Object>> arity() {
+                    return Arrays.asList(new Pair("obj", null));
+                }
+
+                @Override
+                public Object call(Map<String, Object> arguments) {
+                    Object obj = arguments.get("obj");
+                    try {
+                        if (obj instanceof KodeInstance) {
+                            Object fun = ((KodeInstance) obj).get(Kode.LEN);
+                            if (fun instanceof KodeFunction) {
+                                return ((KodeFunction) fun).call(Arrays.asList());
+                            }
+                        }
+                        throw new NotImplemented();
+                    } catch (NotImplemented e) {
+                        throw new RuntimeError("Element of type '" + Kode.type(obj) + "' has no length.");
+                    }
                 }
 
             });

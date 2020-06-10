@@ -888,6 +888,31 @@ class KodeClass implements KodeCallable {
                 };
 //</editor-fold>
 
+            case Kode.LEN:
+                //<editor-fold defaultstate="collapsed" desc="len">
+                return new KodeBuiltinFunction(name, null, interpreter) {
+
+                    @Override
+                    public List<Pair<String, Object>> arity() {
+                        return new ArrayList();
+                    }
+
+                    @Override
+                    public Object call(Map<String, Object> arguments) {
+                        Object This = closure.getAt(0, "this");
+                        if (This instanceof KodeInstance) {
+                            if (ValueString.isString((KodeInstance) This)) {
+                                return interpreter.toKodeValue(ValueString.toStr(This).length());
+                            }
+                            if (ValueList.isList((KodeInstance) This)) {
+                                return interpreter.toKodeValue(ValueList.toList(This).size());
+                            }
+                        }
+                        throw new NotImplemented();
+                    }
+                };
+//</editor-fold>
+
             case Kode.ADD:
                 //<editor-fold defaultstate="collapsed" desc="Add">
                 return new KodeBuiltinFunction(name, null, interpreter) {
@@ -1358,12 +1383,12 @@ class KodeClass implements KodeCallable {
             case Kode.EQ:
                 //<editor-fold defaultstate="collapsed" desc="EQ">
                 return new KodeBuiltinFunction(name, null, interpreter) {
-                    
+
                     @Override
                     public List<Pair<String, Object>> arity() {
                         return Arrays.asList(new Pair("obj", null));
                     }
-                    
+
                     @Override
                     public Object call(Map<String, Object> arguments) {
                         Object left = closure.getAt(0, "this");
@@ -1375,12 +1400,12 @@ class KodeClass implements KodeCallable {
             case Kode.NE:
                 //<editor-fold defaultstate="collapsed" desc="NE">
                 return new KodeBuiltinFunction(name, null, interpreter) {
-                    
+
                     @Override
                     public List<Pair<String, Object>> arity() {
                         return Arrays.asList(new Pair("obj", null));
                     }
-                    
+
                     @Override
                     public Object call(Map<String, Object> arguments) {
                         Object left = closure.getAt(0, "this");
@@ -1392,12 +1417,12 @@ class KodeClass implements KodeCallable {
             case Kode.LT:
                 //<editor-fold defaultstate="collapsed" desc="LT">
                 return new KodeBuiltinFunction(name, null, interpreter) {
-                    
+
                     @Override
                     public List<Pair<String, Object>> arity() {
                         return Arrays.asList(new Pair("obj", null));
                     }
-                    
+
                     @Override
                     public Object call(Map<String, Object> arguments) {
                         Object left = closure.getAt(0, "this");
@@ -1409,12 +1434,12 @@ class KodeClass implements KodeCallable {
             case Kode.LE:
                 //<editor-fold defaultstate="collapsed" desc="LE">
                 return new KodeBuiltinFunction(name, null, interpreter) {
-                    
+
                     @Override
                     public List<Pair<String, Object>> arity() {
                         return Arrays.asList(new Pair("obj", null));
                     }
-                    
+
                     @Override
                     public Object call(Map<String, Object> arguments) {
                         Object left = closure.getAt(0, "this");
@@ -1426,12 +1451,12 @@ class KodeClass implements KodeCallable {
             case Kode.GT:
                 //<editor-fold defaultstate="collapsed" desc="GT">
                 return new KodeBuiltinFunction(name, null, interpreter) {
-                    
+
                     @Override
                     public List<Pair<String, Object>> arity() {
                         return Arrays.asList(new Pair("obj", null));
                     }
-                    
+
                     @Override
                     public Object call(Map<String, Object> arguments) {
                         Object left = closure.getAt(0, "this");
@@ -1443,12 +1468,12 @@ class KodeClass implements KodeCallable {
             case Kode.GE:
                 //<editor-fold defaultstate="collapsed" desc="GE">
                 return new KodeBuiltinFunction(name, null, interpreter) {
-                    
+
                     @Override
                     public List<Pair<String, Object>> arity() {
                         return Arrays.asList(new Pair("obj", null));
                     }
-                    
+
                     @Override
                     public Object call(Map<String, Object> arguments) {
                         Object left = closure.getAt(0, "this");

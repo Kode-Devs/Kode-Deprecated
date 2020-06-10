@@ -688,6 +688,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -701,7 +702,6 @@ class Kode {
     static final String AUTHOR = "Edumate";
     static final String USAGE = "Usage: kode [script]";
 
-//<editor-fold defaultstate="collapsed" desc="Actual Codes">
     static String getVersion() {
         return Kode.NAME + " " + Kode.VERSION;
     }
@@ -1086,15 +1086,27 @@ class Kode {
                     List str = ValueList.toList(arguments.get("str"));
                     String sep = ValueString.toStr(arguments.get("sep"));
                     String end = ValueString.toStr(arguments.get("end"));
-                    if (str.size() > 0) {
-                        KodeHelper.printf(ValueString.toStr(str.get(0)));
-                    }
-                    for (int i = 1; i < str.size(); i++) {
-                        KodeHelper.printf(sep);
-                        KodeHelper.printf(ValueString.toStr(str.get(i)));
-                    }
-                    KodeHelper.printf(end);
+                    KodeHelper.printf(str.stream().map(ValueString::toStr).collect(Collectors.joining(sep)) + end);
                     return null;
+                }
+
+            });
+
+            DEF_GLOBALS.put("input", new KodeBuiltinFunction("input", null, inter) {
+                @Override
+                public List<Pair<String, Object>> arity() {
+                    return Arrays.asList(new Pair("str", interpreter.toKodeValue(Arrays.asList(interpreter.toKodeValue(""))), true),
+                            new Pair("sep", interpreter.toKodeValue(" ")),
+                            new Pair("end", interpreter.toKodeValue("")));
+                }
+
+                @Override
+                public Object call(Map<String, Object> arguments) {
+                    List str = ValueList.toList(arguments.get("str"));
+                    String sep = ValueString.toStr(arguments.get("sep"));
+                    String end = ValueString.toStr(arguments.get("end"));
+                    String msg = str.stream().map(ValueString::toStr).collect(Collectors.joining(sep)) + end;
+                    return interpreter.toKodeValue(KodeHelper.scanf(msg));
                 }
 
             });
@@ -1143,6 +1155,4 @@ class Kode {
             KodeHelper.exit(1);
         }
     }
-
-//</editor-fold>
 }

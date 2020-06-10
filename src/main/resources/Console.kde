@@ -1,13 +1,1 @@
 // Built-In console commands
-
-fun reset(){
-    return native com.edumate.kode.KodeIO.resetLine();
-}
-
-fun demo(a){
-    if(a){
-        print("Hi");
-    }else{
-        print("Bye");
-    }
-}

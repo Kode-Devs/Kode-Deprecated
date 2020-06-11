@@ -1132,6 +1132,17 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
                 throw new RuntimeError("Argument '" + name.key + "' requirment not met.", expr.paren);
             }
         });
+        map.forEach((key, value) -> {
+            boolean found = false;
+            for (Pair<String, Object> name : arity) {
+                if (name.key.equals(key)) {
+                    found = true;
+                }
+            }
+            if (!found) {
+                throw new RuntimeError("Extra argument '" + key + "' found.", expr.paren);
+            }
+        });
         try {
             return function.call(map);
         } catch (RuntimeError e) {

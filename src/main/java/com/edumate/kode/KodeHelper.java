@@ -744,10 +744,6 @@ public class KodeHelper {
     public static boolean resetLine() {
         return textIO.getTextTerminal().resetLine();
     }
-
-    public static final void free() {
-        System.gc();
-    }
     
     public static final void exit(int status){
         textIO.getTextTerminal().dispose();

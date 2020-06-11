@@ -24,28 +24,6 @@ fun isString(obj){
     return type(obj)=="<StringType>";
 }
 
-fun input(*str=[""],sep=' ',end=''){
-    print(str=str, sep=sep, end=end);
-    return native("lang.builtins","input");
-}
-
-fun run(fn){
-    native("lang.builtins","run",params=[String(fn)]);
-}
-
-fun len(obj){
-    if(isString(obj) or isList(obj)) return native("lang.builtins","len",params=[obj]);
-    error(type(obj) + " has no length.");
-}
-
-fun type(obj){
-    return native("lang.builtins","type",params=[obj]);
-}
-
-fun error(msg=""){
-    return native("lang.builtins","error",params=[String(msg)]);
-}
-
 fun warn(msg=""){
     return native("lang.builtins","warn",params=[String(msg)]);
 }

@@ -1062,7 +1062,6 @@ class Kode {
                 throw new Exception();
             }
             final Interpreter inter = module.inter;
-            DEF_GLOBALS.putAll(inter.globals.values);
             DEF_GLOBALS.put("NaN", inter.toKodeValue(Double.NaN));
             DEF_GLOBALS.put("Infinity", inter.toKodeValue(Double.POSITIVE_INFINITY));
             DEF_GLOBALS.put("type", new KodeBuiltinFunction("type", null, inter) {
@@ -1184,6 +1183,31 @@ class Kode {
                 }
 
             });
+            DEF_GLOBALS.put("now", new KodeBuiltinFunction("now", null, inter) {
+                @Override
+                public List<Pair<String, Object>> arity() {
+                    return Arrays.asList();
+                }
+
+                @Override
+                public Object call(Map<String, Object> arguments) {
+                    return interpreter.toKodeValue(System.currentTimeMillis());
+                }
+
+            });
+            DEF_GLOBALS.put("free", new KodeBuiltinFunction("free", null, inter) {
+                @Override
+                public List<Pair<String, Object>> arity() {
+                    return Arrays.asList();
+                }
+
+                @Override
+                public Object call(Map<String, Object> arguments) {
+                    System.gc();
+                    return null;
+                }
+
+            });
             DEF_GLOBALS.put(ValueNumber.val.class_name, ValueNumber.val);
             DEF_GLOBALS.put(ValueString.val.class_name, ValueString.val);
             DEF_GLOBALS.put(ValueBool.val.class_name, ValueBool.val);
@@ -1216,6 +1240,7 @@ class Kode {
                 }
 
             });
+            inter.globals.values.putAll(DEF_GLOBALS);
         } catch (Exception ex) {
             KodeHelper.exit(1);
         }

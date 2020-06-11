@@ -692,6 +692,8 @@ public class KodeHelper {
     private static final Color IN_COLOR = Color.CYAN;
     private static final Color ERR_COLOR = Color.YELLOW;
     
+    private static final String CLC = "clc";
+    
     public static final void main(String... args) {
         textIO.getTextTerminal().getProperties().setPromptColor(KodeHelper.OUT_COLOR);
         textIO.getTextTerminal().getProperties().setInputColor(KodeHelper.IN_COLOR);
@@ -704,6 +706,7 @@ public class KodeHelper {
         textIO.getTextTerminal().registerUserInterruptHandler((e) -> {
             exit(0);
         }, true);
+        textIO.getTextTerminal().setBookmark(CLC);
         
         Kode.start_console(args);
         exit(0);
@@ -743,6 +746,10 @@ public class KodeHelper {
     
     public static boolean resetLine() {
         return textIO.getTextTerminal().resetLine();
+    }
+    
+    public static void clc(){
+        textIO.getTextTerminal().resetToBookmark(CLC);
     }
     
     public static final void exit(int status){

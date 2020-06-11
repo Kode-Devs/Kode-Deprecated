@@ -1062,6 +1062,7 @@ class Kode {
                 throw new Exception();
             }
             final Interpreter inter = module.inter;
+            DEF_GLOBALS.putAll(inter.globals.values);
             DEF_GLOBALS.put("NaN", inter.toKodeValue(Double.NaN));
             DEF_GLOBALS.put("Infinity", inter.toKodeValue(Double.POSITIVE_INFINITY));
             DEF_GLOBALS.put("type", new KodeBuiltinFunction("type", null, inter) {
@@ -1208,13 +1209,33 @@ class Kode {
                 }
 
             });
-            DEF_GLOBALS.put(ValueNumber.val.class_name, ValueNumber.val);
-            DEF_GLOBALS.put(ValueString.val.class_name, ValueString.val);
-            DEF_GLOBALS.put(ValueBool.val.class_name, ValueBool.val);
-            DEF_GLOBALS.put(ValueList.val.class_name, ValueList.val);
-            DEF_GLOBALS.put(ValueError.val.class_name, ValueError.val);
-            DEF_GLOBALS.put(ValueNotImplemented.val.class_name, ValueNotImplemented.val);
-            DEF_GLOBALS.put("instanceof", new KodeBuiltinFunction("ins", null, inter) {
+            DEF_GLOBALS.put("resetLine", new KodeBuiltinFunction("resetLine", null, inter) {
+                @Override
+                public List<Pair<String, Object>> arity() {
+                    return Arrays.asList();
+                }
+
+                @Override
+                public Object call(Map<String, Object> arguments) {
+                    KodeHelper.resetLine();
+                    return null;
+                }
+
+            });
+            DEF_GLOBALS.put("clear", new KodeBuiltinFunction("clear", null, inter) {
+                @Override
+                public List<Pair<String, Object>> arity() {
+                    return Arrays.asList();
+                }
+
+                @Override
+                public Object call(Map<String, Object> arguments) {
+                    KodeHelper.clc();
+                    return null;
+                }
+
+            });
+            DEF_GLOBALS.put("instanceof", new KodeBuiltinFunction("instanceof", null, inter) {
                 @Override
                 public List<Pair<String, Object>> arity() {
                     return Arrays.asList(new Pair("ins", null), new Pair("klass", null));
@@ -1240,6 +1261,13 @@ class Kode {
                 }
 
             });
+//            DEF_GLOBALS.put(ValueNone.val.class_name, ValueNone.val);
+            DEF_GLOBALS.put(ValueNumber.val.class_name, ValueNumber.val);
+            DEF_GLOBALS.put(ValueString.val.class_name, ValueString.val);
+            DEF_GLOBALS.put(ValueBool.val.class_name, ValueBool.val);
+            DEF_GLOBALS.put(ValueList.val.class_name, ValueList.val);
+            DEF_GLOBALS.put(ValueError.val.class_name, ValueError.val);
+            DEF_GLOBALS.put(ValueNotImplemented.val.class_name, ValueNotImplemented.val);
             inter.globals.values.putAll(DEF_GLOBALS);
         } catch (Exception ex) {
             KodeHelper.exit(1);

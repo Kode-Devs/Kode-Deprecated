@@ -1,4 +1,0 @@
-
-fun reset(){
-    native com.edumate.kode.KodeHelper.resetLine();
-}

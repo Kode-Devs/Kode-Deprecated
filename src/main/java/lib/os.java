@@ -681,7 +681,18 @@ package lib;
  * @author dell
  */
 public class os {
-    public static void free(){
-        
+
+    /**
+     * Temporary Native wrapper function of Java System.getProperty() for Kode.
+     * 
+     * @param cmd Key Needed by System.getProperty()
+     * @return value if key is present and accessible, else null (or None)
+     */
+    public static Object getProperties(Object cmd) {
+        try {
+            return System.getProperty(cmd.toString());
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

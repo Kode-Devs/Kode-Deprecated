@@ -1,6 +1,6 @@
 
-name = "Windows"
+var name = native lib.os.getProperties("os.name");
 
 fun System(cmd){
-
+    raise NotImplemented();
 }

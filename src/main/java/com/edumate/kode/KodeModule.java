@@ -725,7 +725,7 @@ class KodeModule extends KodeInstance {
                     name);
         }
     }
-
+    
     @Override
     public String toString() {
         return "<module '" + this.name + "'>";

@@ -684,6 +684,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -1377,7 +1378,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
                 return ValueBool.toBoolean(value);
             }
             if (ValueList.isList((KodeInstance) value)) {
-                return ValueList.toList(value);
+                return ValueList.toList(value).stream().map(this::toJava).collect(Collectors.toList());
             }
         }
         return value;

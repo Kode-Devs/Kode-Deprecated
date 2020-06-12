@@ -866,6 +866,18 @@ class ValueString extends Value {
 
         public static Double toNumber(Object num) throws Exception {
             try {
+                switch (num.toString()) {
+                    case Kode.INFINITY:
+                    case "+" + Kode.INFINITY:
+                        return Double.POSITIVE_INFINITY;
+                    case "-" + Kode.INFINITY:
+                        return -Double.POSITIVE_INFINITY;
+                    case Kode.NAN:
+                    case "+" + Kode.NAN:
+                        return Double.NaN;
+                    case "-" + Kode.NAN:
+                        return -Double.NaN;
+                }
                 if (checkNumberFormat(num.toString())) {
                     return Double.parseDouble(num.toString());
                 } else {

@@ -724,6 +724,8 @@ class Kode {
     static Map<String, KodeModule> ModuleRegistry = new HashMap();
 
     static final String INIT = "__init__";
+    static final String INFINITY = "Infinity";
+    static final String NAN = "NaN";
     static final String __NAME__ = "__name__";
     static final String __MAIN__ = "__main__";
 
@@ -957,11 +959,14 @@ class Kode {
         // Hack. Work around Java adding ".0" to integer-valued doubles.
         if (object instanceof Double) {
             Double num = (Double) object;
-            if (num.isInfinite()) {
-                return "Infinity";
+            if (num==Double.POSITIVE_INFINITY) {
+                return Kode.INFINITY;
+            }
+            if (num==Double.NEGATIVE_INFINITY) {
+                return "-"+Kode.INFINITY;
             }
             if (num.isNaN()) {
-                return "NaN";
+                return Kode.NAN;
             }
             String text = object.toString();
             if (text.endsWith(".0")) {
@@ -992,13 +997,6 @@ class Kode {
     }
 
     static String stringify(Object object) {
-
-        if (object instanceof KodeInstance) {
-            if (ValueList.isList((KodeInstance) object)) {
-
-            }
-        }
-
         return _stringify(object);
     }
 
@@ -1063,8 +1061,6 @@ class Kode {
             }
             final Interpreter inter = module.inter;
             DEF_GLOBALS.putAll(inter.globals.values);
-            DEF_GLOBALS.put("NaN", inter.toKodeValue(Double.NaN));
-            DEF_GLOBALS.put("Infinity", inter.toKodeValue(Double.POSITIVE_INFINITY));
             DEF_GLOBALS.put("type", new KodeBuiltinFunction("type", null, inter) {
                 @Override
                 public List<Pair<String, Object>> arity() {

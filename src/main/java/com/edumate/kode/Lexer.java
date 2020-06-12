@@ -712,6 +712,8 @@ class Lexer {
         KEYWORDS.put("fun", FUN);
         KEYWORDS.put("if", IF);
         KEYWORDS.put("None", NONE);
+        KEYWORDS.put(Kode.INFINITY, INFINITY);
+        KEYWORDS.put(Kode.NAN, NAN);
         KEYWORDS.put("native", NATIVE);
         KEYWORDS.put("or", OR);
         KEYWORDS.put("import", IMPORT);

@@ -1154,6 +1154,12 @@ class Parser {
         if (match(NONE)) {
             return new Expr.Literal(null);
         }
+        if (match(INFINITY)) {
+            return new Expr.Literal(Double.POSITIVE_INFINITY);
+        }
+        if (match(NAN)) {
+            return new Expr.Literal(Double.NaN);
+        }
 
         if (match(NUMBER, STRING)) {
             return new Expr.Literal(previous().literal);

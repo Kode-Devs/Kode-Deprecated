@@ -684,7 +684,7 @@ public class os {
 
     /**
      * Temporary Native wrapper function of Java System.getProperty() for Kode.
-     * 
+     *
      * @param cmd Key Needed by System.getProperty()
      * @return value if key is present and accessible, else null (or None)
      */

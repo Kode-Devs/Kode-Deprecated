@@ -687,6 +687,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -959,20 +960,24 @@ class Kode {
         // Hack. Work around Java adding ".0" to integer-valued doubles.
         if (object instanceof Double) {
             Double num = (Double) object;
-            if (num==Double.POSITIVE_INFINITY) {
+            if (num == Double.POSITIVE_INFINITY) {
                 return Kode.INFINITY;
             }
-            if (num==Double.NEGATIVE_INFINITY) {
-                return "-"+Kode.INFINITY;
+            if (num == Double.NEGATIVE_INFINITY) {
+                return "-" + Kode.INFINITY;
             }
             if (num.isNaN()) {
                 return Kode.NAN;
             }
-            String text = object.toString();
-            if (text.endsWith(".0")) {
-                text = text.substring(0, text.length() - 2);
-            }
-            return text;
+//            String text = object.toString();
+//            if (text.endsWith(".0")) {
+//                text = text.substring(0, text.length() - 2);
+//            }
+//            return text;
+            String format = String.format(Locale.US, "%.10G", num);
+            format = format.replaceFirst("\\.0+(e|$)", "$1")
+                    .replaceFirst("(\\.[0-9]*[1-9])(0+)(e|$)", "$1$3");
+            return format;
         }
 
         // List
@@ -1150,8 +1155,7 @@ class Kode {
                         dir.addAll(((KodeInstance) obj).fields.keySet());
                         if (obj instanceof KodeModule) {
                             dir.addAll(((KodeModule) obj).inter.globals.values.keySet());
-                        }
-                        else if (((KodeInstance) obj).klass != null) {
+                        } else if (((KodeInstance) obj).klass != null) {
                             KodeClass kls = ((KodeInstance) obj).klass;
                             for (;;) {
                                 if (kls != null) {

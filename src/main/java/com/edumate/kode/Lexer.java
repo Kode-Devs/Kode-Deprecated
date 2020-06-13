@@ -682,6 +682,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.edumate.kode.TokenType.*;
+import utils.TextUtils;
 
 /**
  *
@@ -697,7 +698,7 @@ class Lexer {
     private final String fn;
 
     private static final Map<String, TokenType> KEYWORDS;
-    private static final Map<String, String> ESCAPE;
+//    private static final Map<String, String> ESCAPE;
 
     static {
         KEYWORDS = new HashMap<>();
@@ -729,14 +730,13 @@ class Lexer {
         KEYWORDS.put("raise", RAISE);
     }
 
-    static {
-        ESCAPE = new HashMap();
-        ESCAPE.put("n", "\n");
-        ESCAPE.put("t", "\t");
-        ESCAPE.put("r", "\r");
-        ESCAPE.put("b", "\b");
-    }
-
+//    static {
+//        ESCAPE = new HashMap();
+//        ESCAPE.put("n", "\n");
+//        ESCAPE.put("t", "\t");
+//        ESCAPE.put("r", "\r");
+//        ESCAPE.put("b", "\b");
+//    }
     Lexer(String fn, String source) {
         this.fn = fn;
         this.source = source;
@@ -858,6 +858,9 @@ class Lexer {
             case '\'':
                 string('\'');
                 break;
+            case '`':
+                multilineString();
+                break;
             // Error Handling
             default:
                 if (isDigit(c)) {
@@ -916,50 +919,65 @@ class Lexer {
                 break;
             }
 
-            if (peek() == '\\') {
-                advance();
-                String ch = "" + advance();
-                text += ESCAPE.getOrDefault(ch, ch);
-                continue;
-            }
-
+//            if (peek() == '\\') {
+//                advance();
+//                String ch = "" + advance();
+//                text += ESCAPE.getOrDefault(ch, ch);
+//                continue;
+//            }
             text += advance();
         }
 
         // Unterminated string.
-        if(!match(quote)) {
+        if (!match(quote)) {
             Kode.error(fn, line, "Unterminated string.");
+            return;
+        }
+
+        //Processing
+        try {
+            text = TextUtils.translateEscapes(text);
+        } catch (IllegalArgumentException e) {
+            Kode.error(fn, line, e.getMessage());
             return;
         }
 
         addToken(STRING, text);
     }
-    
-    private void multilineString(char quote) {
+
+    private void multilineString() {
         String text = "";
 
         while (!isAtEnd()) {
-            if (peek() == quote) {
+            if (peek() == '`') {
                 break;
             }
 
             if (peek() == '\n') {
-                break;
-            }
-
-            if (peek() == '\\') {
-                advance();
-                String ch = "" + advance();
-                text += ESCAPE.getOrDefault(ch, ch);
-                continue;
+                line++;
             }
 
             text += advance();
         }
 
         // Unterminated string.
-        if(!match(quote)) {
-            Kode.error(fn, line, "Unterminated string.");
+        if (!match('`')) {
+            Kode.error(fn, line, "Unterminated multi-line string.");
+            return;
+        }
+
+        //Processing
+        text = text.stripIndent();
+        if (text.startsWith("\n")) {
+            text = text.substring(1);
+        }
+        if (text.endsWith("\n")) {
+            text = text.substring(0, text.length() - 1);
+        }
+        try {
+            text = TextUtils.translateEscapes(text);
+        } catch (IllegalArgumentException e) {
+            Kode.error(fn, line, e.getMessage());
             return;
         }
 

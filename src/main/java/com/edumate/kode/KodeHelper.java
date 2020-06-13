@@ -677,6 +677,8 @@
 package com.edumate.kode;
 
 import java.awt.Color;
+import java.io.IOException;
+import lib.os;
 import org.beryx.textio.TextIO;
 import org.beryx.textio.TextIoFactory;
 
@@ -687,13 +689,13 @@ import org.beryx.textio.TextIoFactory;
 public class KodeHelper {
 
     public static final TextIO textIO = TextIoFactory.getTextIO();
-    
+
     private static final Color OUT_COLOR = Color.WHITE;
     private static final Color IN_COLOR = Color.CYAN;
     private static final Color ERR_COLOR = Color.YELLOW;
-    
+
     private static final String CLC = "clc";
-    
+
     public static final void main(String... args) {
         textIO.getTextTerminal().getProperties().setPromptColor(KodeHelper.OUT_COLOR);
         textIO.getTextTerminal().getProperties().setInputColor(KodeHelper.IN_COLOR);
@@ -702,12 +704,12 @@ public class KodeHelper {
         textIO.getTextTerminal().getProperties().setPromptItalic(false);
         textIO.getTextTerminal().getProperties().setInputItalic(false);
         textIO.getTextTerminal().getProperties().put("pane.title", Kode.getVersion());
-        
+
         textIO.getTextTerminal().registerUserInterruptHandler((e) -> {
             exit(0);
         }, true);
         textIO.getTextTerminal().setBookmark(CLC);
-        
+
         Kode.start_console(args);
         exit(0);
     }
@@ -743,16 +745,27 @@ public class KodeHelper {
                 .withMinLength(0)
                 .read(obj.toString());
     }
-    
+
     public static boolean resetLine() {
         return textIO.getTextTerminal().resetLine();
     }
-    
-    public static void clc(){
+
+    public static void clc() {
+        if (System.console() != null) {
+            try {
+                if (System.getProperty("os.name", "undefined").contains("Windows")) {
+                    new ProcessBuilder("cmd","/c","cls").inheritIO().start().waitFor();
+                } else {
+                    Runtime.getRuntime().exec("clear");
+                }
+                return;
+            } catch (IOException | InterruptedException e) {
+            }
+        }
         textIO.getTextTerminal().resetToBookmark(CLC);
     }
-    
-    public static final void exit(int status){
+
+    public static final void exit(int status) {
         textIO.getTextTerminal().dispose();
         System.exit(status);
     }

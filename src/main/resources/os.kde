@@ -1,6 +1,6 @@
 
 var name = native lib.os.getProperties("os.name");
 
-fun System(cmd){
-    raise NotImplemented();
+fun System(*cmd){
+    return native lib.os.System(cmd);
 }

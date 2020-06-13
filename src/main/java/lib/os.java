@@ -676,6 +676,11 @@
  */
 package lib;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.Scanner;
+import java.util.stream.Collectors;
+
 /**
  *
  * @author dell
@@ -693,6 +698,16 @@ public class os {
             return System.getProperty(cmd.toString());
         } catch (Exception e) {
             return null;
+        }
+    }
+
+    public static void System(Object cmd) throws IOException {
+        if (cmd instanceof List) {
+            List<String> c = (List) ((List) cmd).stream().map(Object::toString).collect(Collectors.toList());
+            String temp[] = new String[]{};
+            Runtime.getRuntime().exec(c.toArray(temp));
+        } else {
+            Runtime.getRuntime().exec(cmd.toString());
         }
     }
 }

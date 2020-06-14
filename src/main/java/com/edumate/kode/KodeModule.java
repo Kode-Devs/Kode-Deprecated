@@ -713,10 +713,6 @@ class KodeModule extends KodeInstance {
 
     @Override
     Object get(Token name) {
-        if (fields.containsKey(name.lexeme)) {
-            return fields.get(name.lexeme);
-        }
-
         try {
             return inter.globals.get(name);
         } catch (Exception e) {
@@ -724,6 +720,11 @@ class KodeModule extends KodeInstance {
                     "Undefined property '" + name.lexeme + "'.",
                     name);
         }
+    }
+    
+    @Override
+    void set(String name, Object value) {
+        inter.globals.define(name, value);
     }
     
     @Override

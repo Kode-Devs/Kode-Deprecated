@@ -735,7 +735,7 @@ class KodeInstance {
     }
 
     void set(Token name, Object value) {
-        fields.put(name.lexeme, value);
+        set(name.lexeme, value);
     }
     
     void set(String name, Object value) {

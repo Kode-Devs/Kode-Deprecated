@@ -1,6 +1,8 @@
 `Built-in Library functions r available here.`;
 
+var a= 5;
+
 fun test(){
     `Hello World Program`;
-    print("Hello World");
+    print(a);
 }

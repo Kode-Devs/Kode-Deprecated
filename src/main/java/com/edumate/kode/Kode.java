@@ -1294,7 +1294,7 @@ class Kode {
             DEF_GLOBALS.put(ValueNotImplemented.val.class_name, ValueNotImplemented.val);
             inter.globals.values.putAll(DEF_GLOBALS);
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(null, "Failed to Initialize Interpreter\nReason : " + ex.getMessage());
+            JOptionPane.showMessageDialog(null, "Failed to Initialize Interpreter\nReason : " + ex);
             KodeHelper.exit(1);
         }
     }

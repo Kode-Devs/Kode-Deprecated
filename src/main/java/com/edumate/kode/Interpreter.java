@@ -844,7 +844,8 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
         if (superclass != null) {
             environment = environment.enclosing;
         }
-
+        
+        klass.__doc__ = stmt.doc;
         environment.assign(stmt.name, klass);
         return null;
     }
@@ -857,6 +858,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     @Override
     public Void visitFunctionStmt(Stmt.Function stmt) {
         KodeFunction function = new KodeFunction(stmt, environment, this, false);
+        function.__doc__ = stmt.doc;
         environment.define(stmt.name.lexeme, function);
         stmt.params.forEach((par) -> {
             stmt.args.add(new Pair(par.key, par.value != null ? evaluate(par.value) : null, par.star));

@@ -688,6 +688,8 @@ import java.util.Map;
  */
 class KodeClass implements KodeCallable {
 
+    String __doc__ = null;
+    
     final String class_name;
     final KodeClass superclass;
     Map<String, KodeFunction> methods;

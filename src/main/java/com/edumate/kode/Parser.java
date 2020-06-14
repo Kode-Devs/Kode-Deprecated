@@ -687,8 +687,9 @@ import static com.edumate.kode.TokenType.*;
  */
 class Parser {
 
-    private static class ParseError extends RuntimeException {
-    }
+    private static class ParseError extends RuntimeException {}
+    
+    String doc = null;
 
     private final List<Token> tokens;
     private int current = 0;
@@ -698,6 +699,9 @@ class Parser {
     }
 
     List<Stmt> parse() {
+        if(tokens.get(0).type == MLSTRING){
+            doc = tokens.get(0).literal.toString();
+        }
         List<Stmt> statements = new ArrayList<>();
         while (!isAtEnd()) {
             statements.add(declaration());
@@ -769,7 +773,11 @@ class Parser {
         }
 
         consume(LEFT_BRACE, "Expect '{' before class body.");
-
+        String doc_temp = null;
+        if(peek().type==MLSTRING){
+            doc_temp = advance().literal.toString();
+        }
+        
         List<Stmt.Function> methods = new ArrayList<>();
         while (!check(RIGHT_BRACE) && !isAtEnd()) {
             methods.add(function("method"));
@@ -777,7 +785,7 @@ class Parser {
 
         consume(RIGHT_BRACE, "Expect '}' after class body.");
 
-        return new Stmt.Class(name, superclass, methods);
+        return new Stmt.Class(name, superclass, methods, doc_temp);
     }
 
     private Stmt statement() {
@@ -971,8 +979,12 @@ class Parser {
         consume(RIGHT_PAREN, "Expect ')' after parameters.");
 
         consume(LEFT_BRACE, "Expect '{' before " + kind + " body.");
+        String doc_temp = null;
+        if(peek().type==MLSTRING){
+            doc_temp = peek().literal.toString();
+        }
         List<Stmt> body = block();
-        return new Stmt.Function(name, parameters, body);
+        return new Stmt.Function(name, parameters, body, doc_temp);
     }
 
     private List<Stmt> block() {

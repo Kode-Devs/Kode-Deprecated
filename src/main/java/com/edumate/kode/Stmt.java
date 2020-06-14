@@ -735,10 +735,11 @@ abstract class Stmt {
 
     static class Class extends Stmt {
 
-        Class(Token name, Expr.Variable superclass, List<Stmt.Function> methods) {
+        Class(Token name, Expr.Variable superclass, List<Stmt.Function> methods, String doc) {
             this.name = name;
             this.superclass = superclass;
             this.methods = methods;
+            this.doc = doc;
         }
 
         @Override
@@ -749,6 +750,7 @@ abstract class Stmt {
         final Token name;
         final Expr.Variable superclass;
         final List<Stmt.Function> methods;
+        final String doc;
     }
 
     static class Expression extends Stmt {
@@ -767,10 +769,11 @@ abstract class Stmt {
 
     static class Function extends Stmt {
 
-        Function(Token name, List<Pair<Token, Expr>> params, List<Stmt> body) {
+        Function(Token name, List<Pair<Token, Expr>> params, List<Stmt> body, String doc) {
             this.name = name;
             this.params = params;
             this.body = body;
+            this.doc = doc;
         }
 
         @Override
@@ -782,6 +785,7 @@ abstract class Stmt {
         final List<Pair<Token, Expr>> params;
         final List<Pair<Token, Object>> args = new ArrayList();
         final List<Stmt> body;
+        final String doc;
     }
 
     static class If extends Stmt {

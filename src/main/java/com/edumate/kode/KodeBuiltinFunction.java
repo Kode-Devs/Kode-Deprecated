@@ -691,6 +691,11 @@ abstract class KodeBuiltinFunction extends KodeFunction {
     KodeBuiltinFunction(String name, Environment closure, Interpreter inter) {
         super(null, closure, inter, false);
         this.fun_name = name;
+        this.__doc__ = doc();
+    }
+    
+    String doc(){
+        return null; 
     }
 
     @Override

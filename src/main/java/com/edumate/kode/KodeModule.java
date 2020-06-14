@@ -706,7 +706,7 @@ class KodeModule extends KodeInstance {
     }
 
     void run() throws Exception {
-        Kode.runLib(path, inter);
+        this.__doc__ = Kode.runLib(path, inter);
         this.hadError = Kode.hadError;
         this.hadRuntimeError = Kode.hadRuntimeError;
     }

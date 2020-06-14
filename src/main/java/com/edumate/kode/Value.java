@@ -682,14 +682,19 @@ import java.util.HashMap;
  *
  * @author dell
  */
-class Value extends KodeClass {
+abstract class Value extends KodeClass {
 
     Value(String name, Interpreter interpreter) {
-        super(name, null, new HashMap(), interpreter);
+        this(name, null, interpreter);
     }
 
     Value(String name, KodeClass superclass, Interpreter interpreter) {
         super(name, superclass, new HashMap(), interpreter);
+        this.__doc__ = doc();
+    }
+    
+    String doc(){
+        return null; 
     }
 
     final static boolean instanceOf(KodeClass i, Class c) {

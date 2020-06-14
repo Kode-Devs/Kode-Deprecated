@@ -684,7 +684,7 @@ import java.util.Map;
  * @author dell
  */
 interface KodeCallable {
-
+    
     List<Pair<String,Object>> arity();
 
     Object call(Map<String, Object> arguments);

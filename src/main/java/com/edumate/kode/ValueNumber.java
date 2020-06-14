@@ -687,6 +687,11 @@ import java.util.Map;
  * @author dell
  */
 class ValueNumber extends Value {
+    
+    @Override
+    String doc(){
+        return "Number Class wrapping over Java Double data-type."; 
+    }
 
     static Value val = new ValueNumber(new Interpreter());
 

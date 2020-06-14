@@ -692,6 +692,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -805,9 +806,11 @@ class Kode {
                     hadError = false;
                     hadRuntimeError = false;
                     try {
-                        Object run = run("<shell>", KodeHelper.scanf(">>>"), interpreter);
+                        Pair run = run("<shell>", KodeHelper.scanf(">>>"), interpreter);
                         if (run != null) {
-                            KodeHelper.printfln(run);
+                            if (run.value != null) {
+                                KodeHelper.printfln(run.value);
+                            }
                         }
                     } catch (RuntimeError error) {
                         Kode.runtimeError(error);
@@ -841,26 +844,24 @@ class Kode {
         runLib("benchmark", false, inter);
     }
 
-    static void runLib(String name, Interpreter inter) throws Exception {
-        runLib(name, true, inter);
+    static String runLib(String name, Interpreter inter) throws Exception {
+        return runLib(name, true, inter);
     }
 
-    static void runLib(String name, boolean fromDir, Interpreter inter) throws Exception {
+    static String runLib(String name, boolean fromDir, Interpreter inter) throws Exception {
 
         if (fromDir) {
             FileSearch path = new FileSearch("./", name + "." + Kode.EXTENSION);
             if (path.exists()) {
                 byte[] bytes = Files.readAllBytes(path.path.toAbsolutePath());
-                run(path.path.toAbsolutePath().toFile().getName(), new String(bytes, Charset.defaultCharset()), inter);
-                return;
+                return run(path.path.toAbsolutePath().toFile().getName(), new String(bytes, Charset.defaultCharset()), inter).key;
             }
 
             String p = Paths.get(Paths.get(Kode.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getParent().toFile().getAbsolutePath(), "libs").toString();
             path = new FileSearch(p, name + "." + Kode.EXTENSION);
             if (path.exists()) {
                 byte[] bytes = Files.readAllBytes(path.path.toAbsolutePath());
-                run(path.path.toAbsolutePath().toFile().getName(), new String(bytes, Charset.defaultCharset()), inter);
-                return;
+                return run(path.path.toAbsolutePath().toFile().getName(), new String(bytes, Charset.defaultCharset()), inter).key;
             }
         }
 
@@ -868,14 +869,13 @@ class Kode {
         InputStream file = Kode.class.getResourceAsStream("/" + name + "." + Kode.EXTENSION);
         if (file != null) {
             bytes = file.readAllBytes();
-            run(name + "." + Kode.EXTENSION, new String(bytes, Charset.defaultCharset()), inter);
-            return;
+            return run(name + "." + Kode.EXTENSION, new String(bytes, Charset.defaultCharset()), inter).key;
         }
 
         throw new Exception("Failed to Import file " + name + "." + Kode.EXTENSION);
     }
 
-    static Object run(String fn, String source, Interpreter inter) throws Exception {
+    static Pair<String, Object> run(String fn, String source, Interpreter inter) throws Exception {
         Lexer scanner = new Lexer(fn, source);
         List<Token> tokens = scanner.scanTokens();
 
@@ -900,7 +900,7 @@ class Kode {
             return null;
         }
 
-        return inter.interpret(statements);
+        return new Pair(parser.doc, inter.interpret(statements));
     }
 
     static void error(String fn, int line, String message) {
@@ -1252,6 +1252,39 @@ class Kode {
                 }
 
             });
+            DEF_GLOBALS.put("help", new KodeBuiltinFunction("help", null, inter) {
+
+                @Override
+                String doc() {
+                    return "Call help(obj) to get the help document attached with the object 'obj'.";
+                }
+
+                @Override
+                public List<Pair<String, Object>> arity() {
+                    return Arrays.asList(new Pair("obj", this));
+                }
+
+                @Override
+                public Object call(Map<String, Object> arguments) {
+                    Object get = arguments.get("obj");
+                    String doc = null;
+                    if (get instanceof KodeFunction) {
+                        doc = ((KodeFunction) get).__doc__;
+                    }
+                    if (get instanceof KodeClass) {
+                        doc = ((KodeClass) get).__doc__;
+                    }
+                    if (get instanceof KodeInstance) {
+                        doc = ((KodeInstance) get).__doc__;
+                    }
+                    if (doc == null) {
+                        doc = "No Documentation Avialable for element of type '" + Kode.type(get) + "'.";
+                    }
+                    KodeHelper.printfln(doc);
+                    return null;
+                }
+
+            });
 //            DEF_GLOBALS.put(ValueNone.val.class_name, ValueNone.val);
             DEF_GLOBALS.put(ValueNumber.val.class_name, ValueNumber.val);
             DEF_GLOBALS.put(ValueString.val.class_name, ValueString.val);
@@ -1261,6 +1294,7 @@ class Kode {
             DEF_GLOBALS.put(ValueNotImplemented.val.class_name, ValueNotImplemented.val);
             inter.globals.values.putAll(DEF_GLOBALS);
         } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, "Failed to Initialize Interpreter\nReason : " + ex.getMessage());
             KodeHelper.exit(1);
         }
     }

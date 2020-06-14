@@ -686,6 +686,8 @@ import java.util.Map;
  */
 class KodeInstance {
 
+    String __doc__ = null;
+
     KodeClass klass;
     Double num;
     Boolean bool;

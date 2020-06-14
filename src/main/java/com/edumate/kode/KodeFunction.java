@@ -687,6 +687,8 @@ import java.util.Map;
  */
 class KodeFunction implements KodeCallable {
 
+    String __doc__ = null;
+
     final Stmt.Function declaration;
     Environment closure;
     final boolean isInitializer;

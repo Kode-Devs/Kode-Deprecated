@@ -981,7 +981,7 @@ class Lexer {
             return;
         }
 
-        addToken(STRING, text);
+        addToken(MLSTRING, text);
     }
 
     private boolean isDigit(char c) {

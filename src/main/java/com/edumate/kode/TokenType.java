@@ -694,7 +694,7 @@ enum TokenType {
     //    LSHIFT, RSHIFT, LTSHIFT, RTSHIFT,
     //
     // Literals.
-    IDENTIFIER, STRING, NUMBER,
+    IDENTIFIER, STRING, NUMBER, MLSTRING,
     //
     // Keywords.
     AND, BREAK, CLASS, CONTINUE, ELSE, FALSE, FROM, FUN, FOR, IF, NONE, INFINITY, NAN, OR,

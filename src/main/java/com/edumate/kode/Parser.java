@@ -1161,7 +1161,7 @@ class Parser {
             return new Expr.Literal(Double.NaN);
         }
 
-        if (match(NUMBER, STRING)) {
+        if (match(NUMBER, STRING, MLSTRING)) {
             return new Expr.Literal(previous().literal);
         }
 

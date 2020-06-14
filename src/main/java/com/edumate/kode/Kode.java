@@ -915,9 +915,9 @@ class Kode {
 
     static void error(Token token, String message) {
         if (token.type == TokenType.EOF) {
-            report(token.line, " during parsing near end in file " + token.fn, message);
+            report(token.line, " near end in file " + token.fn, message);
         } else {
-            report(token.line, " during parsing near '" + token.lexeme + "' in file " + token.fn, message);
+            report(token.line, " near '" + token.lexeme + "' in file " + token.fn, message);
         }
         if (token.line_text != null) {
             KodeHelper.printfln_err("->\t" + token.line_text.trim());
@@ -941,7 +941,7 @@ class Kode {
         hadRuntimeError = true;
     }
 
-    static String _stringify(Object object) {
+    static String stringify(Object object) {
 
         // Nil
         if (object == null) {
@@ -969,11 +969,6 @@ class Kode {
             if (num.isNaN()) {
                 return Kode.NAN;
             }
-//            String text = object.toString();
-//            if (text.endsWith(".0")) {
-//                text = text.substring(0, text.length() - 2);
-//            }
-//            return text;
             String format = String.format(Locale.US, "%.10G", num);
             format = format.replaceFirst("\\.0+(e|$)", "$1")
                     .replaceFirst("(\\.[0-9]*[1-9])(0+)(e|$)", "$1$3");
@@ -986,11 +981,11 @@ class Kode {
             if (list.isEmpty()) {
                 return "[]";
             } else if (list.size() == 1) {
-                return "[" + _stringify(list.get(0)) + "]";
+                return "[" + stringify(list.get(0)) + "]";
             } else {
-                String text = "[" + _stringify(list.get(0));
+                String text = "[" + stringify(list.get(0));
                 for (int i = 1; i < list.size(); i++) {
-                    text += ", " + _stringify(list.get(i));
+                    text += ", " + stringify(list.get(i));
                 }
                 text += "]";
                 return text;
@@ -999,10 +994,6 @@ class Kode {
 
         // Object
         return object.toString();
-    }
-
-    static String stringify(Object object) {
-        return _stringify(object);
     }
 
     static String type(Object object) {

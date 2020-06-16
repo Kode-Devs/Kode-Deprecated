@@ -693,6 +693,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
+import utils.Pip4kode;
 
 /**
  *
@@ -701,7 +702,7 @@ import javax.swing.JOptionPane;
 class Kode {
 
     static final String NAME = "Kode";
-    static final String VERSION = "v1.0.1-alpha";
+    static final String VERSION = "1.0.1-beta";
     static final String EXTENSION = "kde";
     static final String AUTHOR = "Edumate";
     static final String USAGE = "Usage: kode [script]";
@@ -849,30 +850,61 @@ class Kode {
     }
 
     static String runLib(String name, boolean fromDir, Interpreter inter) throws Exception {
+//        String p = Paths.get(Paths.get(Kode.class.getProtectionDomain().getCodeSource().getLocation().toURI())
+//                .getParent().toFile().getAbsolutePath(), "libs").toString();
+        String p = Paths.get("libs").toAbsolutePath().toString();
+        boolean found = false;
+        try {
+            if (fromDir) {
+                FileSearch path = new FileSearch("./", name + "." + Kode.EXTENSION);
+                if (path.exists()) {
+                    byte[] bytes = Files.readAllBytes(path.path.toAbsolutePath());
+                    found = true;
+                    return run(path.path.toAbsolutePath().toFile().getName(), new String(bytes, Charset.defaultCharset()), inter).key;
+                }
 
-        if (fromDir) {
-            FileSearch path = new FileSearch("./", name + "." + Kode.EXTENSION);
-            if (path.exists()) {
-                byte[] bytes = Files.readAllBytes(path.path.toAbsolutePath());
-                return run(path.path.toAbsolutePath().toFile().getName(), new String(bytes, Charset.defaultCharset()), inter).key;
+                path = new FileSearch(p, name + "." + Kode.EXTENSION);
+                if (path.exists()) {
+                    byte[] bytes = Files.readAllBytes(path.path.toAbsolutePath());
+                    found = true;
+                    return run(path.path.toAbsolutePath().toFile().getName(), new String(bytes, Charset.defaultCharset()), inter).key;
+                }
             }
 
-            String p = Paths.get(Paths.get(Kode.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getParent().toFile().getAbsolutePath(), "libs").toString();
-            path = new FileSearch(p, name + "." + Kode.EXTENSION);
-            if (path.exists()) {
-                byte[] bytes = Files.readAllBytes(path.path.toAbsolutePath());
-                return run(path.path.toAbsolutePath().toFile().getName(), new String(bytes, Charset.defaultCharset()), inter).key;
+            byte[] bytes;
+            InputStream file = Kode.class.getResourceAsStream("/" + name + "." + Kode.EXTENSION);
+            if (file != null) {
+                bytes = file.readAllBytes();
+                found = true;
+                return run(name + "." + Kode.EXTENSION, new String(bytes, Charset.defaultCharset()), inter).key;
             }
+            throw new Exception();
+        } catch (Exception e) {
+            Pip4kode pip;
+            try {
+                pip = new Pip4kode(name.contains(File.separator)
+                        ? Arrays.asList(name.split(File.separator)).get(0)
+                        : name
+                );
+                KodeHelper.printfln_err(found
+                        ? "Library file " + name + "." + Kode.EXTENSION + " present in your device has an error in it."
+                        : "Library file " + name + "." + Kode.EXTENSION + " not found in your device.");
+                KodeHelper.printfln("Reading package lists from repository ...");
+                pip.init();
+                if (!KodeHelper.scanf("Do you want to download the package '" + pip.pkg + "' (" + pip.sizeInWords + ") ? [y/n]")
+                        .equalsIgnoreCase("y")) {
+                    throw new Exception();
+                }
+                // Actual download
+                KodeHelper.printfln("Get: " + pip.repositoryRoot + " " + pip.pkg
+                        + " rev " + pip.latestRevision + " [" + pip.sizeInWords + "]");
+                pip.download(p);
+                KodeHelper.printfln("Download Finished");
+            } catch (Exception ex) {
+                throw new Exception("Requirement " + name+" not satisfied.");
+            }
+            return runLib(name, fromDir, inter);
         }
-
-        byte[] bytes;
-        InputStream file = Kode.class.getResourceAsStream("/" + name + "." + Kode.EXTENSION);
-        if (file != null) {
-            bytes = file.readAllBytes();
-            return run(name + "." + Kode.EXTENSION, new String(bytes, Charset.defaultCharset()), inter).key;
-        }
-
-        throw new Exception("Failed to Import file " + name + "." + Kode.EXTENSION);
     }
 
     static Pair<String, Object> run(String fn, String source, Interpreter inter) throws Exception {

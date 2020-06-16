@@ -678,7 +678,6 @@ package com.edumate.kode;
 
 import java.awt.Color;
 import java.io.IOException;
-import lib.os;
 import org.beryx.textio.TextIO;
 import org.beryx.textio.TextIoFactory;
 
@@ -688,7 +687,7 @@ import org.beryx.textio.TextIoFactory;
  */
 public class KodeHelper {
 
-    public static final TextIO textIO = TextIoFactory.getTextIO();
+    public static TextIO textIO = TextIoFactory.getTextIO();
 
     private static final Color OUT_COLOR = Color.WHITE;
     private static final Color IN_COLOR = Color.CYAN;

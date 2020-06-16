@@ -893,7 +893,12 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
                 Kode.ModuleRegistry.put(join, module);
                 module.inter.globals.define(Kode.__NAME__,
                         module.inter.toKodeValue(stmt.imp.fn));
+                try{
                 module.run();
+                }catch(Exception e){
+                    Kode.ModuleRegistry.remove(join);
+                    throw e;
+                }
             }
             if (module.hadError || module.hadRuntimeError) {
                 return null;

@@ -3,22 +3,18 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.edumate</groupId>
     <artifactId>kode</artifactId>
-    <version>v1.0.1-alpha</version>
+    <version>latest</version>
     <packaging>jar</packaging>
     <dependencies>
-        
-        <!-- https://text-io.beryx.org/ -->
         <dependency>
             <groupId>org.beryx</groupId>
             <artifactId>text-io</artifactId>
             <version>3.4.1</version>
         </dependency>
-        
-        <!-- http://www.slf4j.org/ -->
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-nop</artifactId>
-            <version>1.8.0-beta4</version>
+            <groupId>org.tmatesoft.svnkit</groupId>
+            <artifactId>svnkit</artifactId>
+            <version>1.10.1</version>
         </dependency>
     </dependencies>
     <properties>

@@ -705,8 +705,8 @@ class Environment {
             return enclosing.get(name);
         }
         
-        if (Kode.DEF_GLOBALS.containsKey(name.lexeme)){
-            return Kode.DEF_GLOBALS.get(name.lexeme);
+        if (Kode.inter.globals.values.containsKey(name.lexeme)){
+            return Kode.inter.globals.get(name);
         }
 
         throw new RuntimeError(
@@ -722,6 +722,11 @@ class Environment {
 
         if (enclosing != null) {
             enclosing.assign(name, value);
+            return;
+        }
+        
+        if (Kode.inter.globals.values.containsKey(name.lexeme)){
+            Kode.inter.globals.define(name.lexeme, value);
             return;
         }
 

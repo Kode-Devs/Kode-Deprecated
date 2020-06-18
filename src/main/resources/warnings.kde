@@ -1,0 +1,27 @@
+
+
+// Class Definations
+
+class Warning < Error{
+    __init__(msg){
+        super.__init__(msg);
+        this.msg = msg;
+    }
+    
+    __str__(){
+        return "Warning: "+this.msg;
+    }
+}
+
+// Funtion definations
+
+fun warn(message, category=None){
+    if(category==None)
+        category = Warning;
+    if(issubclass(category, Warning)){
+        var inst = category(message);
+        native lib.warnings.print_warning(inst);
+    }
+    else 
+        raise Error("Category of warning is invalid.");
+}

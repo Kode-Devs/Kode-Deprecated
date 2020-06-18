@@ -693,6 +693,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
+import lib.warnings;
 import utils.Pip4kode;
 
 /**
@@ -954,7 +955,7 @@ class Kode {
     }
 
     static void warning(String message) {
-        KodeHelper.printfln_err("Warning: " + message);
+        warnings.print_warning("Warning: " + message);
     }
 
     static void runtimeError(RuntimeError error) {
@@ -1053,7 +1054,7 @@ class Kode {
         return instanceOf(i.klass, c);
     }
 
-    private static boolean instanceOf(KodeClass i, KodeClass c) {
+    static boolean instanceOf(KodeClass i, KodeClass c) {
         if (i == null) {
             return false;
         }
@@ -1066,23 +1067,11 @@ class Kode {
         return false;
     }
 
-    static final Map<String, Object> DEF_GLOBALS = new HashMap();
+    static final Interpreter inter = new Interpreter();
 
     static {
-        KodeModule module;
         try {
-            if (Kode.ModuleRegistry.containsKey(Kode.BUILTIN_NAME)) {
-                module = Kode.ModuleRegistry.get(Kode.BUILTIN_NAME);
-            } else {
-                module = new KodeModule(Kode.BUILTIN_NAME, Kode.BUILTIN_NAME);
-                Kode.ModuleRegistry.put(Kode.BUILTIN_NAME, module);
-                module.run();
-            }
-            if (module.hadError || module.hadRuntimeError) {
-                throw new Exception();
-            }
-            final Interpreter inter = module.inter;
-            DEF_GLOBALS.putAll(inter.globals.values);
+            final Map<String, Object> DEF_GLOBALS = new HashMap();
             DEF_GLOBALS.put("type", new KodeBuiltinFunction("type", null, inter) {
                 @Override
                 public List<Pair<String, Object>> arity() {
@@ -1252,16 +1241,43 @@ class Kode {
                 }
 
             });
-            DEF_GLOBALS.put("instanceof", new KodeBuiltinFunction("instanceof", null, inter) {
+            DEF_GLOBALS.put("isinstance", new KodeBuiltinFunction("isinstance", null, inter) {
                 @Override
                 public List<Pair<String, Object>> arity() {
-                    return Arrays.asList(new Pair("ins", null), new Pair("klass", null));
+                    return Arrays.asList(new Pair("object", null), new Pair("type", null));
                 }
 
                 @Override
                 public Object call(Map<String, Object> arguments) {
-                    return this.interpreter.toKodeValue(Kode.instanceOf((KodeInstance) arguments.get("ins"),
-                            (KodeClass) arguments.get("klass")));
+                    Object object = arguments.get("object");
+                    Object type = arguments.get("type");
+                    if (!(object instanceof KodeInstance)) {
+                        throw new RuntimeError("Value passed for argument 'object' is not an instance of a class.");
+                    }
+                    if (!(type instanceof KodeClass)) {
+                        throw new RuntimeError("Value passed for argument 'type' is not a class.");
+                    }
+                    return this.interpreter.toKodeValue(Kode.instanceOf((KodeInstance) object, (KodeClass) type));
+                }
+
+            });
+            DEF_GLOBALS.put("issubclass", new KodeBuiltinFunction("issubclass", null, inter) {
+                @Override
+                public List<Pair<String, Object>> arity() {
+                    return Arrays.asList(new Pair("object", null), new Pair("type", null));
+                }
+
+                @Override
+                public Object call(Map<String, Object> arguments) {
+                    Object object = arguments.get("object");
+                    Object type = arguments.get("type");
+                    if (!(object instanceof KodeClass)) {
+                        throw new RuntimeError("Value passed for argument 'object' is not a class.");
+                    }
+                    if (!(type instanceof KodeClass)) {
+                        throw new RuntimeError("Value passed for argument 'type' is not a class.");
+                    }
+                    return this.interpreter.toKodeValue(Kode.instanceOf((KodeClass) object, (KodeClass) type));
                 }
 
             });
@@ -1311,14 +1327,97 @@ class Kode {
                 }
 
             });
-//            DEF_GLOBALS.put(ValueNone.val.class_name, ValueNone.val);
-            DEF_GLOBALS.put(ValueNumber.val.class_name, ValueNumber.val);
-            DEF_GLOBALS.put(ValueString.val.class_name, ValueString.val);
-            DEF_GLOBALS.put(ValueBool.val.class_name, ValueBool.val);
-            DEF_GLOBALS.put(ValueList.val.class_name, ValueList.val);
-            DEF_GLOBALS.put(ValueError.val.class_name, ValueError.val);
+            DEF_GLOBALS.put("hasattr", new KodeBuiltinFunction("hasattr", null, inter) {
+                @Override
+                public List<Pair<String, Object>> arity() {
+                    return Arrays.asList(new Pair("object", null), new Pair("attribute", null));
+                }
+
+                @Override
+                public Object call(Map<String, Object> arguments) {
+                    Object object = arguments.get("object");
+                    String attribute = arguments.get("attribute").toString();
+                    if (object instanceof KodeInstance) {
+                        try {
+                            ((KodeInstance) object).get(attribute);
+                            return this.interpreter.toKodeValue(true);
+                        } catch (RuntimeError e) {
+                            return this.interpreter.toKodeValue(false);
+                        }
+                    }
+                    throw new RuntimeError("Value passed for argument 'object' is not an instance of a class.");
+                }
+
+            });
+            DEF_GLOBALS.put("setattr", new KodeBuiltinFunction("setattr", null, inter) {
+                @Override
+                public List<Pair<String, Object>> arity() {
+                    return Arrays.asList(new Pair("object", null), new Pair("attribute", null), new Pair("value", null));
+                }
+
+                @Override
+                public Object call(Map<String, Object> arguments) {
+                    Object object = arguments.get("object");
+                    String attribute = arguments.get("attribute").toString();
+                    Object value = arguments.get("value");
+                    if (object instanceof KodeInstance) {
+                        ((KodeInstance) object).set(attribute, value);
+                        return null;
+                    }
+                    throw new RuntimeError("Value passed for argument 'object' is not an instance of a class.");
+                }
+
+            });
+            DEF_GLOBALS.put("getattr", new KodeBuiltinFunction("getattr", null, inter) {
+                @Override
+                public List<Pair<String, Object>> arity() {
+                    return Arrays.asList(new Pair("object", null), new Pair("attribute", null));
+                }
+
+                @Override
+                public Object call(Map<String, Object> arguments) {
+                    Object object = arguments.get("object");
+                    String attribute = arguments.get("attribute").toString();
+                    if (object instanceof KodeInstance) {
+                        try {
+                            return this.interpreter.toKodeValue(((KodeInstance) object).get(attribute));
+                        } catch (RuntimeError e) {
+                            throw e;
+//                            return this.interpreter.toKodeValue(false);
+                        }
+                    }
+                    throw new RuntimeError("Value passed for argument 'object' is not an instance of a class.");
+                }
+
+            });
+            DEF_GLOBALS.put("callable", new KodeBuiltinFunction("callable", null, inter) {
+                @Override
+                public List<Pair<String, Object>> arity() {
+                    return Arrays.asList(new Pair("object", null));
+                }
+
+                @Override
+                public Object call(Map<String, Object> arguments) {
+                    Object object = arguments.get("object");
+                    return this.interpreter.toKodeValue(object instanceof KodeCallable);
+                }
+
+            });
+            //DEF_GLOBALS.put(ValueNone.val.class_name, ValueNone.val);
+            DEF_GLOBALS.put(ValueNumber.val.class_name, ValueNumber.val);   //Number
+            DEF_GLOBALS.put(ValueString.val.class_name, ValueString.val);   //String
+            DEF_GLOBALS.put(ValueBool.val.class_name, ValueBool.val);   //Bool
+            DEF_GLOBALS.put(ValueList.val.class_name, ValueList.val);   //List
+            DEF_GLOBALS.put(ValueError.val.class_name, ValueError.val);    //Error
             DEF_GLOBALS.put(ValueNotImplemented.val.class_name, ValueNotImplemented.val);
             inter.globals.values.putAll(DEF_GLOBALS);
+            KodeModule module = new KodeModule(Kode.BUILTIN_NAME, Kode.BUILTIN_NAME);
+            Kode.ModuleRegistry.put(Kode.BUILTIN_NAME, module);
+            module.inter = inter;
+            module.run();
+            if (module.hadError || module.hadRuntimeError) {
+                throw new Exception();
+            }
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(null, "Failed to Initialize Interpreter\nReason : " + ex);
             KodeHelper.exit(1);

@@ -852,7 +852,8 @@ class Kode {
     static String runLib(String name, boolean fromDir, Interpreter inter) throws Exception {
 //        String p = Paths.get(Paths.get(Kode.class.getProtectionDomain().getCodeSource().getLocation().toURI())
 //                .getParent().toFile().getAbsolutePath(), "libs").toString();
-        String p = Paths.get("libs").toAbsolutePath().toString();
+        String pkgname = name.contains(File.separator) ? Arrays.asList(name.split(File.separator)).get(0) : name;
+        String p = Paths.get("libs", pkgname).toAbsolutePath().toString();
         boolean found = false;
         try {
             if (fromDir) {
@@ -878,30 +879,27 @@ class Kode {
                 found = true;
                 return run(name + "." + Kode.EXTENSION, new String(bytes, Charset.defaultCharset()), inter).key;
             }
+
             throw new Exception();
         } catch (Exception e) {
             Pip4kode pip;
             try {
-                pip = new Pip4kode(name.contains(File.separator)
-                        ? Arrays.asList(name.split(File.separator)).get(0)
-                        : name
-                );
+                pip = new Pip4kode(pkgname);
                 KodeHelper.printfln_err(found
                         ? "Library file " + name + "." + Kode.EXTENSION + " present in your device has an error in it."
                         : "Library file " + name + "." + Kode.EXTENSION + " not found in your device.");
-                KodeHelper.printfln("Reading package lists from repository ...");
+                KodeHelper.printfln("Reading package metadata from repository ...");
                 pip.init();
                 if (!KodeHelper.scanf("Do you want to download the package '" + pip.pkg + "' (" + pip.sizeInWords + ") ? [y/n]")
                         .equalsIgnoreCase("y")) {
                     throw new Exception();
                 }
-                // Actual download
                 KodeHelper.printfln("Get: " + pip.repositoryRoot + " " + pip.pkg
                         + " rev " + pip.latestRevision + " [" + pip.sizeInWords + "]");
                 pip.download(p);
                 KodeHelper.printfln("Download Finished");
             } catch (Exception ex) {
-                throw new Exception("Requirement " + name+" not satisfied.");
+                throw new Exception("Requirement " + name + " not satisfied.");
             }
             return runLib(name, fromDir, inter);
         }

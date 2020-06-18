@@ -701,7 +701,6 @@ class KodeInstance {
         if (klass != null) {
             fields.put(Kode.CLASS, klass);
         }
-        fields.put(Kode.HASH, new Hash(this));
     }
 
     Object get(Token name) {

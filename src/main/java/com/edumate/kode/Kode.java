@@ -735,7 +735,6 @@ class Kode {
     static final String GET_ITEM = "__getItem__";
     static final String SET_ITEM = "__setItem__";
     static final String CLASS = "__class__";
-    static final String HASH = "__hash__";
 
     static final String BUILTIN_NAME = "__builtin__";
 
@@ -1046,9 +1045,6 @@ class Kode {
                 return "module." + ((KodeModule) object).name;
             }
             return ((KodeInstance) object).klass.class_name;
-        }
-        if (object instanceof Hash) {
-            return "hash";
         }
         return "unknown";
     }

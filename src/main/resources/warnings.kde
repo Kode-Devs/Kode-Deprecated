@@ -1,5 +1,4 @@
 
-
 // Class Definations
 
 class Warning < Error{
@@ -13,11 +12,17 @@ class Warning < Error{
     }
 }
 
+class UserWarning < Warning{
+    __str__(){
+        return "User Warning: "+this.msg;
+    }
+}
+
 // Funtion definations
 
 fun warn(message, category=None){
     if(category==None)
-        category = Warning;
+        category = UserWarning;
     if(issubclass(category, Warning)){
         var inst = category(message);
         native lib.warnings.print_warning(inst);

@@ -810,7 +810,14 @@ class Kode {
                         Pair run = run("<shell>", KodeHelper.scanf(">>>"), interpreter);
                         if (run != null) {
                             if (run.value != null) {
-                                KodeHelper.printfln(run.value);
+                                Object value = run.value;
+                                if(value instanceof KodeInstance){
+                                    if(ValueString.isString((KodeInstance) value)){
+                                        KodeHelper.printfln('\''+value.toString()+'\'');
+                                        continue;
+                                    }
+                                }
+                                KodeHelper.printfln(value);
                             }
                         }
                     } catch (RuntimeError error) {

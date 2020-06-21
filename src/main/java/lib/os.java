@@ -678,7 +678,7 @@ package lib;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Scanner;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -703,11 +703,14 @@ public class os {
 
     public static void System(Object cmd) throws IOException {
         if (cmd instanceof List) {
-            List<String> c = (List) ((List) cmd).stream().map(Object::toString).collect(Collectors.toList());
+            List<String> c = (List) ((List) cmd).stream()
+                    .map(a -> Objects.requireNonNullElse(a, ""))
+                    .map(Object::toString)
+                    .collect(Collectors.toList());
             String temp[] = new String[]{};
             Runtime.getRuntime().exec(c.toArray(temp));
         } else {
-            Runtime.getRuntime().exec(cmd.toString());
+            Runtime.getRuntime().exec(Objects.requireNonNullElse(cmd,"").toString());
         }
     }
 }

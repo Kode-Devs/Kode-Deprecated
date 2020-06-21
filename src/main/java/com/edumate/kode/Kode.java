@@ -678,6 +678,7 @@ package com.edumate.kode;
 
 import java.io.File;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -694,6 +695,11 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
 import lib.warnings;
+import net.sourceforge.argparse4j.ArgumentParsers;
+import net.sourceforge.argparse4j.impl.Arguments;
+import net.sourceforge.argparse4j.inf.ArgumentParser;
+import net.sourceforge.argparse4j.inf.ArgumentParserException;
+import net.sourceforge.argparse4j.inf.Namespace;
 import utils.Pip4kode;
 
 /**
@@ -721,6 +727,78 @@ class Kode {
         }
         res += "\non " + System.getProperty("os.name", "Unknown Operating System") + " (" + System.getProperty("user.name", "default") + ")";
         return res;
+    }
+
+    static void start_console(String... args) {
+        try {
+            ArgumentParser parser = ArgumentParsers.newFor("kode")
+                    .addHelp(false).build()
+                    .defaultHelp(true)
+                    .description("Created by Edumate")
+                    .version(Kode.getVersion());
+            parser.addArgument("-h", "--help")
+                    .action(Arguments.help())
+                    .help("Show this help message then exit.");
+            parser.addArgument("-v", "--version")
+                    .action(Arguments.version())
+                    .help("Show version info then exit.");
+            parser.addArgument("filename")
+                    .type(Arguments.fileType().verifyExists().verifyIsFile().verifyCanRead())
+                    .nargs("?")
+                    .help("File name to be executed.");
+            try {
+                Namespace res = parser.parseArgs(args);
+                if (res.get("filename") != null) {
+                    //<editor-fold defaultstate="collapsed" desc="File">
+                    Path path = Paths.get(res.getString("filename"));
+                    if (path.getFileName().toString().endsWith("." + Kode.EXTENSION)) {
+                        runFile(path.toAbsolutePath().toString(), new Interpreter());
+                    } else {
+                        KodeHelper.printfln_err("Not a " + Kode.NAME + " runnable file");
+                        System.exit(64);
+                    }
+                    //</editor-fold>
+                } else {
+                    System.out.println(parser.formatHelp());
+                    KodeHelper.exit(0);
+                    //<editor-fold defaultstate="collapsed" desc="Shell">
+                    KodeHelper.printfln(Kode.getIntro());
+                    KodeHelper.printfln("Call exit() to quit shell.");
+                    Interpreter interpreter = new Interpreter();
+                    interpreter.globals.define(Kode.__NAME__, interpreter.toKodeValue(Kode.__MAIN__));
+                    for (;;) {
+                        hadError = false;
+                        hadRuntimeError = false;
+                        try {
+                            Pair run = run("<shell>", KodeHelper.scanf(">>>"), interpreter);
+                            if (run != null) {
+                                if (run.value != null) {
+                                    Object value = run.value;
+                                    if (value instanceof KodeInstance) {
+                                        if (ValueString.isString((KodeInstance) value)) {
+                                            KodeHelper.printfln('\'' + value.toString() + '\'');
+                                            continue;
+                                        }
+                                    }
+                                    KodeHelper.printfln(value);
+                                }
+                            }
+                        } catch (RuntimeError error) {
+                            Kode.runtimeError(error);
+                        } catch (Error | Exception e) {
+                            KodeHelper.printfln_err("Fatal Error : " + e);
+                        }
+                    }
+                    //</editor-fold>
+                }
+            } catch (ArgumentParserException e) {
+                parser.handleError(e, new PrintWriter(System.out));
+            }
+        } catch (Error | Exception e) {
+            e.printStackTrace();
+            KodeHelper.printfln_err("Fatal Error : " + e);
+        }
+        KodeHelper.exit(0);
     }
 
     static boolean hadError = false;
@@ -773,64 +851,6 @@ class Kode {
     static final String LE = "__le__";
     static final String GT = "__gt__";
     static final String GE = "__ge__";
-
-    static void start_console(String[] args) {
-        try {
-            if (args.length > 1) {
-                KodeHelper.printfln_err(Kode.USAGE);
-                System.exit(64);
-            } else if (args.length == 1) {
-                switch (args[0]) {
-                    case "--test":
-                        runBenchMark();
-                        break;
-                    case "-v":
-                    case "--version":
-                        KodeHelper.printfln(Kode.getVersion());
-                        break;
-                    default:
-                        Path path = Paths.get(args[0]);
-                        if (path.getFileName().toString().endsWith("." + Kode.EXTENSION)) {
-                            runFile(path.toAbsolutePath().toString(), new Interpreter());
-                        } else {
-                            KodeHelper.printfln_err("Not a " + Kode.NAME + " runnable file");
-                            System.exit(64);
-                        }
-                        break;
-                }
-            } else {
-                KodeHelper.printfln(Kode.getIntro());
-                KodeHelper.printfln("Call exit() to quit shell.");
-                Interpreter interpreter = new Interpreter();
-                interpreter.globals.define(Kode.__NAME__, interpreter.toKodeValue(Kode.__MAIN__));
-                for (;;) {
-                    hadError = false;
-                    hadRuntimeError = false;
-                    try {
-                        Pair run = run("<shell>", KodeHelper.scanf(">>>"), interpreter);
-                        if (run != null) {
-                            if (run.value != null) {
-                                Object value = run.value;
-                                if(value instanceof KodeInstance){
-                                    if(ValueString.isString((KodeInstance) value)){
-                                        KodeHelper.printfln('\''+value.toString()+'\'');
-                                        continue;
-                                    }
-                                }
-                                KodeHelper.printfln(value);
-                            }
-                        }
-                    } catch (RuntimeError error) {
-                        Kode.runtimeError(error);
-                    } catch (Error | Exception e) {
-                        KodeHelper.printfln_err("Fatal Error : " + e);
-                    }
-                }
-            }
-        } catch (Error | Exception e) {
-            KodeHelper.printfln_err("Fatal Error : " + e);
-        }
-    }
 
     static void runFile(String path, Interpreter inter) throws Exception {
         byte[] bytes = Files.readAllBytes(Paths.get(path));
@@ -1074,12 +1094,12 @@ class Kode {
         return false;
     }
 
-    static final Interpreter inter = new Interpreter();
+    static final Interpreter INTER = new Interpreter();
 
     static {
         try {
             final Map<String, Object> DEF_GLOBALS = new HashMap();
-            DEF_GLOBALS.put("print", new KodeBuiltinFunction("print", null, inter) {
+            DEF_GLOBALS.put("print", new KodeBuiltinFunction("print", null, INTER) {
                 @Override
                 public List<Pair<String, Object>> arity() {
                     return Arrays.asList(new Pair("str", interpreter.toKodeValue(Arrays.asList(interpreter.toKodeValue(""))), true),
@@ -1097,7 +1117,7 @@ class Kode {
                 }
 
             });
-            DEF_GLOBALS.put("input", new KodeBuiltinFunction("input", null, inter) {
+            DEF_GLOBALS.put("input", new KodeBuiltinFunction("input", null, INTER) {
                 @Override
                 public List<Pair<String, Object>> arity() {
                     return Arrays.asList(new Pair("str", interpreter.toKodeValue(Arrays.asList(interpreter.toKodeValue(""))), true),
@@ -1119,7 +1139,7 @@ class Kode {
                 }
 
             });
-            DEF_GLOBALS.put("len", new KodeBuiltinFunction("len", null, inter) {
+            DEF_GLOBALS.put("len", new KodeBuiltinFunction("len", null, INTER) {
                 @Override
                 public List<Pair<String, Object>> arity() {
                     return Arrays.asList(new Pair("obj", null));
@@ -1142,7 +1162,7 @@ class Kode {
                 }
 
             });
-            DEF_GLOBALS.put("dir", new KodeBuiltinFunction("dir", null, inter) {
+            DEF_GLOBALS.put("dir", new KodeBuiltinFunction("dir", null, INTER) {
                 @Override
                 public List<Pair<String, Object>> arity() {
                     return Arrays.asList(new Pair("obj", null));
@@ -1173,7 +1193,7 @@ class Kode {
                 }
 
             });
-            DEF_GLOBALS.put("id", new KodeBuiltinFunction("id", null, inter) {
+            DEF_GLOBALS.put("id", new KodeBuiltinFunction("id", null, INTER) {
                 @Override
                 public List<Pair<String, Object>> arity() {
                     return Arrays.asList(new Pair("obj", null));
@@ -1185,7 +1205,7 @@ class Kode {
                 }
 
             });
-            DEF_GLOBALS.put("now", new KodeBuiltinFunction("now", null, inter) {
+            DEF_GLOBALS.put("now", new KodeBuiltinFunction("now", null, INTER) {
                 @Override
                 public List<Pair<String, Object>> arity() {
                     return Arrays.asList();
@@ -1197,7 +1217,7 @@ class Kode {
                 }
 
             });
-            DEF_GLOBALS.put("free", new KodeBuiltinFunction("free", null, inter) {
+            DEF_GLOBALS.put("free", new KodeBuiltinFunction("free", null, INTER) {
                 @Override
                 public List<Pair<String, Object>> arity() {
                     return Arrays.asList();
@@ -1210,7 +1230,7 @@ class Kode {
                 }
 
             });
-            DEF_GLOBALS.put("resetLine", new KodeBuiltinFunction("resetLine", null, inter) {
+            DEF_GLOBALS.put("resetLine", new KodeBuiltinFunction("resetLine", null, INTER) {
                 @Override
                 public List<Pair<String, Object>> arity() {
                     return Arrays.asList();
@@ -1223,7 +1243,7 @@ class Kode {
                 }
 
             });
-            DEF_GLOBALS.put("clear", new KodeBuiltinFunction("clear", null, inter) {
+            DEF_GLOBALS.put("clear", new KodeBuiltinFunction("clear", null, INTER) {
                 @Override
                 public List<Pair<String, Object>> arity() {
                     return Arrays.asList();
@@ -1236,7 +1256,7 @@ class Kode {
                 }
 
             });
-            DEF_GLOBALS.put("isinstance", new KodeBuiltinFunction("isinstance", null, inter) {
+            DEF_GLOBALS.put("isinstance", new KodeBuiltinFunction("isinstance", null, INTER) {
                 @Override
                 public List<Pair<String, Object>> arity() {
                     return Arrays.asList(new Pair("object", null), new Pair("type", null));
@@ -1256,7 +1276,7 @@ class Kode {
                 }
 
             });
-            DEF_GLOBALS.put("issubclass", new KodeBuiltinFunction("issubclass", null, inter) {
+            DEF_GLOBALS.put("issubclass", new KodeBuiltinFunction("issubclass", null, INTER) {
                 @Override
                 public List<Pair<String, Object>> arity() {
                     return Arrays.asList(new Pair("object", null), new Pair("type", null));
@@ -1276,7 +1296,7 @@ class Kode {
                 }
 
             });
-            DEF_GLOBALS.put("exit", new KodeBuiltinFunction("exit", null, inter) {
+            DEF_GLOBALS.put("exit", new KodeBuiltinFunction("exit", null, INTER) {
                 @Override
                 public List<Pair<String, Object>> arity() {
                     return Arrays.asList(new Pair("status", interpreter.toKodeValue(Double.valueOf(0))));
@@ -1289,7 +1309,7 @@ class Kode {
                 }
 
             });
-            DEF_GLOBALS.put("help", new KodeBuiltinFunction("help", null, inter) {
+            DEF_GLOBALS.put("help", new KodeBuiltinFunction("help", null, INTER) {
 
                 @Override
                 String doc() {
@@ -1322,7 +1342,7 @@ class Kode {
                 }
 
             });
-            DEF_GLOBALS.put("hasattr", new KodeBuiltinFunction("hasattr", null, inter) {
+            DEF_GLOBALS.put("hasattr", new KodeBuiltinFunction("hasattr", null, INTER) {
                 @Override
                 public List<Pair<String, Object>> arity() {
                     return Arrays.asList(new Pair("object", null), new Pair("attribute", null));
@@ -1344,7 +1364,7 @@ class Kode {
                 }
 
             });
-            DEF_GLOBALS.put("setattr", new KodeBuiltinFunction("setattr", null, inter) {
+            DEF_GLOBALS.put("setattr", new KodeBuiltinFunction("setattr", null, INTER) {
                 @Override
                 public List<Pair<String, Object>> arity() {
                     return Arrays.asList(new Pair("object", null), new Pair("attribute", null), new Pair("value", null));
@@ -1363,7 +1383,7 @@ class Kode {
                 }
 
             });
-            DEF_GLOBALS.put("getattr", new KodeBuiltinFunction("getattr", null, inter) {
+            DEF_GLOBALS.put("getattr", new KodeBuiltinFunction("getattr", null, INTER) {
                 @Override
                 public List<Pair<String, Object>> arity() {
                     return Arrays.asList(new Pair("object", null), new Pair("attribute", null));
@@ -1385,7 +1405,7 @@ class Kode {
                 }
 
             });
-            DEF_GLOBALS.put("callable", new KodeBuiltinFunction("callable", null, inter) {
+            DEF_GLOBALS.put("callable", new KodeBuiltinFunction("callable", null, INTER) {
                 @Override
                 public List<Pair<String, Object>> arity() {
                     return Arrays.asList(new Pair("object", null));
@@ -1406,10 +1426,10 @@ class Kode {
             DEF_GLOBALS.put(ValueError.val.class_name, ValueError.val);    //Error
             DEF_GLOBALS.put(ValueType.val.class_name, ValueType.val);    //Type
             DEF_GLOBALS.put(ValueNotImplemented.val.class_name, ValueNotImplemented.val);
-            inter.globals.values.putAll(DEF_GLOBALS);
+            INTER.globals.values.putAll(DEF_GLOBALS);
             KodeModule module = new KodeModule(Kode.BUILTIN_NAME, Kode.BUILTIN_NAME);
             Kode.ModuleRegistry.put(Kode.BUILTIN_NAME, module);
-            module.inter = inter;
+            module.inter = INTER;
             module.run();
             if (module.hadError || module.hadRuntimeError) {
                 throw new Exception();

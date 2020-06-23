@@ -674,49 +674,53 @@
  * Public License instead of this License.  But first, please read
  * <https://www.gnu.org/licenses/why-not-lgpl.html>.
  */
-package lib;
+package com.edumate.kode;
 
-import kni.KNI;
-import java.io.IOException;
+import java.io.File;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.Map;
+import kni.KNI;
 
 /**
  *
  * @author dell
  */
-public class os implements KNI{
+class KNI_FUNC extends KodeBuiltinFunction {
 
-    /**
-     * Temporary Native wrapper function of Java System.getProperty() for Kode.
-     *
-     * @param cmd Key Needed by System.getProperty()
-     * @return value if key is present and accessible, else null (or None)
-     */
-    public static Object getProperties(Object cmd) {
-        try {
-            return System.getProperty(cmd.toString());
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    public static void System(Object cmd) throws IOException {
-        if (cmd instanceof List) {
-            List<String> c = (List) ((List) cmd).stream()
-                    .map(a -> Objects.requireNonNullElse(a, ""))
-                    .map(Object::toString)
-                    .collect(Collectors.toList());
-            String temp[] = new String[]{};
-            Runtime.getRuntime().exec(c.toArray(temp));
-        } else {
-            Runtime.getRuntime().exec(Objects.requireNonNullElse(cmd,"").toString());
-        }
+    public KNI_FUNC(String name, Environment closure, Interpreter inter) {
+        super(name, closure, inter);
     }
 
     @Override
-    public Object call(Object[] args) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public List<Pair<String, Object>> arity() {
+        return Arrays.asList(new Pair("name", null));
     }
+
+    @Override
+    public Object call(Map<String, Object> arguments) {
+        try {
+            Path temp = Paths.get(File.separator);
+            URLClassLoader urlClassLoader = new URLClassLoader(
+                    new URL[]{
+                        temp.toUri().toURL(),
+                        Paths.get(File.separator).toUri().toURL(),
+                        Paths.get(Paths.get(Kode.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getParent().toFile().getCanonicalPath(), "libs").toUri().toURL()},
+                    Kode.class.getClassLoader());
+            Object newInstance = urlClassLoader.loadClass(arguments.get("name").toString()).newInstance();
+            Object[] args = new Object[]{};
+            if (newInstance instanceof KNI) {
+                return this.interpreter.toKodeValue(((KNI) newInstance).call(args));
+            } else {
+                throw new Exception("The Class loaded does not implement Kode Native Interface (KNI).");
+            }
+        } catch (Exception | Error e) {
+            throw new RuntimeError(e.getMessage(), null);
+        }
+    }
+
 }

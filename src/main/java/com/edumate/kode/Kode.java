@@ -759,8 +759,8 @@ class Kode {
                     }
                     //</editor-fold>
                 } else {
-                    System.out.println(parser.formatHelp());
-                    KodeHelper.exit(0);
+//                    System.out.println(parser.formatHelp());
+//                    KodeHelper.exit(0);
                     //<editor-fold defaultstate="collapsed" desc="Shell">
                     KodeHelper.printfln(Kode.getIntro());
                     KodeHelper.printfln("Call exit() to quit shell.");
@@ -1418,6 +1418,7 @@ class Kode {
                 }
 
             });
+            DEF_GLOBALS.put("kni", new KNI_FUNC("kni", null, INTER));
             //DEF_GLOBALS.put(ValueNone.val.class_name, ValueNone.val);
             DEF_GLOBALS.put(ValueNumber.val.class_name, ValueNumber.val);   //Number
             DEF_GLOBALS.put(ValueString.val.class_name, ValueString.val);   //String

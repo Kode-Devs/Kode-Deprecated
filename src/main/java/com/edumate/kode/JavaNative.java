@@ -731,14 +731,10 @@ class JavaNative implements KodeCallable {
         try {
             Path temp = Paths.get(path);
             URLClassLoader urlClassLoader = new URLClassLoader(
-                    //
-                    //Delared paths
-                    //                    new URL[]{},
                     new URL[]{
                         temp.toUri().toURL(),
                         Paths.get(File.separator).toUri().toURL(),
                         Paths.get(Paths.get(Kode.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getParent().toFile().getCanonicalPath(), "libs").toUri().toURL()},
-                    //
                     Kode.class.getClassLoader());
             Class[] parameterTypes = new Class[params.length];
             for (int i = 0; i < params.length; i++) {

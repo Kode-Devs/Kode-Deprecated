@@ -686,20 +686,24 @@ class Pair<K, V> {
 
     public K key;
     public V value;
-    public boolean star = false;
+    TokenType type = null;
 
     Pair(K key, V value) {
         this.key = key;
         this.value = value;
     }
     
-    Pair(K key, V value, boolean star) {
-        this(key,value);
-        this.star = star;
+    Pair(K key) {
+        this(key,null);
+    }
+    
+    Pair<K,V> setType(TokenType type){
+        this.type = type;
+        return this;
     }
     
      Pair copy(){
-         return new Pair(key,value, star);
+         return new Pair(key,value).setType(type);
      }
     
 }

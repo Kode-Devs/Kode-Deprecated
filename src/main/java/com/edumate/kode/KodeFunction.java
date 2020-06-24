@@ -716,7 +716,7 @@ class KodeFunction implements KodeCallable {
     public List<Pair<String, Object>> arity() {
         List<Pair<String, Object>> temp = new ArrayList();
         declaration.args.forEach((t) -> {
-            temp.add(new Pair(t.key.lexeme, t.value, t.star));
+            temp.add(new Pair(t.key.lexeme, t.value).setType(t.type));
         });
         return temp;
     }

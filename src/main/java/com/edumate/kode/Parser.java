@@ -687,8 +687,9 @@ import static com.edumate.kode.TokenType.*;
  */
 class Parser {
 
-    private static class ParseError extends RuntimeException {}
-    
+    private static class ParseError extends RuntimeException {
+    }
+
     String doc = null;
 
     private final List<Token> tokens;
@@ -699,7 +700,7 @@ class Parser {
     }
 
     List<Stmt> parse() {
-        if(tokens.get(0).type == MLSTRING){
+        if (tokens.get(0).type == MLSTRING) {
             doc = tokens.get(0).literal.toString();
         }
         List<Stmt> statements = new ArrayList<>();
@@ -774,10 +775,10 @@ class Parser {
 
         consume(LEFT_BRACE, "Expect '{' before class body.");
         String doc_temp = null;
-        if(peek().type==MLSTRING){
+        if (peek().type == MLSTRING) {
             doc_temp = advance().literal.toString();
         }
-        
+
         List<Stmt.Function> methods = new ArrayList<>();
         while (!check(RIGHT_BRACE) && !isAtEnd()) {
             methods.add(function("method"));
@@ -813,7 +814,7 @@ class Parser {
         if (match(FROM)) {
             return requireStatementFrom(previous());
         }
-        if (match(RAISE)){
+        if (match(RAISE)) {
             return raiseStatement();
         }
         if (match(LEFT_BRACE)) {
@@ -870,7 +871,7 @@ class Parser {
 
         return new Stmt.If(condition, thenBranch, elseBranch);
     }
-    
+
     private Stmt requireStatement(Token imp) {
         List<Token> value = new ArrayList();
         do {
@@ -897,12 +898,12 @@ class Parser {
         consume(SEMICOLON, "Expect ';' after value.");
         return new Stmt.Require(imp, value, null, field);
     }
-    
-    private Stmt raiseStatement(){
+
+    private Stmt raiseStatement() {
         Token keyword = previous();
         Expr value = expression();
         consume(SEMICOLON, "Expect ';' after raise value.");
-        return new Stmt.Raise(keyword,value);
+        return new Stmt.Raise(keyword, value);
     }
 
     private Stmt returnStatement() {
@@ -967,20 +968,25 @@ class Parser {
         List<Pair<Token, Expr>> parameters = new ArrayList<>();
         if (!check(RIGHT_PAREN)) {
             do {
-                boolean star = match(STAR);
+                TokenType t = null;
+                if (match(STAR, POWER)) {
+                    t = previous().type;
+                }
                 Token token = consume(IDENTIFIER, "Expect parameter name.");
                 Expr def = null;
-                if (match(EQUAL)) {
-                    def = expression();
+                if (t != null) {
+                    if (match(EQUAL)) {
+                        def = expression();
+                    }
                 }
-                parameters.add(new Pair(token, def, star));
+                parameters.add(new Pair(token, def).setType(t));
             } while (match(COMMA));
         }
         consume(RIGHT_PAREN, "Expect ')' after parameters.");
 
         consume(LEFT_BRACE, "Expect '{' before " + kind + " body.");
         String doc_temp = null;
-        if(peek().type==MLSTRING){
+        if (peek().type == MLSTRING) {
             doc_temp = peek().literal.toString();
         }
         List<Stmt> body = block();
@@ -1103,7 +1109,7 @@ class Parser {
 
         return power();
     }
-    
+
     private Expr power() {
         Expr expr = call();
 
@@ -1120,12 +1126,15 @@ class Parser {
         List<Pair<Token, Expr>> arguments = new ArrayList<>();
         if (!check(RIGHT_PAREN)) {
             do {
-                Token token = null;
                 if (peek().type == IDENTIFIER && peekNext().type == EQUAL) {
-                    token = consume(IDENTIFIER, "Identifier Expected");
+                    Token token = consume(IDENTIFIER, "Identifier Expected");
                     advance();
+                    arguments.add(new Pair(token, expression()));
+                } else if (match(STAR, POWER)) {
+                    arguments.add(new Pair(null, expression()).setType(previous().type));
+                } else {
+                    arguments.add(new Pair(null, expression()));
                 }
-                arguments.add(new Pair(token, expression()));
             } while (match(COMMA));
         }
 

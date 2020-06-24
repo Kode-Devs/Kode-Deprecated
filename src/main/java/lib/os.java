@@ -681,6 +681,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import kni.KodeObject;
 
 /**
  *
@@ -716,7 +717,7 @@ public class os implements KNI{
     }
 
     @Override
-    public Object call(Object[] args) {
+    public KodeObject call(KodeObject[] args) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

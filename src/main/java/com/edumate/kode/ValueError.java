@@ -707,7 +707,7 @@ class ValueError extends Value {
 
             @Override
             public List<Pair<String, Object>> arity() {
-                return Arrays.asList(new Pair("args", interpreter.toKodeValue(Arrays.asList()), true));
+                return Arrays.asList(new Pair("args", interpreter.toKodeValue(Arrays.asList())).setType(TokenType.STAR));
             }
 
             @Override

@@ -861,7 +861,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
         function.__doc__ = stmt.doc;
         environment.define(stmt.name.lexeme, function);
         stmt.params.forEach((par) -> {
-            stmt.args.add(new Pair(par.key, par.value != null ? evaluate(par.value) : null, par.star));
+            stmt.args.add(new Pair(par.key, par.value != null ? evaluate(par.value) : null).setType(par.type));
         });
         return null;
     }
@@ -1110,7 +1110,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
         try {
             while (i < arguments.size()) {
                 Pair<Token, Object> arg = arguments.get(i);
-                if (arg.key == null && arity.get(j).star) {
+                if (arg.key == null && arity.get(j).type!=null) {
                     List temp = new ArrayList();
                     for (; i < arguments.size(); i++) {
                         if (arguments.get(i).key != null) {

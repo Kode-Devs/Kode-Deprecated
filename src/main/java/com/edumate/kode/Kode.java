@@ -1102,7 +1102,8 @@ class Kode {
             DEF_GLOBALS.put("print", new KodeBuiltinFunction("print", null, INTER) {
                 @Override
                 public List<Pair<String, Object>> arity() {
-                    return Arrays.asList(new Pair("str", interpreter.toKodeValue(Arrays.asList(interpreter.toKodeValue(""))), true),
+                    return Arrays.asList(
+                            new Pair("str", interpreter.toKodeValue(Arrays.asList(interpreter.toKodeValue("")))).setType(TokenType.STAR),
                             new Pair("sep", interpreter.toKodeValue(" ")),
                             new Pair("end", interpreter.toKodeValue("\n")));
                 }
@@ -1120,7 +1121,7 @@ class Kode {
             DEF_GLOBALS.put("input", new KodeBuiltinFunction("input", null, INTER) {
                 @Override
                 public List<Pair<String, Object>> arity() {
-                    return Arrays.asList(new Pair("str", interpreter.toKodeValue(Arrays.asList(interpreter.toKodeValue(""))), true),
+                    return Arrays.asList(new Pair("str", interpreter.toKodeValue(Arrays.asList(interpreter.toKodeValue("")))).setType(TokenType.STAR),
                             new Pair("sep", interpreter.toKodeValue(" ")),
                             new Pair("end", interpreter.toKodeValue("")),
                             new Pair("mask", interpreter.toKodeValue(false)));

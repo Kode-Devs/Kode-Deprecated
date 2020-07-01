@@ -866,12 +866,6 @@ class Kode {
         }
     }
 
-    private static void runBenchMark() throws Exception {
-        Interpreter inter = new Interpreter();
-        inter.globals.define(Kode.__NAME__, inter.toKodeValue(Kode.__MAIN__));
-        runLib("benchmark", false, inter);
-    }
-
     static String runLib(String name, Interpreter inter) throws Exception {
         return runLib(name, true, inter);
     }
@@ -881,20 +875,25 @@ class Kode {
 //                .getParent().toFile().getAbsolutePath(), "libs").toString();
         String pkgname = name.contains(File.separator) ? Arrays.asList(name.split(File.separator)).get(0) : name;
         String p = Paths.get("libs", pkgname).toAbsolutePath().toString();
-        boolean found = false;
         try {
             if (fromDir) {
                 FileSearch path = new FileSearch("./", name + "." + Kode.EXTENSION);
                 if (path.exists()) {
                     byte[] bytes = Files.readAllBytes(path.path.toAbsolutePath());
-                    found = true;
                     return run(path.path.toAbsolutePath().toFile().getName(), new String(bytes, Charset.defaultCharset()), inter).key;
+                }
+
+                if (Pip4kode.checkUpdate(pkgname, p)) {
+                    KodeHelper.printfln_err("Package '" + pkgname + "' needs an update.");
+                    if (!KodeHelper.scanf("Do you want to update the package '" + pkgname + "' ? [y/n]")
+                            .equalsIgnoreCase("y")) {
+                        throw new Exception();
+                    }
                 }
 
                 path = new FileSearch(p, name + "." + Kode.EXTENSION);
                 if (path.exists()) {
                     byte[] bytes = Files.readAllBytes(path.path.toAbsolutePath());
-                    found = true;
                     return run(path.path.toAbsolutePath().toFile().getName(), new String(bytes, Charset.defaultCharset()), inter).key;
                 }
             }
@@ -903,18 +902,15 @@ class Kode {
             InputStream file = Kode.class.getResourceAsStream("/" + name + "." + Kode.EXTENSION);
             if (file != null) {
                 bytes = file.readAllBytes();
-                found = true;
                 return run(name + "." + Kode.EXTENSION, new String(bytes, Charset.defaultCharset()), inter).key;
             }
 
+            KodeHelper.printfln_err("Library file " + name + "." + Kode.EXTENSION + " not found in your device.");
             throw new Exception();
         } catch (Exception e) {
             Pip4kode pip;
             try {
                 pip = new Pip4kode(pkgname);
-                KodeHelper.printfln_err(found
-                        ? "Library file " + name + "." + Kode.EXTENSION + " present in your device has an error in it."
-                        : "Library file " + name + "." + Kode.EXTENSION + " not found in your device.");
                 KodeHelper.printfln("Reading package metadata from repository ...");
                 pip.init();
                 if (!KodeHelper.scanf("Do you want to download the package '" + pip.pkg + "' (" + pip.sizeInWords + ") ? [y/n]")

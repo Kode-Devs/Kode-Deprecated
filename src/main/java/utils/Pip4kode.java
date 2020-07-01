@@ -677,15 +677,18 @@
 package utils;
 
 import java.io.File;
+import java.io.FileReader;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.List;
+import java.util.Map;
 import org.tmatesoft.svn.core.SVNDepth;
 import org.tmatesoft.svn.core.SVNDirEntry;
-import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.SVNNodeKind;
 import org.tmatesoft.svn.core.SVNURL;
 import org.tmatesoft.svn.core.auth.ISVNAuthenticationManager;
@@ -712,7 +715,7 @@ public class Pip4kode {
     private final SVNRepository repository;
     private static final ISVNAuthenticationManager authManager = SVNWCUtil.createDefaultAuthenticationManager();
 
-    public Pip4kode(String pkg) throws SVNException, Exception {
+    public Pip4kode(String pkg) throws Exception {
         this.pkg = pkg;
         final String url = "https://github.com/Kode-Devs/Kode-pkgs/trunk/" + pkg;
         // Initi the repo from url
@@ -728,8 +731,8 @@ public class Pip4kode {
             throw new Exception(pkg + " is not a directory");
         }
     }
-    
-    public void init() throws SVNException{
+
+    public void init() throws Exception {
         size = calculateSize(repository, latestRevision, "");
         sizeInWords = BytesToString(size);
         SVNClientManager ourClientManager = SVNClientManager.newInstance();
@@ -738,7 +741,7 @@ public class Pip4kode {
         updateClient.setIgnoreExternals(true);
     }
 
-    public void download(String desPath) throws SVNException {
+    public void download(String desPath) throws Exception {
         updateClient.doExport(repository.getLocation(), new File(desPath),
                 SVNRevision.create(latestRevision), SVNRevision.create(latestRevision),
                 null, true, SVNDepth.INFINITY);
@@ -758,7 +761,7 @@ public class Pip4kode {
                 + " " + suf[order];
     }
 
-    private static long calculateSize(SVNRepository repository, long rev, String path) throws SVNException {
+    private static long calculateSize(SVNRepository repository, long rev, String path) throws Exception {
         long size = 0;
         Collection entries = repository.getDir(path, rev, null, (Collection) null);
         Iterator<SVNDirEntry> iterator = entries.iterator();
@@ -771,5 +774,41 @@ public class Pip4kode {
             }
         }
         return size;
+    }
+
+    public static boolean checkUpdate(String pkg, String local) {
+        final String localVersion, remoteVersion;
+        
+        try{
+            FileReader fr = new FileReader(Paths.get(local, "version").toString());
+            StringWriter out = new StringWriter();
+            fr.transferTo(out);
+            localVersion = out.toString();
+        }catch(Exception e){
+            return Paths.get(local).toFile().exists();
+        }
+
+        try {
+            String link = "https://raw.githubusercontent.com/Kode-Devs/Kode-pkgs/master/" + pkg + "/version";
+            URL url = new URL(link);
+            HttpURLConnection http = (HttpURLConnection) url.openConnection();
+            Map< String, List< String>> header = http.getHeaderFields();
+            while (isRedirected(header)) {
+                link = header.get("Location").get(0);
+                url = new URL(link);
+                http = (HttpURLConnection) url.openConnection();
+                header = http.getHeaderFields();
+            }
+            InputStream input = http.getInputStream();
+            remoteVersion = new String(input.readAllBytes());
+        } catch (Exception e) {
+            return false;
+        }
+        
+        return !localVersion.contentEquals(remoteVersion);
+    }
+
+    private static boolean isRedirected(Map<String, List<String>> header) {
+        return header.get(null).stream().anyMatch((hv) -> (hv.contains(" 301 ") || hv.contains(" 302 ")));
     }
 }

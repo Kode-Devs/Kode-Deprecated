@@ -759,8 +759,6 @@ class Kode {
                     }
                     //</editor-fold>
                 } else {
-//                    System.out.println(parser.formatHelp());
-//                    KodeHelper.exit(0);
                     //<editor-fold defaultstate="collapsed" desc="Shell">
                     KodeHelper.printfln(Kode.getIntro());
                     KodeHelper.printfln("Call exit() to quit shell.");
@@ -884,8 +882,8 @@ class Kode {
                 }
 
                 if (Pip4kode.checkUpdate(pkgname, p)) {
-                    KodeHelper.printfln_err("Package '" + pkgname + "' needs an update.");
-                    if (!KodeHelper.scanf("Do you want to update the package '" + pkgname + "' ? [y/n]")
+                    KodeHelper.printfln_err("[Info]: Package '" + pkgname + "' needs an update.");
+                    if (KodeHelper.scanf("Do you want to update the package '" + pkgname + "' ? [y/n]")
                             .equalsIgnoreCase("y")) {
                         throw new Exception();
                     }
@@ -905,7 +903,7 @@ class Kode {
                 return run(name + "." + Kode.EXTENSION, new String(bytes, Charset.defaultCharset()), inter).key;
             }
 
-            KodeHelper.printfln_err("Library file " + name + "." + Kode.EXTENSION + " not found in your device.");
+            KodeHelper.printfln_err("[Info]: Library file " + name + "." + Kode.EXTENSION + " not found in your device.");
             throw new Exception();
         } catch (Exception e) {
             Pip4kode pip;
@@ -922,7 +920,7 @@ class Kode {
                 pip.download(p);
                 KodeHelper.printfln("Download Finished");
             } catch (Exception ex) {
-                throw new Exception("Requirement " + name + " not satisfied.");
+                throw new RuntimeError("Requirement " + name + " not satisfied.");
             }
             return runLib(name, fromDir, inter);
         }

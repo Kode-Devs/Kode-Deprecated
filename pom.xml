@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.edumate</groupId>
+    <groupId>org.kodeDevs</groupId>
     <artifactId>kode</artifactId>
     <version>latest</version>
     <packaging>jar</packaging>
@@ -17,14 +17,9 @@
             <version>1.10.1</version>
         </dependency>
         <dependency>
-            <groupId>net.sourceforge.argparse4j</groupId>
-            <artifactId>argparse4j</artifactId>
-            <version>0.8.1</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>org.kodeDevs</groupId>
             <artifactId>KodeNativeInterface</artifactId>
-            <version>${project.version}</version>
+            <version>latest</version>
         </dependency>
     </dependencies>
     <properties>
@@ -42,7 +37,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>com.edumate.kode.KodeHelper</mainClass>
+                            <mainClass>kode.KodeHelper</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

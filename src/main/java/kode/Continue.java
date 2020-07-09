@@ -3,17 +3,15 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package lib;
-
-import kode.KodeHelper;
+package kode;
 
 /**
  *
  * @author dell
  */
-public class warnings {
+class Continue extends RuntimeException {
 
-    public static void print_warning(Object msg) {
-        KodeHelper.printfln_err(msg);
+    Continue() {
+        super("Cannot continue from top-level code.", null, false, false);
     }
 }

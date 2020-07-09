@@ -581,7 +581,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
         }
         String className = String.join(".", temp);
         String methodName = expr.path.get(expr.path.size() - 1).lexeme;
-        return new JavaNative(className, methodName, null, this);
+        return new KodeNative(className, methodName, null, this);
     }
 
     @Override
@@ -696,7 +696,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
         }
     }
 
-    Object toJava(Object value) {
+    static Object toJava(Object value) {
         if (value instanceof KodeInstance) {
             if (ValueNone.isNone((KodeInstance) value)) {
                 return null;
@@ -708,7 +708,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
                 return ValueBool.toBoolean(value);
             }
             if (ValueList.isList((KodeInstance) value)) {
-                return ValueList.toList(value).stream().map(this::toJava).collect(Collectors.toList());
+                return ValueList.toList(value).stream().map(Interpreter::toJava).collect(Collectors.toList());
             }
         }
         return value;

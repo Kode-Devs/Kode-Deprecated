@@ -105,7 +105,7 @@ public class Pip4kode {
         final String localVersion, remoteVersion;
 
         try {
-            FileReader fr = new FileReader(Paths.get(local, "version").toString());
+            FileReader fr = new FileReader(Paths.get(local, "version.json").toString());
             StringWriter out = new StringWriter();
             fr.transferTo(out);
             localVersion = out.toString();

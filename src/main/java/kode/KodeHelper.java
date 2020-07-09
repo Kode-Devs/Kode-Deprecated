@@ -62,16 +62,18 @@ public class KodeHelper {
     }
 
     public static String scanf(Object obj) {
+        KodeHelper.printf(obj);
         return textIO.newStringInputReader()
                 .withMinLength(0)
-                .read(obj.toString());
+                .read();
     }
 
     public static String scanf_pwd(Object obj) {
+        KodeHelper.printf(obj);
         return textIO.newStringInputReader()
                 .withInputMasking(true)
                 .withMinLength(0)
-                .read(obj.toString());
+                .read();
     }
 
     public static boolean resetLine() {

@@ -80,7 +80,7 @@ class Kode {
                             }
                         } catch (RuntimeError error) {
                             Kode.runtimeError(error);
-                        } catch (Error | Exception e) {
+                        } catch (Throwable e) {
                             e.printStackTrace();
                             KodeHelper.printfln_err("Fatal Error : " + e);
                         }
@@ -100,12 +100,14 @@ class Kode {
                 default:
                     KodeHelper.printfln_err(Kode.USAGE);
             }
-        } catch (Error | Exception e) {
+        } catch (Throwable e) {
             e.printStackTrace();
             KodeHelper.printfln_err("Fatal Error : " + e);
         }
         KodeHelper.exit(0);
     }
+    
+    static String LIBPATH;
 
     static boolean hadError = false;
     static boolean hadRuntimeError = false;
@@ -178,9 +180,7 @@ class Kode {
 
     static String runLib(String name, boolean fromDir, Interpreter inter) throws Exception {
         String pkgname = name.contains(File.separator) ? Arrays.asList(name.split(File.separator)).get(0) : name; // BUG name.split not working
-        String p = Paths.get(Paths.get(Kode.class.getProtectionDomain().getCodeSource().getLocation().toURI())
-                .getParent().toFile().getAbsolutePath(), "libs").toAbsolutePath().toString();
-        p = Paths.get(p,"libs", pkgname).toAbsolutePath().toString();
+        String p = Paths.get(Kode.LIBPATH, pkgname).toAbsolutePath().toString();
         try {
             if (fromDir) {
                 FileSearch path = new FileSearch("./", name + "." + Kode.EXTENSION);
@@ -367,8 +367,8 @@ class Kode {
             }
             return "function." + ((KodeFunction) object).declaration.name.lexeme;
         }
-        if (object instanceof JavaNative) {
-            return "native.function." + ((JavaNative) object).className + "." + ((JavaNative) object).methodName;
+        if (object instanceof KodeNative) {
+            return "native.function." + ((KodeNative) object).className;
         }
         if (object instanceof KodeInstance) {
             if (object instanceof KodeModule) {
@@ -400,6 +400,8 @@ class Kode {
 
     static {
         try {
+            LIBPATH = Paths.get(Paths.get(Kode.class.getProtectionDomain().getCodeSource().getLocation().toURI())
+                .getParent().toFile().getAbsolutePath(), "libs").toAbsolutePath().toString();
             final Map<String, Object> DEF_GLOBALS = new HashMap();
             DEF_GLOBALS.put("print", new KodeBuiltinFunction("print", null, INTER) {
                 @Override
@@ -721,8 +723,7 @@ class Kode {
                 }
 
             });
-            DEF_GLOBALS.put("kni", new KNI_FUNC("kni", null, INTER));
-            //DEF_GLOBALS.put(ValueNone.val.class_name, ValueNone.val);
+            
             DEF_GLOBALS.put(ValueNumber.val.class_name, ValueNumber.val);   //Number
             DEF_GLOBALS.put(ValueString.val.class_name, ValueString.val);   //String
             DEF_GLOBALS.put(ValueBool.val.class_name, ValueBool.val);   //Bool

@@ -537,7 +537,9 @@ class Parser {
             do {
                 path.add(consume(IDENTIFIER, "Expect identifier after native."));
             } while (match(DOT));
-            return new Expr.Native(nav, path);
+            String pkg = match(LESS) ? consume(IDENTIFIER, "Expect Package Name.").lexeme : null;
+            consume(LEFT_PAREN, "Expected '('.");
+            return finishCall(new Expr.Native(nav, path, pkg));
         }
 
         if (match(LEFT_PAREN)) {

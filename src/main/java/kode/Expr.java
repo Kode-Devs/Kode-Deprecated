@@ -297,9 +297,10 @@ abstract class Expr {
     
     static class Native extends Expr {
 
-        Native(Token nav,List<Token> path) {
+        Native(Token nav,List<Token> path, String pkg) {
             this.nav = nav;
             this.path = path;
+            this.pkg = pkg;
         }
 
         @Override
@@ -309,6 +310,7 @@ abstract class Expr {
 
         final Token nav;
         final List<Token> path;
+        final String pkg;
     }
 
     abstract <R> R accept(Visitor<R> visitor);

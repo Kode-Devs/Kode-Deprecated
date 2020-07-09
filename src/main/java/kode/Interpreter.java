@@ -576,12 +576,9 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     @Override
     public Object visitNativeExpr(Expr.Native expr) {
         List<String> temp = new ArrayList();
-        for (int i = 0; i < expr.path.size() - 1; i++) {
-            temp.add(expr.path.get(i).lexeme);
-        }
+        expr.path.forEach(i -> temp.add(i.lexeme));
         String className = String.join(".", temp);
-        String methodName = expr.path.get(expr.path.size() - 1).lexeme;
-        return new KodeNative(className, methodName, null, this);
+        return new KodeNative(className, expr.pkg, this);
     }
 
     @Override

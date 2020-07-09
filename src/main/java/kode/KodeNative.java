@@ -5,6 +5,7 @@
  */
 package kode;
 
+import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
@@ -26,7 +27,7 @@ class KodeNative implements KodeCallable {
     final String pkg;
     final Interpreter inter;
 
-    KodeNative(String className, String methodName, String pkg, Interpreter inter) {
+    KodeNative(String className, String pkg, Interpreter inter) {
         this.className = className;
         this.pkg = pkg;
         this.inter = inter;
@@ -51,11 +52,9 @@ class KodeNative implements KodeCallable {
             throw new RuntimeError("Argument params must be of type List", null);
         }
 
-        // Actual Code goes here
         try {
-            Path path = this.pkg == null ? Paths.get("shared-lib") : Paths.get(Kode.LIBPATH, this.pkg, "shared-lib");
             Object newInstance = new URLClassLoader(
-                    new URL[]{path.toAbsolutePath().toUri().toURL()},
+                    addToList(this.pkg == null ? Paths.get("shared-lib") : Paths.get(Kode.LIBPATH, this.pkg, "shared-lib")).toArray(new URL[]{}),
                     Kode.class.getClassLoader()).loadClass(this.className).newInstance();
             KodeObject[] args = new KodeObject[params.size()];
             for (int i = 0; i < params.size(); i++) {
@@ -69,6 +68,26 @@ class KodeNative implements KodeCallable {
             e.printStackTrace();
             throw new RuntimeError(e.getMessage());
         }
+    }
+
+    private List<URL> addToList(Path path) {
+        List<URL> urls = new ArrayList();
+        try {
+            urls.add(path.toUri().toURL());
+        } catch (Throwable e) {
+        }
+        File[] listFiles = path.toFile().listFiles();
+        if (listFiles != null) {
+            for (File file : listFiles) {
+                try {
+                    if (file.getName().endsWith(".jar")) {
+                        urls.add(file.toURI().toURL());
+                    }
+                } catch (Throwable e) {
+                }
+            }
+        }
+        return urls;
     }
 
     @Override

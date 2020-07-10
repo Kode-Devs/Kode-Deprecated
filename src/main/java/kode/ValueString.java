@@ -26,7 +26,7 @@ class ValueString extends Value {
         return instance;
     }
 
-    ValueString(Interpreter interpreter) {
+    private ValueString(Interpreter interpreter) {
         super("String", interpreter);
         //<editor-fold defaultstate="collapsed" desc="init">
         this.methods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, null, interpreter) {
@@ -40,7 +40,7 @@ class ValueString extends Value {
             public Object call(Map<String, Object> arguments) {
                 Object This = closure.getAt(0, "this");
                 if (This instanceof KodeInstance) {
-                    ((KodeInstance) This).str = ValueString.toStr(arguments.get("x"));
+                    ((KodeInstance) This).data = ValueString.toStr(arguments.get("x"));
                 }
                 return This;
             }
@@ -78,7 +78,7 @@ class ValueString extends Value {
                 Object This = closure.getAt(0, "this");
                 if (This instanceof KodeInstance) {
                     try {
-                        return interpreter.toKodeValue(toNumber.toNumber(((KodeInstance) This).str));
+                        return interpreter.toKodeValue(toNumber.toNumber(((KodeInstance) This).data));
                     } catch (Exception ex) {
                         throw new RuntimeError(ex.getMessage(), null);
                     }
@@ -99,7 +99,7 @@ class ValueString extends Value {
             public Object call(Map<String, Object> arguments) {
                 Object This = closure.getAt(0, "this");
                 if (This instanceof KodeInstance) {
-                    return interpreter.toKodeValue(interpreter.isTruthy(((KodeInstance) This).str));
+                    return interpreter.toKodeValue(interpreter.isTruthy(((KodeInstance) This).data));
                 }
                 throw new NotImplemented();
             }
@@ -119,7 +119,7 @@ class ValueString extends Value {
                 if (This instanceof KodeInstance) {
                     try {
                         List ll = new ArrayList();
-                        for (char ch : ((KodeInstance) This).str.toCharArray()) {
+                        for (char ch : ((String) ((KodeInstance) This).data).toCharArray()) {
                             ll.add(interpreter.toKodeValue("" + ch));
                         }
                         return interpreter.toKodeValue(ll);
@@ -166,7 +166,7 @@ class ValueString extends Value {
             return (String) x_;
         } else if (x_ instanceof KodeInstance) {
             if (((KodeInstance) x_).klass instanceof ValueString) {
-                return ((KodeInstance) x_).str;
+                return (String) ((KodeInstance) x_).data;
             } else {
                 try {
                     if (((KodeInstance) x_).fields.containsKey(Kode.STRING)) {

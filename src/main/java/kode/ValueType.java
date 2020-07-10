@@ -18,7 +18,7 @@ class ValueType extends Value {
 
     static Value val = new ValueType(new Interpreter());
 
-    ValueType(Interpreter interpreter) {
+    private ValueType(Interpreter interpreter) {
         super("type", interpreter);
         //<editor-fold defaultstate="collapsed" desc="init">
         this.methods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, null, interpreter) {
@@ -32,7 +32,7 @@ class ValueType extends Value {
             public Object call(Map<String, Object> arguments) {
                 Object This = closure.getAt(0, "this");
                 if (This instanceof KodeInstance) {
-                    ((KodeInstance) This).str = Kode.type(arguments.get("obj"));
+                    ((KodeInstance) This).data = Kode.type(arguments.get("obj"));
                 }
                 return This;
             }
@@ -51,7 +51,7 @@ class ValueType extends Value {
             public Object call(Map<String, Object> arguments) {
                 Object This = closure.getAt(0, "this");
                 if (This instanceof KodeInstance) {
-                    return interpreter.toKodeValue("<type '"+((KodeInstance) This).str+"'>");
+                    return interpreter.toKodeValue("<type '"+((KodeInstance) This).data+"'>");
                 }
                 throw new NotImplemented();
             }

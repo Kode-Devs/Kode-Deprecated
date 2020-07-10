@@ -26,7 +26,7 @@ class ValueBool extends Value {
         return instance;
     }
 
-    ValueBool(Interpreter interpreter) {
+    private ValueBool(Interpreter interpreter) {
         super("Bool", interpreter);
         //<editor-fold defaultstate="collapsed" desc="init">
         this.methods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, null, interpreter) {
@@ -40,7 +40,7 @@ class ValueBool extends Value {
             public Object call(Map<String, Object> arguments) {
                 Object This = closure.getAt(0, "this");
                 if (This instanceof KodeInstance) {
-                    ((KodeInstance) This).bool = ValueBool.toBoolean(arguments.get("x"));
+                    ((KodeInstance) This).data = ValueBool.toBoolean(arguments.get("x"));
                 }
                 return This;
             }
@@ -59,7 +59,7 @@ class ValueBool extends Value {
             public Object call(Map<String, Object> arguments) {
                 Object This = closure.getAt(0, "this");
                 if (This instanceof KodeInstance) {
-                    return interpreter.toKodeValue(Kode.stringify(((KodeInstance) This).bool));
+                    return interpreter.toKodeValue(Kode.stringify(((KodeInstance) This).data));
                 }
                 throw new NotImplemented();
             }
@@ -77,7 +77,7 @@ class ValueBool extends Value {
             return (Boolean) x_;
         } else if (x_ instanceof KodeInstance) {
             if (((KodeInstance) x_).klass instanceof ValueBool) {
-                return ((KodeInstance) x_).bool;
+                return (Boolean) ((KodeInstance) x_).data;
             } else {
                 try {
                     if (((KodeInstance) x_).fields.containsKey(Kode.BOOLEAN)) {

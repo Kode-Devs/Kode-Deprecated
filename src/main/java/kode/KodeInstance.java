@@ -6,7 +6,6 @@
 package kode;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -18,10 +17,7 @@ class KodeInstance {
     String __doc__ = null;
 
     KodeClass klass;
-    Double num;
-    Boolean bool;
-    String str;
-    List list;
+    Object data;
     boolean reccured = false; 
     Map<String, Object> fields = new HashMap<>();
 
@@ -58,8 +54,7 @@ class KodeInstance {
         }
 
         throw new RuntimeError(
-                "Undefined property '" + name + "'.",
-                null);
+                "Undefined property '" + name + "'.");
     }
 
     void set(Token name, Object value) {

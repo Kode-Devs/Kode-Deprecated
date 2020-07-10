@@ -29,7 +29,7 @@ class ValueError extends Value {
         return instance;
     }
 
-    ValueError(Interpreter interpreter) {
+    private ValueError(Interpreter interpreter) {
         super("Error", interpreter);
         //<editor-fold defaultstate="collapsed" desc="init">
         this.methods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, null, interpreter) {

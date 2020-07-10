@@ -31,7 +31,7 @@ class ValueNumber extends Value {
         return instance;
     }
 
-    ValueNumber(Interpreter interpreter) {
+    private ValueNumber(Interpreter interpreter) {
         super("Number", interpreter);
         //<editor-fold defaultstate="collapsed" desc="init">
         this.methods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, null, interpreter) {
@@ -45,7 +45,7 @@ class ValueNumber extends Value {
             public Object call(Map<String, Object> arguments) {
                 Object This = closure.getAt(0, "this");
                 if (This instanceof KodeInstance) {
-                    ((KodeInstance) This).num = ValueNumber.toNumber(arguments.get("x"));
+                    ((KodeInstance) This).data = ValueNumber.toNumber(arguments.get("x"));
                 }
                 return This;
             }
@@ -64,7 +64,7 @@ class ValueNumber extends Value {
             public Object call(Map<String, Object> arguments) {
                 Object This = closure.getAt(0, "this");
                 if (This instanceof KodeInstance) {
-                    return interpreter.toKodeValue(Kode.stringify(((KodeInstance) This).num));
+                    return interpreter.toKodeValue(Kode.stringify(((KodeInstance) This).data));
                 }
                 throw new NotImplemented();
             }
@@ -82,7 +82,7 @@ class ValueNumber extends Value {
             return (Double) x_;
         } else if (x_ instanceof KodeInstance) {
             if (((KodeInstance) x_).klass instanceof ValueNumber) {
-                return ((KodeInstance) x_).num;
+                return (Double) ((KodeInstance) x_).data;
             } else {
                 try {
                     if (((KodeInstance) x_).fields.containsKey(Kode.NUMBER)) {

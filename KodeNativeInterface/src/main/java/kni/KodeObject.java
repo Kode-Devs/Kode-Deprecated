@@ -12,9 +12,19 @@ package kni;
  */
 public final class KodeObject {
     private Object data;
+    private boolean isnative = false;
     
     public KodeObject(Object data){
         this.data = data;
+    }
+    
+    public KodeObject asNative(){
+        isnative = true;
+        return this;
+    }
+    
+    public boolean isNative(){
+        return this.isnative;
     }
     
     public Object get(){

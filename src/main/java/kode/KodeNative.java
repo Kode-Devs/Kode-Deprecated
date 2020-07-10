@@ -58,10 +58,21 @@ class KodeNative implements KodeCallable {
                     Kode.class.getClassLoader()).loadClass(this.className).newInstance();
             KodeObject[] args = new KodeObject[params.size()];
             for (int i = 0; i < params.size(); i++) {
-                args[i] = new KodeObject(Interpreter.toJava(params.get(i)));
+                Object get = params.get(i);
+                if (get instanceof KodeInstance) {
+                    if (ValueNative.isNative((KodeInstance) get)) {
+                        args[i] = new KodeObject(((KodeInstance) get).data).asNative();
+                        continue;
+                    }
+                }
+                args[i] = new KodeObject(Interpreter.toJava(get));
             }
             if (newInstance instanceof KNI) {
-                return this.inter.toKodeValue(((KNI) newInstance).call(args).get());
+                KodeObject call = ((KNI) newInstance).call(args);
+                if (call == null) {
+                    return null;
+                }
+                return call.isNative() ? ValueNative.create(call.get()) : this.inter.toKodeValue(call.get());
             }
             throw new Exception("The Class loaded does not implement Kode Native Interface (KNI).");
         } catch (Throwable e) {

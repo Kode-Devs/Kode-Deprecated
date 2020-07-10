@@ -27,7 +27,7 @@ class ValueNotImplemented extends Value {
         return ins;
     }
 
-    ValueNotImplemented(Interpreter interpreter) {
+    private ValueNotImplemented(Interpreter interpreter) {
         super("NotImplemented", ValueError.val, interpreter);
         //<editor-fold defaultstate="collapsed" desc="init">
         this.methods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, null, interpreter) {

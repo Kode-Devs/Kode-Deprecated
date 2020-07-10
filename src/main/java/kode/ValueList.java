@@ -26,7 +26,7 @@ class ValueList extends Value {
         return instance;
     }
 
-    ValueList(Interpreter interpreter) {
+    private ValueList(Interpreter interpreter) {
         super("List", interpreter);
         //<editor-fold defaultstate="collapsed" desc="init">
         this.methods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, null, interpreter) {
@@ -40,7 +40,7 @@ class ValueList extends Value {
             public Object call(Map<String, Object> arguments) {
                 Object This = closure.getAt(0, "this");
                 if (This instanceof KodeInstance) {
-                    ((KodeInstance) This).list = ValueList.toList(arguments.get("x"));
+                    ((KodeInstance) This).data = ValueList.toList(arguments.get("x"));
                 }
                 return This;
             }
@@ -63,7 +63,7 @@ class ValueList extends Value {
                     try {
                         if (!((KodeInstance) This).reccured) {
                             ((KodeInstance) This).reccured = true;
-                            i = interpreter.toKodeValue(Kode.stringify(((KodeInstance) This).list));
+                            i = interpreter.toKodeValue(Kode.stringify(((KodeInstance) This).data));
                         } else {
                             i = interpreter.toKodeValue(Kode.stringify("[...]"));
                         }
@@ -113,7 +113,7 @@ class ValueList extends Value {
             return (List) x_;
         } else if (x_ instanceof KodeInstance) {
             if (((KodeInstance) x_).klass instanceof ValueList) {
-                return ((KodeInstance) x_).list;
+                return (List) ((KodeInstance) x_).data;
             } else {
                 try {
                     if (((KodeInstance) x_).fields.containsKey(Kode.LIST)) {

@@ -5,6 +5,7 @@
  */
 package math;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 
 /**
@@ -15,28 +16,58 @@ public class KodeNumber {
 
     private Double num;
     private BigInteger numInt;
+    private boolean isInt;
 
     public static KodeNumber valueOf(String num) {
-        return new KodeNumber(Double.valueOf(num));
+        try {
+            return new KodeNumber(new BigInteger(num));
+        } catch (Exception e) {
+            return new KodeNumber(Double.valueOf(num));
+        }
     }
-    
+
     public static KodeNumber valueOf(Number num) {
-        return new KodeNumber(num.doubleValue());
+        if (num instanceof BigInteger) {
+            return new KodeNumber((BigInteger) num);
+        } else if (num instanceof Float || num instanceof Double) {
+            return new KodeNumber(num.doubleValue());
+        } else {
+            return new KodeNumber(new BigInteger("" + num));
+        }
     }
 
     private KodeNumber(Double valueOf) {
         this.num = valueOf;
+        this.isInt = false;
     }
-    
-    public Double getFloat(){
+
+    private KodeNumber(BigInteger valueOf) {
+        this.numInt = valueOf;
+        this.isInt = true;
+    }
+
+    public Double getFloat() {
+        if (this.isInt) {
+            return this.numInt.doubleValue();
+        }
         return this.num;
     }
-    
-    public BigInteger getInteger(){
-        return this.numInt;
+
+    public BigInteger getInteger() {
+        if (this.isInt) {
+            return this.numInt;
+        }
+        return new BigDecimal(this.num).toBigIntegerExact();
+    }
+
+    public int getAsIndex() throws Exception {
+        if (this.isInt) {
+            return this.numInt.intValueExact();
+        }
+        return new BigDecimal(this.num).intValueExact();
     }
     
-    public int getAsIndex(){
-        return num.intValue();
+    public boolean isInteger(){
+        return this.isInt;
     }
 }

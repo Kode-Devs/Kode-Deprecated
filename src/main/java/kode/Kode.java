@@ -16,7 +16,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -33,7 +32,7 @@ import utils.Pip4kode;
 class Kode {
 
     static final String NAME = "Kode";
-    static final String VERSION = "1.0.0";
+    static final String VERSION = "1.0.1";
     static final String EXTENSION = "kde";
     static final String AUTHOR = "Kode-Devs";
     static final String USAGE = "Usage: kode [script]";
@@ -107,7 +106,7 @@ class Kode {
         }
         KodeHelper.exit(0);
     }
-    
+
     static String LIBPATH;
 
     static boolean hadError = false;
@@ -128,7 +127,7 @@ class Kode {
 
     static final String NEG = "__neg__";
     static final String POS = "__pos__";
-    
+
     static final String LEN = "__len__";
     static final String STRING = "__str__";
     static final String NUMBER = "__num__";
@@ -321,21 +320,26 @@ class Kode {
         // Number
         // Hack. Work around Java adding ".0" to integer-valued doubles.
         if (object instanceof KodeNumber) {
-            Double num = ((KodeNumber) object).getFloat();
-            if (num == Double.POSITIVE_INFINITY) {
-                return Kode.INFINITY;
+            if (((KodeNumber) object).isInteger()) {
+                return ((KodeNumber) object).getInteger().toString();
+            } else {
+                Double num = ((KodeNumber) object).getFloat();
+                if (num == Double.POSITIVE_INFINITY) {
+                    return Kode.INFINITY;
+                }
+                if (num == Double.NEGATIVE_INFINITY) {
+                    return "-" + Kode.INFINITY;
+                }
+                if (num.isNaN()) {
+                    return Kode.NAN;
+                }
+//            String format = String.format(Locale.US, "%.10G", num);
+//            format = format
+//                    .replaceFirst("\\.0+(e|$)", "$1")
+//                    .replaceFirst("(\\.[0-9]*[1-9])(0+)(e|$)", "$1$3");
+//            return format;
+                return num.toString();
             }
-            if (num == Double.NEGATIVE_INFINITY) {
-                return "-" + Kode.INFINITY;
-            }
-            if (num.isNaN()) {
-                return Kode.NAN;
-            }
-            String format = String.format(Locale.US, "%.10G", num);
-            format = format
-                    .replaceFirst("\\.0+(e|$)", "$1")
-                    .replaceFirst("(\\.[0-9]*[1-9])(0+)(e|$)", "$1$3");
-            return format;
         }
 
         // List
@@ -405,7 +409,7 @@ class Kode {
     static {
         try {
             LIBPATH = Paths.get(Paths.get(Kode.class.getProtectionDomain().getCodeSource().getLocation().toURI())
-                .getParent().toFile().getAbsolutePath(), "libs").toAbsolutePath().toString();
+                    .getParent().toFile().getAbsolutePath(), "libs").toAbsolutePath().toString();
             final Map<String, Object> DEF_GLOBALS = new HashMap();
             DEF_GLOBALS.put("print", new KodeBuiltinFunction("print", null, INTER) {
                 @Override
@@ -613,7 +617,11 @@ class Kode {
 
                 @Override
                 public Object call(Map<String, Object> arguments) {
-                    KodeHelper.exit(ValueNumber.toNumber(arguments.get("status")).getAsIndex());
+                    try {
+                        KodeHelper.exit(ValueNumber.toNumber(arguments.get("status")).getAsIndex());
+                    } catch (Exception ex) {
+                        KodeHelper.exit(0);
+                    }
                     return null;
                 }
 
@@ -727,14 +735,14 @@ class Kode {
                 }
 
             });
-            
+
             DEF_GLOBALS.put(ValueNumber.val.class_name, ValueNumber.val);   //Number
             DEF_GLOBALS.put(ValueString.val.class_name, ValueString.val);   //String
             DEF_GLOBALS.put(ValueBool.val.class_name, ValueBool.val);   //Bool
             DEF_GLOBALS.put(ValueList.val.class_name, ValueList.val);   //List
             DEF_GLOBALS.put(ValueError.val.class_name, ValueError.val);    //Error
             DEF_GLOBALS.put(ValueType.val.class_name, ValueType.val);    //Type
-            DEF_GLOBALS.put(ValueNotImplemented.val.class_name, ValueNotImplemented.val);
+            DEF_GLOBALS.put(ValueNotImplemented.val.class_name, ValueNotImplemented.val); //NotImplemented Error
             INTER.globals.values.putAll(DEF_GLOBALS);
             KodeModule module = new KodeModule(Kode.BUILTIN_NAME, Kode.BUILTIN_NAME);
             Kode.ModuleRegistry.put(Kode.BUILTIN_NAME, module);

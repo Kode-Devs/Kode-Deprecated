@@ -10,6 +10,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import math.KodeMath;
 
 /**
@@ -182,7 +184,14 @@ class KodeClass implements KodeCallable {
                 Object index = arguments.get("idx");
                 if (This instanceof KodeInstance && index instanceof KodeInstance) {
                     if (ValueNumber.isNumber((KodeInstance) index)) {
-                        int toNumber = ValueNumber.toNumber(index).getAsIndex();
+                        int toNumber;
+                        try {
+                            toNumber = ValueNumber.toNumber(index).getAsIndex();
+                        } catch (RuntimeError ex) {
+                            throw ex;
+                        } catch (Exception ex) {
+                            throw new RuntimeError("Index Out of Range or has fractional part.");
+                        }
                         if (ValueList.isList((KodeInstance) This)) {
                             try {
                                 return interpreter.toKodeValue(ValueList.toList(This).get(toNumber));
@@ -192,9 +201,9 @@ class KodeClass implements KodeCallable {
                         }
                         if (ValueString.isString((KodeInstance) This)) {
                             try {
-                                return interpreter.toKodeValue(ValueList.toList(This).get(toNumber));
+                                return interpreter.toKodeValue(ValueString.toStr(This).charAt(toNumber));
                             } catch (IndexOutOfBoundsException e) {
-                                throw new RuntimeError("List Index Out Of Bound : " + Kode.stringify(toNumber), null);
+                                throw new RuntimeError("String Index Out Of Bound : " + Kode.stringify(toNumber), null);
                             }
                         }
                     } else if (ValueList.isList((KodeInstance) index)) {
@@ -219,7 +228,14 @@ class KodeClass implements KodeCallable {
                 Object index = arguments.get("idx");
                 if (This instanceof KodeInstance && index instanceof KodeInstance) {
                     if (ValueNumber.isNumber((KodeInstance) index)) {
-                        int toNumber = ValueNumber.toNumber(index).getAsIndex();
+                        int toNumber;
+                        try {
+                            toNumber = ValueNumber.toNumber(index).getAsIndex();
+                        } catch (RuntimeError ex) {
+                            throw ex;
+                        } catch (Exception ex) {
+                            throw new RuntimeError("Index Out of Range or has fractional part.");
+                        }
                         if (ValueList.isList((KodeInstance) This)) {
                             try {
                                 ValueList.toList(This).set(toNumber, arguments.get("obj"));
@@ -404,29 +420,45 @@ class KodeClass implements KodeCallable {
                     }
                     if (ValueString.isString((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
                         String str = "";
-                        for (int i = 0; i < ValueNumber.toNumber(right).getAsIndex(); i++) {
-                            str = str.concat(ValueString.toStr(left));
+                        try {
+                            for (int i = 0; i < ValueNumber.toNumber(right).getAsIndex(); i++) {
+                                str = str.concat(ValueString.toStr(left));
+                            }
+                        } catch (Exception ex) {
+                            throw new RuntimeError("TODO");
                         }
                         return interpreter.toKodeValue(str);
                     }
                     if (ValueString.isString((KodeInstance) right) && ValueNumber.isNumber((KodeInstance) left)) {
                         String str = "";
-                        for (int i = 0; i < ValueNumber.toNumber(left).getAsIndex(); i++) {
-                            str = str.concat(ValueString.toStr(right));
+                        try {
+                            for (int i = 0; i < ValueNumber.toNumber(left).getAsIndex(); i++) {
+                                str = str.concat(ValueString.toStr(right));
+                            }
+                        } catch (Exception ex) {
+                            throw new RuntimeError("TODO");
                         }
                         return interpreter.toKodeValue(str);
                     }
                     if (ValueList.isList((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
                         List ll = new ArrayList();
-                        for (int i = 0; i < ValueNumber.toNumber(right).getAsIndex(); i++) {
-                            ll.addAll(ValueList.toList(left));
+                        try {
+                            for (int i = 0; i < ValueNumber.toNumber(right).getAsIndex(); i++) {
+                                ll.addAll(ValueList.toList(left));
+                            }
+                        } catch (Exception ex) {
+                            throw new RuntimeError("TODO");
                         }
                         return interpreter.toKodeValue(ll);
                     }
                     if (ValueList.isList((KodeInstance) right) && ValueNumber.isNumber((KodeInstance) left)) {
                         List ll = new ArrayList();
-                        for (int i = 0; i < ValueNumber.toNumber(left).getAsIndex(); i++) {
-                            ll.addAll(ValueList.toList(right));
+                        try {
+                            for (int i = 0; i < ValueNumber.toNumber(left).getAsIndex(); i++) {
+                                ll.addAll(ValueList.toList(right));
+                            }
+                        } catch (Exception ex) {
+                            throw new RuntimeError("TODO");
                         }
                         return interpreter.toKodeValue(ll);
                     }
@@ -457,29 +489,45 @@ class KodeClass implements KodeCallable {
                     }
                     if (ValueString.isString((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
                         String str = "";
-                        for (int i = 0; i < ValueNumber.toNumber(right).getAsIndex(); i++) {
-                            str = str.concat(ValueString.toStr(left));
+                        try {
+                            for (int i = 0; i < ValueNumber.toNumber(right).getAsIndex(); i++) {
+                                str = str.concat(ValueString.toStr(left));
+                            }
+                        } catch (Exception ex) {
+                            throw new RuntimeError("TODO");
                         }
                         return interpreter.toKodeValue(str);
                     }
                     if (ValueString.isString((KodeInstance) right) && ValueNumber.isNumber((KodeInstance) left)) {
                         String str = "";
-                        for (int i = 0; i < ValueNumber.toNumber(left).getAsIndex(); i++) {
-                            str = str.concat(ValueString.toStr(right));
+                        try {
+                            for (int i = 0; i < ValueNumber.toNumber(left).getAsIndex(); i++) {
+                                str = str.concat(ValueString.toStr(right));
+                            }
+                        } catch (Exception ex) {
+                            throw new RuntimeError("TODO");
                         }
                         return interpreter.toKodeValue(str);
                     }
                     if (ValueList.isList((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
                         List ll = new ArrayList();
-                        for (int i = 0; i < ValueNumber.toNumber(right).getAsIndex(); i++) {
-                            ll.addAll(ValueList.toList(left));
+                        try {
+                            for (int i = 0; i < ValueNumber.toNumber(right).getAsIndex(); i++) {
+                                ll.addAll(ValueList.toList(left));
+                            }
+                        } catch (Exception ex) {
+                            throw new RuntimeError("TODO");
                         }
                         return interpreter.toKodeValue(ll);
                     }
                     if (ValueList.isList((KodeInstance) right) && ValueNumber.isNumber((KodeInstance) left)) {
                         List ll = new ArrayList();
-                        for (int i = 0; i < ValueNumber.toNumber(left).getAsIndex(); i++) {
-                            ll.addAll(ValueList.toList(right));
+                        try {
+                            for (int i = 0; i < ValueNumber.toNumber(left).getAsIndex(); i++) {
+                                ll.addAll(ValueList.toList(right));
+                            }
+                        } catch (Exception ex) {
+                            throw new RuntimeError("TODO");
                         }
                         return interpreter.toKodeValue(ll);
                     }

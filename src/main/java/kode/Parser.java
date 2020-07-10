@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static kode.TokenType.*;
+import math.KodeNumber;
 
 /**
  *
@@ -505,10 +506,10 @@ class Parser {
             return new Expr.Literal(null);
         }
         if (match(INFINITY)) {
-            return new Expr.Literal(Double.POSITIVE_INFINITY);
+            return new Expr.Literal(KodeNumber.valueOf(Double.POSITIVE_INFINITY));
         }
         if (match(NAN)) {
-            return new Expr.Literal(Double.NaN);
+            return new Expr.Literal(KodeNumber.valueOf(Double.NaN));
         }
 
         if (match(NUMBER, STRING, MLSTRING)) {

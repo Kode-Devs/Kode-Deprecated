@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import math.KodeMath;
+import math.KodeNumber;
 
 /**
  *
@@ -552,7 +554,17 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
                 throw new RuntimeError("Unary Operation '" + expr.operator.lexeme
                         + "' can not be performed on operand of type '" + Kode.type(right) + "'.", expr.operator);
             case PLUS:
-                return right;
+                if (right instanceof KodeInstance) {
+                    try {
+                        Object fun = ((KodeInstance) right).get(Kode.POS);
+                        if (fun instanceof KodeFunction) {
+                            return ((KodeFunction) fun).call(Arrays.asList());
+                        }
+                    } catch (NotImplemented e2) {
+                    }
+                }
+                throw new RuntimeError("Unary Operation '" + expr.operator.lexeme
+                        + "' can not be performed on operand of type '" + Kode.type(right) + "'.", expr.operator);
         }
 
         // Unreachable.                              
@@ -632,8 +644,8 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
         if (object instanceof Boolean) {
             return (boolean) object;
         }
-        if (object instanceof Double) {
-            return ((Double) object) != 0;
+        if (object instanceof KodeNumber) {
+            return KodeMath.equal((KodeNumber) object, KodeNumber.valueOf("0"));
         }
         if (object instanceof String) {
             return ((String) object).length() != 0;
@@ -657,10 +669,10 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     Object toKodeValue(Object value) {
         if (value == null) {
             return ValueNone.create();
-        } else if (value instanceof Double) {
-            return ValueNumber.create((Double) value);
+        } else if (value instanceof KodeNumber) {
+            return ValueNumber.create((KodeNumber) value);
         } else if (value instanceof Number) {
-            return ValueNumber.create(((Number) value).doubleValue());
+            return ValueNumber.create(KodeNumber.valueOf((Number) value));
         } else if (value instanceof String) {
             return ValueString.create((String) value);
         } else if (value instanceof Character) {

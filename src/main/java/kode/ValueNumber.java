@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import math.KodeNumber;
 
 /**
  *
@@ -24,7 +25,7 @@ class ValueNumber extends Value {
 
     static Value val = new ValueNumber(new Interpreter());
 
-    static KodeInstance create(Double x) {
+    static KodeInstance create(KodeNumber x) {
         KodeInstance instance = new KodeInstance(val);
         KodeFunction initializer = val.findMethod(Kode.INIT);
         initializer.bind(instance).call(Arrays.asList(x));
@@ -72,17 +73,17 @@ class ValueNumber extends Value {
 //</editor-fold>
     }
 
-    static Double toNumber(Object x_) {
+    static KodeNumber toNumber(Object x_) {
         return ValueNumber.toNumber(x_, x_);
     }
 
     //<editor-fold defaultstate="collapsed" desc="toNumber">
-    private static Double toNumber(Object x_, Object a) {
-        if (x_ instanceof Double) {
-            return (Double) x_;
+    private static KodeNumber toNumber(Object x_, Object a) {
+        if (x_ instanceof KodeNumber) {
+            return (KodeNumber) x_;
         } else if (x_ instanceof KodeInstance) {
             if (((KodeInstance) x_).klass instanceof ValueNumber) {
-                return (Double) ((KodeInstance) x_).data;
+                return (KodeNumber) ((KodeInstance) x_).data;
             } else {
                 try {
                     if (((KodeInstance) x_).fields.containsKey(Kode.NUMBER)) {

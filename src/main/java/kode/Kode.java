@@ -23,6 +23,7 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
 import lib.warnings;
+import math.KodeNumber;
 import utils.Pip4kode;
 
 /**
@@ -126,6 +127,8 @@ class Kode {
     static final String BUILTIN_NAME = "__builtin__";
 
     static final String NEG = "__neg__";
+    static final String POS = "__pos__";
+    
     static final String LEN = "__len__";
     static final String STRING = "__str__";
     static final String NUMBER = "__num__";
@@ -317,8 +320,8 @@ class Kode {
 
         // Number
         // Hack. Work around Java adding ".0" to integer-valued doubles.
-        if (object instanceof Double) {
-            Double num = (Double) object;
+        if (object instanceof KodeNumber) {
+            Double num = ((KodeNumber) object).getFloat();
             if (num == Double.POSITIVE_INFINITY) {
                 return Kode.INFINITY;
             }
@@ -329,7 +332,8 @@ class Kode {
                 return Kode.NAN;
             }
             String format = String.format(Locale.US, "%.10G", num);
-            format = format.replaceFirst("\\.0+(e|$)", "$1")
+            format = format
+                    .replaceFirst("\\.0+(e|$)", "$1")
                     .replaceFirst("(\\.[0-9]*[1-9])(0+)(e|$)", "$1$3");
             return format;
         }
@@ -604,12 +608,12 @@ class Kode {
             DEF_GLOBALS.put("exit", new KodeBuiltinFunction("exit", null, INTER) {
                 @Override
                 public List<Pair<String, Object>> arity() {
-                    return Arrays.asList(new Pair("status", interpreter.toKodeValue(Double.valueOf(0))));
+                    return Arrays.asList(new Pair("status", interpreter.toKodeValue(0)));
                 }
 
                 @Override
                 public Object call(Map<String, Object> arguments) {
-                    KodeHelper.exit(ValueNumber.toNumber(arguments.get("status")).intValue());
+                    KodeHelper.exit(ValueNumber.toNumber(arguments.get("status")).getAsIndex());
                     return null;
                 }
 

@@ -8,6 +8,7 @@ package kode;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import math.KodeMath;
 
 /**
  *
@@ -57,13 +58,13 @@ abstract class KodeBuiltinFunction extends KodeFunction {
                 res = false;
             }
             if (ValueBool.isBool((KodeInstance) left)) {
-                left = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0));
+                left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
             }
             if (ValueBool.isBool((KodeInstance) right)) {
-                right = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0));
+                right = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0);
             }
             if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
-                res = Objects.equals(ValueNumber.toNumber(left), ValueNumber.toNumber(right));
+                res = KodeMath.equal(ValueNumber.toNumber(left), ValueNumber.toNumber(right));
             }
             if (ValueString.isString((KodeInstance) left) && ValueString.isString((KodeInstance) right)) {
                 res = Objects.equals(ValueString.toStr(left), ValueString.toStr(right));
@@ -96,13 +97,13 @@ abstract class KodeBuiltinFunction extends KodeFunction {
                 res = true;
             }
             if (ValueBool.isBool((KodeInstance) left)) {
-                left = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0));
+                left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
             }
             if (ValueBool.isBool((KodeInstance) right)) {
-                right = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0));
+                right = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0);
             }
             if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
-                res = !Objects.equals(ValueNumber.toNumber(left), ValueNumber.toNumber(right));
+                res = KodeMath.not_equal(ValueNumber.toNumber(left), ValueNumber.toNumber(right));
             }
             if (ValueString.isString((KodeInstance) left) && ValueString.isString((KodeInstance) right)) {
                 res = !Objects.equals(ValueString.toStr(left), ValueString.toStr(right));
@@ -129,13 +130,13 @@ abstract class KodeBuiltinFunction extends KodeFunction {
         Boolean res = null;
         if (left instanceof KodeInstance && right instanceof KodeInstance) {
             if (ValueBool.isBool((KodeInstance) left)) {
-                left = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0));
+                left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
             }
             if (ValueBool.isBool((KodeInstance) right)) {
-                right = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0));
+                right = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0);
             }
             if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
-                res = (ValueNumber.toNumber(left) < ValueNumber.toNumber(right));
+                res = KodeMath.less(ValueNumber.toNumber(left), ValueNumber.toNumber(right));
             }
             if (ValueString.isString((KodeInstance) left) && ValueString.isString((KodeInstance) right)) {
                 res = (ValueString.toStr(left).compareTo(ValueString.toStr(right)) < 0);
@@ -154,13 +155,13 @@ abstract class KodeBuiltinFunction extends KodeFunction {
         Boolean res = null;
         if (left instanceof KodeInstance && right instanceof KodeInstance) {
             if (ValueBool.isBool((KodeInstance) left)) {
-                left = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0));
+                left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
             }
             if (ValueBool.isBool((KodeInstance) right)) {
-                right = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0));
+                right = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0);
             }
             if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
-                res = (ValueNumber.toNumber(left) <= ValueNumber.toNumber(right));
+                res = KodeMath.less_equal(ValueNumber.toNumber(left), ValueNumber.toNumber(right));
             }
             if (ValueString.isString((KodeInstance) left) && ValueString.isString((KodeInstance) right)) {
                 res = (ValueString.toStr(left).compareTo(ValueString.toStr(right)) <= 0);
@@ -179,13 +180,13 @@ abstract class KodeBuiltinFunction extends KodeFunction {
         Boolean res = null;
         if (left instanceof KodeInstance && right instanceof KodeInstance) {
             if (ValueBool.isBool((KodeInstance) left)) {
-                left = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0));
+                left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
             }
             if (ValueBool.isBool((KodeInstance) right)) {
-                right = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0));
+                right = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0);
             }
             if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
-                res = (ValueNumber.toNumber(left) > ValueNumber.toNumber(right));
+                res = KodeMath.greater(ValueNumber.toNumber(left), ValueNumber.toNumber(right));
             }
             if (ValueString.isString((KodeInstance) left) && ValueString.isString((KodeInstance) right)) {
                 res = (ValueString.toStr(left).compareTo(ValueString.toStr(right)) > 0);
@@ -204,13 +205,13 @@ abstract class KodeBuiltinFunction extends KodeFunction {
         Boolean res = null;
         if (left instanceof KodeInstance && right instanceof KodeInstance) {
             if (ValueBool.isBool((KodeInstance) left)) {
-                left = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0));
+                left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
             }
             if (ValueBool.isBool((KodeInstance) right)) {
-                right = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0));
+                right = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0);
             }
             if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
-                res = (ValueNumber.toNumber(left) >= ValueNumber.toNumber(right));
+                res = KodeMath.greter_equal(ValueNumber.toNumber(left), ValueNumber.toNumber(right));
             }
             if (ValueString.isString((KodeInstance) left) && ValueString.isString((KodeInstance) right)) {
                 res = (ValueString.toStr(left).compareTo(ValueString.toStr(right)) >= 0);

@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import static kode.TokenType.*;
+import math.KodeNumber;
 import utils.TextUtils;
 
 /**
@@ -344,7 +345,7 @@ class Lexer {
                 advance();
             }
         }
-        addToken(NUMBER, Double.parseDouble(source.substring(start, current)));
+        addToken(NUMBER, KodeNumber.valueOf(source.substring(start, current)));
     }
 
     private char peekNext() {

@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import math.KodeNumber;
 
 /**
  *
@@ -193,22 +194,22 @@ class ValueString extends Value {
     //<editor-fold defaultstate="collapsed" desc="toNumber">
     private static class toNumber {
 
-        public static Double toNumber(Object num) throws Exception {
+        public static KodeNumber toNumber(Object num) throws Exception {
             try {
                 switch (num.toString()) {
                     case Kode.INFINITY:
                     case "+" + Kode.INFINITY:
-                        return Double.POSITIVE_INFINITY;
+                        return KodeNumber.valueOf(Double.POSITIVE_INFINITY);
                     case "-" + Kode.INFINITY:
-                        return -Double.POSITIVE_INFINITY;
+                        return KodeNumber.valueOf(-Double.POSITIVE_INFINITY);
                     case Kode.NAN:
                     case "+" + Kode.NAN:
-                        return Double.NaN;
+                        return KodeNumber.valueOf(Double.NaN);
                     case "-" + Kode.NAN:
-                        return -Double.NaN;
+                        return KodeNumber.valueOf(-Double.NaN);
                 }
                 if (checkNumberFormat(num.toString())) {
-                    return Double.parseDouble(num.toString());
+                    return KodeNumber.valueOf(num.toString());
                 } else {
                     throw new Exception("Number Format Error : " + num);
                 }

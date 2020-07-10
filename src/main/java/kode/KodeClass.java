@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import math.KodeMath;
 
 /**
  *
@@ -18,7 +19,7 @@ import java.util.Map;
 class KodeClass implements KodeCallable {
 
     String __doc__ = null;
-    
+
     final String class_name;
     final KodeClass superclass;
     Map<String, KodeFunction> methods;
@@ -134,10 +135,33 @@ class KodeClass implements KodeCallable {
                 Object This = closure.getAt(0, "this");
                 if (This instanceof KodeInstance) {
                     if (ValueBool.isBool((KodeInstance) This)) {
-                        This = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) This) ? 1 : 0));
+                        This = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) This) ? 1 : 0);
                     }
                     if (ValueNumber.isNumber((KodeInstance) This)) {
-                        return interpreter.toKodeValue(-ValueNumber.toNumber(This));
+                        return interpreter.toKodeValue(KodeMath.neg(ValueNumber.toNumber(This)));
+                    }
+                }
+                throw new NotImplemented();
+            }
+        });
+        //</editor-fold>
+        //<editor-fold defaultstate="collapsed" desc="pos">
+        sm.put(Kode.POS, new KodeBuiltinFunction(Kode.POS, null, interpreter) {
+
+            @Override
+            public List<Pair<String, Object>> arity() {
+                return new ArrayList();
+            }
+
+            @Override
+            public Object call(Map<String, Object> arguments) {
+                Object This = closure.getAt(0, "this");
+                if (This instanceof KodeInstance) {
+                    if (ValueBool.isBool((KodeInstance) This)) {
+                        This = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) This) ? 1 : 0);
+                    }
+                    if (ValueNumber.isNumber((KodeInstance) This)) {
+                        return interpreter.toKodeValue(KodeMath.pos(ValueNumber.toNumber(This)));
                     }
                 }
                 throw new NotImplemented();
@@ -158,20 +182,17 @@ class KodeClass implements KodeCallable {
                 Object index = arguments.get("idx");
                 if (This instanceof KodeInstance && index instanceof KodeInstance) {
                     if (ValueNumber.isNumber((KodeInstance) index)) {
-                        Double toNumber = ValueNumber.toNumber(index);
-                        if (toNumber.intValue() != toNumber) {
-                            throw new RuntimeError("List Indices must be Integer in Nature found " + Kode.stringify(toNumber), null);
-                        }
+                        int toNumber = ValueNumber.toNumber(index).getAsIndex();
                         if (ValueList.isList((KodeInstance) This)) {
                             try {
-                                return interpreter.toKodeValue(ValueList.toList(This).get(toNumber.intValue()));
+                                return interpreter.toKodeValue(ValueList.toList(This).get(toNumber));
                             } catch (IndexOutOfBoundsException e) {
                                 throw new RuntimeError("List Index Out Of Bound : " + Kode.stringify(toNumber), null);
                             }
                         }
                         if (ValueString.isString((KodeInstance) This)) {
                             try {
-                                return interpreter.toKodeValue(ValueList.toList(This).get(toNumber.intValue()));
+                                return interpreter.toKodeValue(ValueList.toList(This).get(toNumber));
                             } catch (IndexOutOfBoundsException e) {
                                 throw new RuntimeError("List Index Out Of Bound : " + Kode.stringify(toNumber), null);
                             }
@@ -198,13 +219,10 @@ class KodeClass implements KodeCallable {
                 Object index = arguments.get("idx");
                 if (This instanceof KodeInstance && index instanceof KodeInstance) {
                     if (ValueNumber.isNumber((KodeInstance) index)) {
-                        Double toNumber = ValueNumber.toNumber(index);
-                        if (toNumber.intValue() != toNumber) {
-                            throw new RuntimeError("List Indices must be Integer in Nature found " + Kode.stringify(toNumber), null);
-                        }
+                        int toNumber = ValueNumber.toNumber(index).getAsIndex();
                         if (ValueList.isList((KodeInstance) This)) {
                             try {
-                                ValueList.toList(This).set(toNumber.intValue(), arguments.get("obj"));
+                                ValueList.toList(This).set(toNumber, arguments.get("obj"));
                                 return null;
                             } catch (IndexOutOfBoundsException e) {
                                 throw new RuntimeError("List Index Out Of Bound : " + Kode.stringify(toNumber), null);
@@ -262,13 +280,13 @@ class KodeClass implements KodeCallable {
                         return interpreter.toKodeValue(ll);
                     } else {
                         if (ValueBool.isBool((KodeInstance) left)) {
-                            left = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0));
+                            left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
                         }
                         if (ValueBool.isBool((KodeInstance) right)) {
-                            right = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0));
+                            right = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0);
                         }
                         if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
-                            return interpreter.toKodeValue(ValueNumber.toNumber(left) + ValueNumber.toNumber(right));
+                            return interpreter.toKodeValue(KodeMath.add(ValueNumber.toNumber(left), ValueNumber.toNumber(right)));
                         }
                     }
                 }
@@ -296,13 +314,13 @@ class KodeClass implements KodeCallable {
                         return interpreter.toKodeValue(ll);
                     } else {
                         if (ValueBool.isBool((KodeInstance) left)) {
-                            left = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0));
+                            left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
                         }
                         if (ValueBool.isBool((KodeInstance) right)) {
-                            right = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0));
+                            right = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0);
                         }
                         if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
-                            return interpreter.toKodeValue(ValueNumber.toNumber(left) + ValueNumber.toNumber(right));
+                            return interpreter.toKodeValue(KodeMath.add(ValueNumber.toNumber(left), ValueNumber.toNumber(right)));
                         }
                     }
                 }
@@ -324,13 +342,13 @@ class KodeClass implements KodeCallable {
                 Object right = arguments.get("obj");
                 if (left instanceof KodeInstance && right instanceof KodeInstance) {
                     if (ValueBool.isBool((KodeInstance) left)) {
-                        left = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0));
+                        left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
                     }
                     if (ValueBool.isBool((KodeInstance) right)) {
-                        right = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0));
+                        right = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0);
                     }
                     if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
-                        return interpreter.toKodeValue(ValueNumber.toNumber(left) - ValueNumber.toNumber(right));
+                        return interpreter.toKodeValue(KodeMath.substract(ValueNumber.toNumber(left), ValueNumber.toNumber(right)));
                     }
                 }
                 throw new NotImplemented();
@@ -349,13 +367,13 @@ class KodeClass implements KodeCallable {
                 Object left = arguments.get("obj");
                 if (left instanceof KodeInstance && right instanceof KodeInstance) {
                     if (ValueBool.isBool((KodeInstance) left)) {
-                        left = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0));
+                        left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
                     }
                     if (ValueBool.isBool((KodeInstance) right)) {
-                        right = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0));
+                        right = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0);
                     }
                     if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
-                        return interpreter.toKodeValue(ValueNumber.toNumber(left) - ValueNumber.toNumber(right));
+                        return interpreter.toKodeValue(KodeMath.substract(ValueNumber.toNumber(left), ValueNumber.toNumber(right)));
                     }
                 }
                 throw new NotImplemented();
@@ -376,38 +394,38 @@ class KodeClass implements KodeCallable {
                 Object right = arguments.get("obj");
                 if (left instanceof KodeInstance && right instanceof KodeInstance) {
                     if (ValueBool.isBool((KodeInstance) left)) {
-                        left = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0));
+                        left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
                     }
                     if (ValueBool.isBool((KodeInstance) right)) {
-                        right = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0));
+                        right = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0);
                     }
                     if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
-                        return interpreter.toKodeValue(ValueNumber.toNumber(left) * ValueNumber.toNumber(right));
+                        return interpreter.toKodeValue(KodeMath.multiply(ValueNumber.toNumber(left), ValueNumber.toNumber(right)));
                     }
                     if (ValueString.isString((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
                         String str = "";
-                        for (int i = 0; i < ValueNumber.toNumber(right); i++) {
+                        for (int i = 0; i < ValueNumber.toNumber(right).getAsIndex(); i++) {
                             str = str.concat(ValueString.toStr(left));
                         }
                         return interpreter.toKodeValue(str);
                     }
                     if (ValueString.isString((KodeInstance) right) && ValueNumber.isNumber((KodeInstance) left)) {
                         String str = "";
-                        for (int i = 0; i < ValueNumber.toNumber(left); i++) {
+                        for (int i = 0; i < ValueNumber.toNumber(left).getAsIndex(); i++) {
                             str = str.concat(ValueString.toStr(right));
                         }
                         return interpreter.toKodeValue(str);
                     }
                     if (ValueList.isList((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
                         List ll = new ArrayList();
-                        for (int i = 0; i < ValueNumber.toNumber(right); i++) {
+                        for (int i = 0; i < ValueNumber.toNumber(right).getAsIndex(); i++) {
                             ll.addAll(ValueList.toList(left));
                         }
                         return interpreter.toKodeValue(ll);
                     }
                     if (ValueList.isList((KodeInstance) right) && ValueNumber.isNumber((KodeInstance) left)) {
                         List ll = new ArrayList();
-                        for (int i = 0; i < ValueNumber.toNumber(left); i++) {
+                        for (int i = 0; i < ValueNumber.toNumber(left).getAsIndex(); i++) {
                             ll.addAll(ValueList.toList(right));
                         }
                         return interpreter.toKodeValue(ll);
@@ -429,38 +447,38 @@ class KodeClass implements KodeCallable {
                 Object left = arguments.get("obj");
                 if (left instanceof KodeInstance && right instanceof KodeInstance) {
                     if (ValueBool.isBool((KodeInstance) left)) {
-                        left = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0));
+                        left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
                     }
                     if (ValueBool.isBool((KodeInstance) right)) {
-                        right = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0));
+                        right = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0);
                     }
                     if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
-                        return interpreter.toKodeValue(ValueNumber.toNumber(left) * ValueNumber.toNumber(right));
+                        return interpreter.toKodeValue(KodeMath.multiply(ValueNumber.toNumber(left), ValueNumber.toNumber(right)));
                     }
                     if (ValueString.isString((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
                         String str = "";
-                        for (int i = 0; i < ValueNumber.toNumber(right); i++) {
+                        for (int i = 0; i < ValueNumber.toNumber(right).getAsIndex(); i++) {
                             str = str.concat(ValueString.toStr(left));
                         }
                         return interpreter.toKodeValue(str);
                     }
                     if (ValueString.isString((KodeInstance) right) && ValueNumber.isNumber((KodeInstance) left)) {
                         String str = "";
-                        for (int i = 0; i < ValueNumber.toNumber(left); i++) {
+                        for (int i = 0; i < ValueNumber.toNumber(left).getAsIndex(); i++) {
                             str = str.concat(ValueString.toStr(right));
                         }
                         return interpreter.toKodeValue(str);
                     }
                     if (ValueList.isList((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
                         List ll = new ArrayList();
-                        for (int i = 0; i < ValueNumber.toNumber(right); i++) {
+                        for (int i = 0; i < ValueNumber.toNumber(right).getAsIndex(); i++) {
                             ll.addAll(ValueList.toList(left));
                         }
                         return interpreter.toKodeValue(ll);
                     }
                     if (ValueList.isList((KodeInstance) right) && ValueNumber.isNumber((KodeInstance) left)) {
                         List ll = new ArrayList();
-                        for (int i = 0; i < ValueNumber.toNumber(left); i++) {
+                        for (int i = 0; i < ValueNumber.toNumber(left).getAsIndex(); i++) {
                             ll.addAll(ValueList.toList(right));
                         }
                         return interpreter.toKodeValue(ll);
@@ -484,13 +502,13 @@ class KodeClass implements KodeCallable {
                 Object right = arguments.get("obj");
                 if (left instanceof KodeInstance && right instanceof KodeInstance) {
                     if (ValueBool.isBool((KodeInstance) left)) {
-                        left = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0));
+                        left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
                     }
                     if (ValueBool.isBool((KodeInstance) right)) {
-                        right = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0));
+                        right = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0);
                     }
                     if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
-                        return interpreter.toKodeValue(ValueNumber.toNumber(left) / ValueNumber.toNumber(right));
+                        return interpreter.toKodeValue(KodeMath.divide(ValueNumber.toNumber(left), ValueNumber.toNumber(right)));
                     }
                 }
                 throw new NotImplemented();
@@ -509,13 +527,13 @@ class KodeClass implements KodeCallable {
                 Object left = arguments.get("obj");
                 if (left instanceof KodeInstance && right instanceof KodeInstance) {
                     if (ValueBool.isBool((KodeInstance) left)) {
-                        left = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0));
+                        left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
                     }
                     if (ValueBool.isBool((KodeInstance) right)) {
-                        right = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0));
+                        right = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0);
                     }
                     if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
-                        return interpreter.toKodeValue(ValueNumber.toNumber(left) / ValueNumber.toNumber(right));
+                        return interpreter.toKodeValue(KodeMath.divide(ValueNumber.toNumber(left), ValueNumber.toNumber(right)));
                     }
                 }
                 throw new NotImplemented();
@@ -536,13 +554,13 @@ class KodeClass implements KodeCallable {
                 Object right = arguments.get("obj");
                 if (left instanceof KodeInstance && right instanceof KodeInstance) {
                     if (ValueBool.isBool((KodeInstance) left)) {
-                        left = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0));
+                        left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
                     }
                     if (ValueBool.isBool((KodeInstance) right)) {
-                        right = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0));
+                        right = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0);
                     }
                     if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
-                        return interpreter.toKodeValue(Math.floor(ValueNumber.toNumber(left) / ValueNumber.toNumber(right)));
+                        return interpreter.toKodeValue(KodeMath.floor_div(ValueNumber.toNumber(left), ValueNumber.toNumber(right)));
                     }
                 }
                 throw new NotImplemented();
@@ -561,13 +579,13 @@ class KodeClass implements KodeCallable {
                 Object left = arguments.get("obj");
                 if (left instanceof KodeInstance && right instanceof KodeInstance) {
                     if (ValueBool.isBool((KodeInstance) left)) {
-                        left = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0));
+                        left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
                     }
                     if (ValueBool.isBool((KodeInstance) right)) {
-                        right = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0));
+                        right = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0);
                     }
                     if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
-                        return interpreter.toKodeValue(Math.floor(ValueNumber.toNumber(left) / ValueNumber.toNumber(right)));
+                        return interpreter.toKodeValue(KodeMath.floor_div(ValueNumber.toNumber(left), ValueNumber.toNumber(right)));
                     }
                 }
                 throw new NotImplemented();
@@ -588,13 +606,13 @@ class KodeClass implements KodeCallable {
                 Object right = arguments.get("obj");
                 if (left instanceof KodeInstance && right instanceof KodeInstance) {
                     if (ValueBool.isBool((KodeInstance) left)) {
-                        left = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0));
+                        left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
                     }
                     if (ValueBool.isBool((KodeInstance) right)) {
-                        right = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0));
+                        right = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0);
                     }
                     if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
-                        return interpreter.toKodeValue(ValueNumber.toNumber(left) % ValueNumber.toNumber(right));
+                        return interpreter.toKodeValue(KodeMath.modulo(ValueNumber.toNumber(left), ValueNumber.toNumber(right)));
                     }
                 }
                 throw new NotImplemented();
@@ -613,13 +631,13 @@ class KodeClass implements KodeCallable {
                 Object left = arguments.get("obj");
                 if (left instanceof KodeInstance && right instanceof KodeInstance) {
                     if (ValueBool.isBool((KodeInstance) left)) {
-                        left = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0));
+                        left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
                     }
                     if (ValueBool.isBool((KodeInstance) right)) {
-                        right = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0));
+                        right = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0);
                     }
                     if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
-                        return interpreter.toKodeValue(ValueNumber.toNumber(left) % ValueNumber.toNumber(right));
+                        return interpreter.toKodeValue(KodeMath.modulo(ValueNumber.toNumber(left), ValueNumber.toNumber(right)));
                     }
                 }
                 throw new NotImplemented();
@@ -640,13 +658,13 @@ class KodeClass implements KodeCallable {
                 Object right = arguments.get("obj");
                 if (left instanceof KodeInstance && right instanceof KodeInstance) {
                     if (ValueBool.isBool((KodeInstance) left)) {
-                        left = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0));
+                        left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
                     }
                     if (ValueBool.isBool((KodeInstance) right)) {
-                        right = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0));
+                        right = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0);
                     }
                     if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
-                        return interpreter.toKodeValue(Math.pow(ValueNumber.toNumber(left), ValueNumber.toNumber(right)));
+                        return interpreter.toKodeValue(KodeMath.exponent(ValueNumber.toNumber(left), ValueNumber.toNumber(right)));
                     }
                 }
                 throw new NotImplemented();
@@ -665,13 +683,13 @@ class KodeClass implements KodeCallable {
                 Object left = arguments.get("obj");
                 if (left instanceof KodeInstance && right instanceof KodeInstance) {
                     if (ValueBool.isBool((KodeInstance) left)) {
-                        left = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0));
+                        left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
                     }
                     if (ValueBool.isBool((KodeInstance) right)) {
-                        right = interpreter.toKodeValue(new Double(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0));
+                        right = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0);
                     }
                     if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
-                        return interpreter.toKodeValue(Math.pow(ValueNumber.toNumber(left), ValueNumber.toNumber(right)));
+                        return interpreter.toKodeValue(KodeMath.exponent(ValueNumber.toNumber(left), ValueNumber.toNumber(right)));
                     }
                 }
                 throw new NotImplemented();

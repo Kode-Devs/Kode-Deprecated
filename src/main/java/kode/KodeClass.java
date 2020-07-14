@@ -712,7 +712,11 @@ class KodeClass implements KodeCallable {
                         right = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0);
                     }
                     if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
-                        return interpreter.toKodeValue(KodeMath.exponent(ValueNumber.toNumber(left), ValueNumber.toNumber(right)));
+                        try {
+                            return interpreter.toKodeValue(KodeMath.exponent(ValueNumber.toNumber(left), ValueNumber.toNumber(right)));
+                        } catch (Exception ex) {
+                            throw new RuntimeError("TODO");
+                        }
                     }
                 }
                 throw new NotImplemented();
@@ -737,7 +741,11 @@ class KodeClass implements KodeCallable {
                         right = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0);
                     }
                     if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
-                        return interpreter.toKodeValue(KodeMath.exponent(ValueNumber.toNumber(left), ValueNumber.toNumber(right)));
+                        try {
+                            return interpreter.toKodeValue(KodeMath.exponent(ValueNumber.toNumber(left), ValueNumber.toNumber(right)));
+                        } catch (Exception ex) {
+                            throw new RuntimeError("TODO");
+                        }
                     }
                 }
                 throw new NotImplemented();

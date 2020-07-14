@@ -11,5 +11,5 @@ package kni;
  */
 public interface KNI {
 
-    public KodeObject call(KodeObject[] args);
+    public KodeObject call(KodeObject[] args) throws Throwable;
 }

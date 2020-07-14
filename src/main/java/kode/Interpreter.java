@@ -175,7 +175,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
         if (superclass != null) {
             environment = environment.enclosing;
         }
-        
+
         klass.__doc__ = stmt.doc;
         environment.assign(stmt.name, klass);
         return null;
@@ -224,9 +224,9 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
                 Kode.ModuleRegistry.put(join, module);
                 module.inter.globals.define(Kode.__NAME__,
                         module.inter.toKodeValue(stmt.imp.fn));
-                try{
-                module.run();
-                }catch(Exception e){
+                try {
+                    module.run();
+                } catch (Exception e) {
                     Kode.ModuleRegistry.remove(join);
                     throw e;
                 }
@@ -313,6 +313,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
                 break;
             } catch (Continue c) {
             }
+            System.gc();
         }
         return null;
     }
@@ -327,6 +328,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
                 break;
             } catch (Continue c) {
             }
+            System.gc();
             execute(stmt.increment);
         }
         return null;
@@ -441,7 +443,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
         try {
             while (i < arguments.size()) {
                 Pair<Token, Object> arg = arguments.get(i);
-                if (arg.key == null && arity.get(j).type!=null) {
+                if (arg.key == null && arity.get(j).type != null) {
                     List temp = new ArrayList();
                     for (; i < arguments.size(); i++) {
                         if (arguments.get(i).key != null) {
@@ -709,6 +711,9 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
         if (value instanceof KodeInstance) {
             if (ValueNone.isNone((KodeInstance) value)) {
                 return null;
+            }
+            if (ValueNumber.isNumber((KodeInstance) value)) {
+                return ValueNumber.toNumber(value);
             }
             if (ValueString.isString((KodeInstance) value)) {
                 return ValueString.toStr(value);

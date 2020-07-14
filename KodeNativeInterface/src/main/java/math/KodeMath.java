@@ -5,9 +5,6 @@
  */
 package math;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 /**
  *
  * @author dell
@@ -90,7 +87,7 @@ public abstract class KodeMath {
 
     public static KodeNumber divide(KodeNumber left, KodeNumber right) {
         if (left.isInteger() && right.isInteger()) {
-            return KodeNumber.valueOf(left.getInteger().divide(right.getInteger())); // BUG divide is working as mod
+            return KodeNumber.valueOf(left.getInteger().divide(right.getInteger())); // NOTE : Division will work as integral div if both are ints 
         }
         return KodeNumber.valueOf(left.getFloat() / right.getFloat());
     }
@@ -109,12 +106,9 @@ public abstract class KodeMath {
         return KodeNumber.valueOf(left.getFloat() % right.getFloat());
     }
 
-    public static KodeNumber exponent(KodeNumber left, KodeNumber right) {
+    public static KodeNumber exponent(KodeNumber left, KodeNumber right) throws Exception {
         if (left.isInteger() && right.isInteger()) {
-            try {
                 return KodeNumber.valueOf(left.getInteger().pow(right.getAsIndex()));
-            } catch (Exception ex) {
-            }
         }
         return KodeNumber.valueOf(Math.pow(left.getFloat(), right.getFloat()));
     }

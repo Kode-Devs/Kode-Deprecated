@@ -27,7 +27,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     private Environment environment = globals;
     private final Map<Expr, Integer> locals = new HashMap<>();
 
-    Object interpret(List<Stmt> statements) {
+    Object interpret(List<Stmt> statements) throws Exception{
         try {
             Object ret = null;
             for (Stmt statement : statements) {
@@ -35,11 +35,10 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
             }
             return ret;
         } catch (RuntimeError error) {
-            Kode.runtimeError(error);
+            throw error;
         } catch (StackOverflowError error) {
-            Kode.runtimeError(new RuntimeError("Max Depth of Recursion Exceeded."));
+            throw new RuntimeError("Max Depth of Recursion Exceeded.");
         }
-        return null;
     }
 
     @Override

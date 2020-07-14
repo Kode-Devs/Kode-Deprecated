@@ -5,8 +5,6 @@
  */
 package kode;
 
-import java.util.List;
-
 /**
  *
  * @author dell
@@ -14,16 +12,7 @@ import java.util.List;
 class KodeModule extends KodeInstance {
 
     String name;
-    Interpreter inter = new Interpreter() {
-        @Override
-        Object interpret(List<Stmt> statements) {
-            Object ret = null;
-            for (Stmt statement : statements) {
-                ret = execute(statement);
-            }
-            return ret;
-        }
-    };
+    Interpreter inter = new Interpreter();
     boolean hadError = false;
     boolean hadRuntimeError = false;
     private final String path;

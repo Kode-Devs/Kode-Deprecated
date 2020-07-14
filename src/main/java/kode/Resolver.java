@@ -58,7 +58,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         define(stmt.name);
 
         if (stmt.superclass != null && stmt.name.lexeme.equals(stmt.superclass.name.lexeme)) {
-            Kode.error(stmt.superclass.name,
+            error(stmt.superclass.name,
                     "A class cannot inherit from itself.");
         }
 
@@ -150,12 +150,12 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     @Override
     public Void visitReturnStmt(Stmt.Return stmt) {
         if (currentFunction == FunctionType.NONE) {
-            Kode.error(stmt.keyword, "Cannot return from top-level code.");
+            error(stmt.keyword, "Cannot return from top-level code.");
         }
 
         if (stmt.value != null) {
             if (currentFunction == FunctionType.INITIALIZER) {
-                Kode.error(stmt.keyword,
+                error(stmt.keyword,
                         "Cannot return a value from an initializer.");
             }
 
@@ -168,7 +168,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     @Override
     public Void visitBreakStmt(Stmt.Break stmt) {
         if (!loopon) {
-            Kode.error(stmt.keyword, "Cannot break from top-level code.");
+            error(stmt.keyword, "Cannot break from top-level code.");
         }
         return null;
     }
@@ -176,7 +176,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     @Override
     public Void visitContinueStmt(Stmt.Continue stmt) {
         if (!loopon) {
-            Kode.error(stmt.keyword, "Cannot continue from top-level code.");
+            error(stmt.keyword, "Cannot continue from top-level code.");
         }
         return null;
     }
@@ -289,10 +289,10 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     @Override
     public Void visitSuperExpr(Expr.Super expr) {
         if (currentClass == ClassType.NONE) {
-            Kode.error(expr.keyword,
+            error(expr.keyword,
                     "Cannot use 'super' outside of a class.");
         } else if (currentClass != ClassType.SUBCLASS) {
-            Kode.error(expr.keyword,
+            error(expr.keyword,
                     "Cannot use 'super' in a class with no superclass.");
         }
 
@@ -303,7 +303,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     @Override
     public Void visitThisExpr(Expr.This expr) {
         if (currentClass == ClassType.NONE) {
-            Kode.error(expr.keyword,
+            error(expr.keyword,
                     "Cannot use 'this' outside of a class.");
             return null;
         }
@@ -329,7 +329,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     @Override
     public Void visitVariableExpr(Expr.Variable expr) {
         if (!scopes.isEmpty() && Objects.equals(scopes.peek().get(expr.name.lexeme), Boolean.FALSE)) {
-            Kode.error(expr.name,
+            error(expr.name,
                     "Cannot read local variable in its own initializer.");
         }
 
@@ -410,7 +410,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
         Map<String, Boolean> scope = scopes.peek();
         if (scope.containsKey(name.lexeme)) {
-            Kode.error(name,
+            error(name,
                     "Variable with this name already declared in this scope.");
         }
 
@@ -433,6 +433,10 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         }
 
         // Not found. Assume it is global.                   
+    }
+    
+    void error(Token token, String message){
+        Kode.error(token, message);
     }
 
 }

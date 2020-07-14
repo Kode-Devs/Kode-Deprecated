@@ -53,56 +53,58 @@ class Kode {
     }
 
     static void start_console(String... args) {
-        try {
-            switch (args.length) {
-                case 0:
-                    //<editor-fold defaultstate="collapsed" desc="Shell">
-                    KodeHelper.printfln(Kode.getIntro());
-                    KodeHelper.printfln("Call exit() to quit shell.");
-                    Interpreter interpreter = new Interpreter();
-                    interpreter.globals.define(Kode.__NAME__, interpreter.toKodeValue(Kode.__MAIN__));
-                    for (;;) {
-                        hadError = false;
-                        hadRuntimeError = false;
-                        try {
-                            Pair run = run("<shell>", KodeHelper.scanf(">>>"), interpreter);
-                            if (run != null) {
-                                if (run.value != null) {
-                                    Object value = run.value;
-                                    if (value instanceof KodeInstance) {
-                                        if (ValueString.isString((KodeInstance) value)) {
-                                            KodeHelper.printfln('\'' + value.toString() + '\'');
-                                            continue;
-                                        }
+        switch (args.length) {
+            case 0:
+                //<editor-fold defaultstate="collapsed" desc="Shell">
+                KodeHelper.printfln(Kode.getIntro());
+                KodeHelper.printfln("Call exit() to quit shell.");
+                Interpreter interpreter = new Interpreter();
+                interpreter.globals.define(Kode.__NAME__, interpreter.toKodeValue(Kode.__MAIN__));
+                for (;;) {
+                    hadError = false;
+                    hadRuntimeError = false;
+                    try {
+                        Pair run = run("<shell>", KodeHelper.scanf(">>>"), interpreter);
+                        if (run != null) {
+                            if (run.value != null) {
+                                Object value = run.value;
+                                if (value instanceof KodeInstance) {
+                                    if (ValueString.isString((KodeInstance) value)) {
+                                        KodeHelper.printfln('\'' + value.toString() + '\'');
+                                        continue;
                                     }
-                                    KodeHelper.printfln(value);
                                 }
+                                KodeHelper.printfln(value);
                             }
-                        } catch (RuntimeError error) {
-                            Kode.runtimeError(error);
-                        } catch (Throwable e) {
-                            e.printStackTrace();
-                            KodeHelper.printfln_err("Fatal Error : " + e);
                         }
+                    } catch (RuntimeError error) {
+                        Kode.runtimeError(error);
+                    } catch (Throwable e) {
+                        e.printStackTrace();
+                        KodeHelper.printfln_err("Fatal Error : " + e);
                     }
-                //</editor-fold>
-                case 1:
-                    //<editor-fold defaultstate="collapsed" desc="File">
-                    Path path = Paths.get(args[0]);
-                    if (path.getFileName().toString().endsWith("." + Kode.EXTENSION)) {
+                }
+            //</editor-fold>
+            case 1:
+                //<editor-fold defaultstate="collapsed" desc="File">
+                Path path = Paths.get(args[0]);
+                if (path.getFileName().toString().endsWith("." + Kode.EXTENSION)) {
+                    try {
                         runFile(path.toAbsolutePath().toString(), new Interpreter());
-                    } else {
-                        KodeHelper.printfln_err("Not a " + Kode.NAME + " runnable file");
-                        System.exit(64);
+                    } catch (RuntimeError error) {
+                        Kode.runtimeError(error);
+                    } catch (Throwable e) {
+                        e.printStackTrace();
+                        KodeHelper.printfln_err("Fatal Error : " + e);
                     }
-                    //</editor-fold>
-                    break;
-                default:
-                    KodeHelper.printfln_err(Kode.USAGE);
-            }
-        } catch (Throwable e) {
-            e.printStackTrace();
-            KodeHelper.printfln_err("Fatal Error : " + e);
+                } else {
+                    KodeHelper.printfln_err("Not a " + Kode.NAME + " runnable file");
+                    System.exit(64);
+                }
+                //</editor-fold>
+                break;
+            default:
+                KodeHelper.printfln_err(Kode.USAGE);
         }
         KodeHelper.exit(0);
     }
@@ -268,7 +270,7 @@ class Kode {
         report(line, " in file '" + fn + "'", message);
     }
 
-    static void report(int line, String where, String message) {
+    private static void report(int line, String where, String message) {
         KodeHelper.printfln_err(
                 "[line " + line + "] Error" + where + ": " + message);
         hadError = true;
@@ -732,6 +734,56 @@ class Kode {
                 public Object call(Map<String, Object> arguments) {
                     Object object = arguments.get("object");
                     return this.interpreter.toKodeValue(object instanceof KodeCallable);
+                }
+
+            });
+            DEF_GLOBALS.put("eval", new KodeBuiltinFunction("eval", null, INTER) {
+                @Override
+                public List<Pair<String, Object>> arity() {
+                    return Arrays.asList(new Pair("src", null));
+                }
+
+                @Override
+                public Object call(Map<String, Object> arguments) {
+                    Object src = arguments.get("src");
+                    if (src instanceof KodeInstance) {
+                        if (ValueString.isString((KodeInstance) src)) {
+                            try {
+                                return eval(ValueString.toStr(src));
+                            } catch (RuntimeError ex) {
+                                throw ex;
+                            } catch (Throwable ex) {
+                                throw new RuntimeError("Fatal Error Occured in eval(): " + ex);
+                            }
+                        }
+                    }
+                    throw new NotImplemented();
+                }
+
+                private Object eval(String source) throws Throwable {
+                    Interpreter inter = new Interpreter();
+                    Lexer scanner = new Lexer("<eval>", source) {
+                        @Override
+                        void error(String fn, int line, String message) {
+                            throw new RuntimeError(message);
+                        }
+                    };
+                    List<Token> tokens = scanner.scanTokens();
+                    Parser parser = new Parser(tokens) {
+                        @Override
+                        ParseError error(Token token, String message) {
+                            throw new RuntimeError(message, token);
+                        }
+                    };
+                    List<Stmt> statements = parser.parse();
+                    Resolver resolver = new Resolver(inter) {
+                        @Override
+                        void error(Token token, String message) {
+                            throw new RuntimeError(message, token);
+                        }
+                    };
+                    resolver.resolve(statements);
+                    return inter.interpret(statements);
                 }
 
             });

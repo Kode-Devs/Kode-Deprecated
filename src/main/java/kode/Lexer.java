@@ -28,7 +28,6 @@ class Lexer {
     private final String fn;
 
     private static final Map<String, TokenType> KEYWORDS;
-//    private static final Map<String, String> ESCAPE;
 
     static {
         KEYWORDS = new HashMap<>();
@@ -59,14 +58,7 @@ class Lexer {
         KEYWORDS.put("except", CATCH);
         KEYWORDS.put("raise", RAISE);
     }
-
-//    static {
-//        ESCAPE = new HashMap();
-//        ESCAPE.put("n", "\n");
-//        ESCAPE.put("t", "\t");
-//        ESCAPE.put("r", "\r");
-//        ESCAPE.put("b", "\b");
-//    }
+    
     Lexer(String fn, String source) {
         this.fn = fn;
         this.source = source;
@@ -198,7 +190,7 @@ class Lexer {
                 } else if (isAlpha(c)) {
                     identifier();
                 } else {
-                    Kode.error(fn, line, "Unexpected character '" + c + "'.");
+                    error(fn, line, "Unexpected character '" + c + "'.");
                 }
                 break;
         }
@@ -248,19 +240,13 @@ class Lexer {
             if (peek() == '\n') {
                 break;
             }
-
-//            if (peek() == '\\') {
-//                advance();
-//                String ch = "" + advance();
-//                text += ESCAPE.getOrDefault(ch, ch);
-//                continue;
-//            }
+            
             text += advance();
         }
 
         // Unterminated string.
         if (!match(quote)) {
-            Kode.error(fn, line, "Unterminated string.");
+            error(fn, line, "Unterminated string.");
             return;
         }
 
@@ -268,7 +254,7 @@ class Lexer {
         try {
             text = TextUtils.translateEscapes(text);
         } catch (IllegalArgumentException e) {
-            Kode.error(fn, line, e.getMessage());
+            error(fn, line, e.getMessage());
             return;
         }
 
@@ -292,7 +278,7 @@ class Lexer {
 
         // Unterminated string.
         if (!match('`')) {
-            Kode.error(fn, line, "Unterminated multi-line string.");
+            error(fn, line, "Unterminated multi-line string.");
             return;
         }
 
@@ -307,7 +293,7 @@ class Lexer {
         try {
             text = TextUtils.translateEscapes(text);
         } catch (IllegalArgumentException e) {
-            Kode.error(fn, line, e.getMessage());
+            error(fn, line, e.getMessage());
             return;
         }
 
@@ -378,6 +364,10 @@ class Lexer {
 
     private boolean isAlphaNumeric(char c) {
         return isAlpha(c) || isDigit(c);
+    }
+    
+    void error(String fn, int line, String message) {
+        Kode.error(fn, line, message);
     }
 
 }

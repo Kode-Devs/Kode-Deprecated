@@ -17,7 +17,7 @@ import math.KodeNumber;
  */
 class Parser {
 
-    private static class ParseError extends RuntimeException {
+    static class ParseError extends RuntimeException {
     }
 
     String doc = null;
@@ -615,7 +615,7 @@ class Parser {
         return tokens.get(current - 1);
     }
 
-    private ParseError error(Token token, String message) {
+    ParseError error(Token token, String message) {
         Kode.error(token, message);
         return new ParseError();
     }

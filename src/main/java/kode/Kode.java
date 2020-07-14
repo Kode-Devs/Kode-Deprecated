@@ -32,7 +32,7 @@ import utils.Pip4kode;
 class Kode {
 
     static final String NAME = "Kode";
-    static final String VERSION = "1.0.1";
+    static String VERSION = "debug";
     static final String EXTENSION = "kde";
     static final String AUTHOR = "Kode-Devs";
     static final String USAGE = "Usage: kode [script]";
@@ -54,6 +54,8 @@ class Kode {
 
     static void start_console(String... args) {
         switch (args.length) {
+            case 1:
+                Kode.VERSION = args[0];
             case 0:
                 //<editor-fold defaultstate="collapsed" desc="Shell">
                 KodeHelper.printfln(Kode.getIntro());
@@ -85,9 +87,9 @@ class Kode {
                     }
                 }
             //</editor-fold>
-            case 1:
+            case 2:
                 //<editor-fold defaultstate="collapsed" desc="File">
-                Path path = Paths.get(args[0]);
+                Path path = Paths.get(args[1]);
                 if (path.getFileName().toString().endsWith("." + Kode.EXTENSION)) {
                     try {
                         runFile(path.toAbsolutePath().toString(), new Interpreter());

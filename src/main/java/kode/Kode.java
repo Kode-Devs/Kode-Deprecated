@@ -183,7 +183,7 @@ class Kode {
     }
 
     static String runLib(String name, boolean fromDir, Interpreter inter) throws Exception {
-        String pkgname = name.contains(File.separator) ? Arrays.asList(name.split(File.separator)).get(0) : name; // BUG name.split not working
+        String pkgname = Paths.get(name).getName(0).toString();
         String p = Paths.get(Kode.LIBPATH, pkgname).toAbsolutePath().toString();
         try {
             if (fromDir) {

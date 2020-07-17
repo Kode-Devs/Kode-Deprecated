@@ -20,45 +20,45 @@ class ValueNone extends Value {
     static KodeInstance create() {
         KodeInstance instance = new KodeInstance(val);
         KodeFunction initializer = val.findMethod(Kode.INIT);
-        initializer.bind(instance).call(new ArrayList());
+        initializer.bind(instance).call(new Object[0]);
         return instance;
     }
 
     private ValueNone(Interpreter interpreter) {
         super("NoneType", interpreter);
-        //<editor-fold defaultstate="collapsed" desc="init">
-        this.methods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, null, interpreter) {
-
-            @Override
-            public List<Pair<String, Object>> arity() {
-                return new ArrayList();
-            }
-
-            @Override
-            public Object call(Map<String, Object> arguments) {
-                return closure.getAt(0, "this");
-            }
-        });
-//</editor-fold>
-
-        //<editor-fold defaultstate="collapsed" desc="str">
-        this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, null, interpreter) {
-
-            @Override
-            public List<Pair<String, Object>> arity() {
-                return new ArrayList();
-            }
-
-            @Override
-            public Object call(Map<String, Object> arguments) {
-                Object This = closure.getAt(0, "this");
-                if (This instanceof KodeInstance) {
-                    return interpreter.toKodeValue(Kode.stringify(null));
-                }
-                throw new NotImplemented();
-            }
-        });
-//</editor-fold>
+//        //<editor-fold defaultstate="collapsed" desc="init">
+//        this.methods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, null, interpreter) {
+//
+//            @Override
+//            public List<Pair<String, Object>> arity() {
+//                return new ArrayList();
+//            }
+//
+//            @Override
+//            public Object call(Map<String, Object> arguments) {
+//                return closure.getAt(0, "this");
+//            }
+//        });
+////</editor-fold>
+//
+//        //<editor-fold defaultstate="collapsed" desc="str">
+//        this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, null, interpreter) {
+//
+//            @Override
+//            public List<Pair<String, Object>> arity() {
+//                return new ArrayList();
+//            }
+//
+//            @Override
+//            public Object call(Map<String, Object> arguments) {
+//                Object This = closure.getAt(0, "this");
+//                if (This instanceof KodeInstance) {
+//                    return interpreter.toKodeValue(Kode.stringify(null));
+//                }
+//                throw new NotImplemented();
+//            }
+//        });
+////</editor-fold>
     }
 
     final static boolean isNone(KodeInstance i) {

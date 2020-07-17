@@ -27,7 +27,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     private Environment environment = globals;
     private final Map<Expr, Integer> locals = new HashMap<>();
 
-    Object interpret(List<Stmt> statements) throws Exception{
+    Object interpret(List<Stmt> statements) throws Exception {
         try {
             Object ret = null;
             for (Stmt statement : statements) {
@@ -163,10 +163,6 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
         stmt.methods.forEach((method) -> {
             KodeFunction function = new KodeFunction(method, environment, this, method.name.lexeme.equals(Kode.INIT));
             methods.put(method.name.lexeme, function);
-
-            method.params.forEach((par) -> {
-                method.args.add(new Pair(par.key, par.value != null ? evaluate(par.value) : null));
-            });
         });
 
         KodeClass klass = new KodeClass(stmt.name.lexeme, (KodeClass) superclass, methods, this);
@@ -190,9 +186,6 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
         KodeFunction function = new KodeFunction(stmt, environment, this, false);
         function.__doc__ = stmt.doc;
         environment.define(stmt.name.lexeme, function);
-        stmt.params.forEach((par) -> {
-            stmt.args.add(new Pair(par.key, par.value != null ? evaluate(par.value) : null).setType(par.type));
-        });
         return null;
     }
 
@@ -308,11 +301,12 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
         int cnt = 0;
         while (isTruthy(evaluate(stmt.condition))) {
             try {
-                if(cnt==100000){
+                if (cnt == 100000) {
                     KodeHelper.printf_err("[INFO]: The While Loop has already iterated for a lot of time...\nDo you want to Continue iterating ?");
-                    if(!KodeHelper.scanf().equalsIgnoreCase("y"))
+                    if (!KodeHelper.scanf().equalsIgnoreCase("y")) {
                         throw new RuntimeError("User Cancelled.");
-                    cnt=0;
+                    }
+                    cnt = 0;
                 }
                 cnt++;
                 execute(stmt.body);
@@ -327,13 +321,14 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     @Override
     public Void visitForStmt(Stmt.For stmt) {
         int cnt = 0;
-        for (execute(stmt.init);isTruthy(evaluate(stmt.condition));execute(stmt.increment)) {
+        for (execute(stmt.init); isTruthy(evaluate(stmt.condition)); execute(stmt.increment)) {
             try {
-                if(cnt==100000){
+                if (cnt == 100000) {
                     KodeHelper.printf_err("[INFO]: The For Loop has already iterated for a lot of time...\nDo you want to Continue iterating ?");
-                    if(!KodeHelper.scanf().equalsIgnoreCase("y"))
+                    if (!KodeHelper.scanf().equalsIgnoreCase("y")) {
                         throw new RuntimeError("User Cancelled.");
-                    cnt=0;
+                    }
+                    cnt = 0;
                 }
                 cnt++;
                 execute(stmt.body);
@@ -366,13 +361,13 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
             try {
                 Object fun = ((KodeInstance) left).get(lop);
                 if (fun instanceof KodeFunction) {
-                    return ((KodeFunction) fun).call(Arrays.asList(right));
+                    return ((KodeFunction) fun).call(new Object[]{right});
                 }
             } catch (NotImplemented e1) {
                 try {
                     Object fun = ((KodeInstance) right).get(rop);
                     if (fun instanceof KodeFunction) {
-                        return ((KodeFunction) fun).call(Arrays.asList(left));
+                        return ((KodeFunction) fun).call(new Object[]{left});
                     }
                 } catch (NotImplemented e2) {
                 }
@@ -429,72 +424,22 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     @Override
     public Object visitCallExpr(Expr.Call expr) {
         Object callee = evaluate(expr.callee);
-
-        List<Pair<Token, Object>> arguments = new ArrayList<>();
-        expr.arguments.forEach((argument) -> {
-            arguments.add(new Pair(argument.key, evaluate(argument.value)));
-        });
-
         if (!(callee instanceof KodeCallable)) {
-            throw new RuntimeError(
-                    "Can only call functions and classes.",
-                    expr.paren);
+            throw new RuntimeError("Can only call functions and classes.", expr.paren);
+        }
+
+        Object[] arguments = new Object[expr.arguments.length];
+        for (int i = 0; i < expr.arguments.length; i++) {
+            arguments[i] = evaluate(expr.arguments[i]);
         }
 
         KodeCallable function = (KodeCallable) callee;
-        List<Pair<String, Object>> arity = function.arity();
-        Map<String, Object> map = new HashMap();
-        arity.forEach((item) -> {
-            if (item.value != null) {
-                map.put(item.key, item.value);
-            }
-        });
-        int i = 0;
-        int j = 0;
-        try {
-            while (i < arguments.size()) {
-                Pair<Token, Object> arg = arguments.get(i);
-                if (arg.key == null && arity.get(j).type != null) {
-                    List temp = new ArrayList();
-                    for (; i < arguments.size(); i++) {
-                        if (arguments.get(i).key != null) {
-                            i--;
-                            break;
-                        }
-                        temp.add(arguments.get(i).value);
-                    }
-                    map.put(arity.get(j).key, toKodeValue(temp));
-                } else {
-                    map.put(arg.key == null ? arity.get(j).key : arg.key.lexeme, arg.value);
-                }
-                i++;
-                j++;
-            }
-        } catch (IndexOutOfBoundsException e) {
-            throw new RuntimeError("Number of argument crossed.", expr.paren);
+        if (arguments.length != function.arity()) {
+            throw new RuntimeError("Expected "
+                    + function.arity() + " arguments but got "
+                    + arguments.length + ".", expr.paren);
         }
-        arity.forEach((name) -> {
-            if (!map.keySet().contains(name.key)) {
-                throw new RuntimeError("Argument '" + name.key + "' requirment not met.", expr.paren);
-            }
-        });
-        map.forEach((key, value) -> {
-            boolean found = false;
-            for (Pair<String, Object> name : arity) {
-                if (name.key.equals(key)) {
-                    found = true;
-                }
-            }
-            if (!found) {
-                throw new RuntimeError("Extra argument '" + key + "' found.", expr.paren);
-            }
-        });
-        try {
-            return function.call(map);
-        } catch (RuntimeError e) {
-            e.token.add(expr.paren);
-            throw e;
-        }
+        return function.call(arguments);
     }
 
     @Override
@@ -504,7 +449,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
         if (array instanceof KodeInstance) {
             KodeFunction method = ((KodeInstance) array).klass.findMethod(Kode.GET_ITEM);
             try {
-                return method.bind((KodeInstance) array).call(Arrays.asList(index));
+                return method.bind((KodeInstance) array).call(new Object[]{index});
             } catch (NotImplemented e) {
                 throw new RuntimeError(Kode.type(array) + " object is non-indexable.", expr.paren);
             }
@@ -521,7 +466,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
         if (array instanceof KodeInstance) {
             KodeFunction method = ((KodeInstance) array).klass.findMethod(Kode.SET_ITEM);
             try {
-                return method.bind((KodeInstance) array).call(Arrays.asList(index, value));
+                return method.bind((KodeInstance) array).call(new Object[]{index, value});
             } catch (NotImplemented e) {
                 throw new RuntimeError(Kode.type(array) + " object does not support item assignment.", expr.paren);
             }
@@ -559,7 +504,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
                     try {
                         Object fun = ((KodeInstance) right).get(Kode.NEG);
                         if (fun instanceof KodeFunction) {
-                            return ((KodeFunction) fun).call(Arrays.asList());
+                            return ((KodeFunction) fun).call(new Object[0]);
                         }
                     } catch (NotImplemented e2) {
                     }
@@ -571,7 +516,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
                     try {
                         Object fun = ((KodeInstance) right).get(Kode.POS);
                         if (fun instanceof KodeFunction) {
-                            return ((KodeFunction) fun).call(Arrays.asList());
+                            return ((KodeFunction) fun).call(new Object[0]);
                         }
                     } catch (NotImplemented e2) {
                     }
@@ -672,7 +617,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
             }
             Object method = ((KodeInstance) object).get(Kode.BOOLEAN);
             if (method instanceof KodeFunction) {
-                return isTruthy(((KodeFunction) method).bind((KodeInstance) object).call(new HashMap()));
+                return isTruthy(((KodeFunction) method).bind((KodeInstance) object).call(new Object[0]));
             }
             return true;
         }

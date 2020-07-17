@@ -22,49 +22,49 @@ class ValueBool extends Value {
     static KodeInstance create(Boolean x) {
         KodeInstance instance = new KodeInstance(val);
         KodeFunction initializer = val.findMethod(Kode.INIT);
-        initializer.bind(instance).call(Arrays.asList(x));
+        initializer.bind(instance).call(new Object[]{x});
         return instance;
     }
 
     private ValueBool(Interpreter interpreter) {
         super("Bool", interpreter);
-        //<editor-fold defaultstate="collapsed" desc="init">
-        this.methods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, null, interpreter) {
-            
-            @Override
-            public List<Pair<String, Object>> arity() {
-                return Arrays.asList(new Pair("x", false));
-            }
-            
-            @Override
-            public Object call(Map<String, Object> arguments) {
-                Object This = closure.getAt(0, "this");
-                if (This instanceof KodeInstance) {
-                    ((KodeInstance) This).data = ValueBool.toBoolean(arguments.get("x"));
-                }
-                return This;
-            }
-        });
-//</editor-fold>
-
-        //<editor-fold defaultstate="collapsed" desc="str">
-        this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, null, interpreter) {
-            
-            @Override
-            public List<Pair<String, Object>> arity() {
-                return new ArrayList();
-            }
-            
-            @Override
-            public Object call(Map<String, Object> arguments) {
-                Object This = closure.getAt(0, "this");
-                if (This instanceof KodeInstance) {
-                    return interpreter.toKodeValue(Kode.stringify(((KodeInstance) This).data));
-                }
-                throw new NotImplemented();
-            }
-        });
-//</editor-fold>
+//        //<editor-fold defaultstate="collapsed" desc="init">
+//        this.methods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, null, interpreter) {
+//            
+//            @Override
+//            public List<Pair<String, Object>> arity() {
+//                return Arrays.asList(new Pair("x", false));
+//            }
+//            
+//            @Override
+//            public Object call(Map<String, Object> arguments) {
+//                Object This = closure.getAt(0, "this");
+//                if (This instanceof KodeInstance) {
+//                    ((KodeInstance) This).data = ValueBool.toBoolean(arguments.get("x"));
+//                }
+//                return This;
+//            }
+//        });
+////</editor-fold>
+//
+//        //<editor-fold defaultstate="collapsed" desc="str">
+//        this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, null, interpreter) {
+//            
+//            @Override
+//            public List<Pair<String, Object>> arity() {
+//                return new ArrayList();
+//            }
+//            
+//            @Override
+//            public Object call(Map<String, Object> arguments) {
+//                Object This = closure.getAt(0, "this");
+//                if (This instanceof KodeInstance) {
+//                    return interpreter.toKodeValue(Kode.stringify(((KodeInstance) This).data));
+//                }
+//                throw new NotImplemented();
+//            }
+//        });
+////</editor-fold>
     }
 
     static Boolean toBoolean(Object x_) {
@@ -83,10 +83,10 @@ class ValueBool extends Value {
                     if (((KodeInstance) x_).fields.containsKey(Kode.BOOLEAN)) {
                         Object get = ((KodeInstance) x_).fields.get(Kode.BOOLEAN);
                         if (get instanceof KodeFunction) {
-                            return toBoolean(((KodeFunction) get).bind((KodeInstance) x_).call(new HashMap()), a);
+                            return toBoolean(((KodeFunction) get).bind((KodeInstance) x_).call(new Object[0]), a);
                         }
                     }
-                    return toBoolean(((KodeInstance) x_).klass.findMethod(Kode.BOOLEAN).bind((KodeInstance) x_).call(new HashMap()), a);
+                    return toBoolean(((KodeInstance) x_).klass.findMethod(Kode.BOOLEAN).bind((KodeInstance) x_).call(new Object[0]), a);
                 } catch (NotImplemented e) {
                     throw new RuntimeError("Object of type '" + Kode.type(a) + "' is not Boolean in Nature", null);
                 }

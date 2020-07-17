@@ -416,6 +416,7 @@ class Kode {
             LIBPATH = Paths.get(Paths.get(Kode.class.getProtectionDomain().getCodeSource().getLocation().toURI())
                     .getParent().toFile().getAbsolutePath(), "libs").toAbsolutePath().toString();
             final Map<String, Object> DEF_GLOBALS = new HashMap();
+            /*
             DEF_GLOBALS.put("print", new KodeBuiltinFunction("print", null, INTER) {
                 @Override
                 public List<Pair<String, Object>> arity() {
@@ -792,6 +793,7 @@ class Kode {
                 }
 
             });
+            */
 
             DEF_GLOBALS.put(ValueNumber.val.class_name, ValueNumber.val);   //Number
             DEF_GLOBALS.put(ValueString.val.class_name, ValueString.val);   //String

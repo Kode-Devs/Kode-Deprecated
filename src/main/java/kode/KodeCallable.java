@@ -5,18 +5,15 @@
  */
 package kode;
 
-import java.util.List;
-import java.util.Map;
-
 /**
  *
  * @author dell
  */
 interface KodeCallable {
     
-    List<Pair<String,Object>> arity();
+    int arity();
 
-    Object call(Map<String, Object> arguments);
+    Object call(Object[] arguments);
     
     @Override
     abstract String toString();

@@ -20,43 +20,43 @@ class ValueType extends Value {
 
     private ValueType(Interpreter interpreter) {
         super("type", interpreter);
-        //<editor-fold defaultstate="collapsed" desc="init">
-        this.methods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, null, interpreter) {
-            
-            @Override
-            public List<Pair<String, Object>> arity() {
-                return Arrays.asList(new Pair("obj", null));
-            }
-            
-            @Override
-            public Object call(Map<String, Object> arguments) {
-                Object This = closure.getAt(0, "this");
-                if (This instanceof KodeInstance) {
-                    ((KodeInstance) This).data = Kode.type(arguments.get("obj"));
-                }
-                return This;
-            }
-        });
-//</editor-fold>
-
-        //<editor-fold defaultstate="collapsed" desc="str">
-        this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, null, interpreter) {
-            
-            @Override
-            public List<Pair<String, Object>> arity() {
-                return new ArrayList();
-            }
-            
-            @Override
-            public Object call(Map<String, Object> arguments) {
-                Object This = closure.getAt(0, "this");
-                if (This instanceof KodeInstance) {
-                    return interpreter.toKodeValue("<type '"+((KodeInstance) This).data+"'>");
-                }
-                throw new NotImplemented();
-            }
-        });
-//</editor-fold>
+//        //<editor-fold defaultstate="collapsed" desc="init">
+//        this.methods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, null, interpreter) {
+//            
+//            @Override
+//            public List<Pair<String, Object>> arity() {
+//                return Arrays.asList(new Pair("obj", null));
+//            }
+//            
+//            @Override
+//            public Object call(Map<String, Object> arguments) {
+//                Object This = closure.getAt(0, "this");
+//                if (This instanceof KodeInstance) {
+//                    ((KodeInstance) This).data = Kode.type(arguments.get("obj"));
+//                }
+//                return This;
+//            }
+//        });
+////</editor-fold>
+//
+//        //<editor-fold defaultstate="collapsed" desc="str">
+//        this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, null, interpreter) {
+//            
+//            @Override
+//            public List<Pair<String, Object>> arity() {
+//                return new ArrayList();
+//            }
+//            
+//            @Override
+//            public Object call(Map<String, Object> arguments) {
+//                Object This = closure.getAt(0, "this");
+//                if (This instanceof KodeInstance) {
+//                    return interpreter.toKodeValue("<type '"+((KodeInstance) This).data+"'>");
+//                }
+//                throw new NotImplemented();
+//            }
+//        });
+////</editor-fold>
     }
 
 }

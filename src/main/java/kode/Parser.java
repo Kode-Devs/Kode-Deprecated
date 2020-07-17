@@ -295,21 +295,13 @@ class Parser {
     private Stmt.Function function(String kind) {
         Token name = consume(IDENTIFIER, "Expect " + kind + " name.");
         consume(LEFT_PAREN, "Expect '(' after " + kind + " name.");
-        List<Pair<Token, Expr>> parameters = new ArrayList<>();
+        List<Token> parameters = new ArrayList<>();
         if (!check(RIGHT_PAREN)) {
             do {
-                TokenType t = null;
-                if (match(STAR, POWER)) {
-                    t = previous().type;
+                if (parameters.size() >= Integer.MAX_VALUE) {
+                    throw error(peek(), "Cannot have more than "+Integer.MAX_VALUE+" parameters.");
                 }
-                Token token = consume(IDENTIFIER, "Expect parameter name.");
-                Expr def = null;
-                if (t != null) {
-                    if (match(EQUAL)) {
-                        def = expression();
-                    }
-                }
-                parameters.add(new Pair(token, def).setType(t));
+                parameters.add(consume(IDENTIFIER, "Expect parameter name."));
             } while (match(COMMA));
         }
         consume(RIGHT_PAREN, "Expect ')' after parameters.");
@@ -319,8 +311,7 @@ class Parser {
         if (peek().type == MLSTRING) {
             doc_temp = peek().literal.toString();
         }
-        List<Stmt> body = block();
-        return new Stmt.Function(name, parameters, body, doc_temp);
+        return new Stmt.Function(name, parameters.toArray(new Token[]{}), block(), doc_temp);
     }
 
     private List<Stmt> block() {
@@ -453,24 +444,16 @@ class Parser {
     }
 
     private Expr finishCall(Expr callee) {
-        List<Pair<Token, Expr>> arguments = new ArrayList<>();
+        List<Expr> arguments = new ArrayList<>();
         if (!check(RIGHT_PAREN)) {
             do {
-                if (peek().type == IDENTIFIER && peekNext().type == EQUAL) {
-                    Token token = consume(IDENTIFIER, "Identifier Expected");
-                    advance();
-                    arguments.add(new Pair(token, expression()));
-                } else if (match(STAR, POWER)) {
-                    arguments.add(new Pair(null, expression()).setType(previous().type));
-                } else {
-                    arguments.add(new Pair(null, expression()));
+                if (arguments.size() >= Integer.MAX_VALUE) {
+                    throw error(peek(), "Cannot have more than "+Integer.MAX_VALUE+" arguments.");
                 }
+                arguments.add(expression());
             } while (match(COMMA));
         }
-
-        Token paren = consume(RIGHT_PAREN, "Expect ')' after arguments.");
-
-        return new Expr.Call(callee, paren, arguments);
+        return new Expr.Call(callee, consume(RIGHT_PAREN, "Expect ')' after arguments."), arguments.toArray(new Expr[]{}));
     }
 
     private Expr call() {

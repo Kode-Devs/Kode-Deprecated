@@ -118,12 +118,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         }
         return null;
     }
-
-//    @Override
-//    public Void visitPrintStmt(Stmt.Print stmt) {
-//        resolve(stmt.expression);
-//        return null;
-//    }
+    
     @Override
     public Void visitRequireStmt(Stmt.Require stmt) {
         if (stmt.methods != null) {
@@ -232,11 +227,9 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     @Override
     public Void visitCallExpr(Expr.Call expr) {
         resolve(expr.callee);
-
-        expr.arguments.forEach((argument) -> {
-            resolve(argument.value);
-        });
-
+        for(Expr argument:expr.arguments){
+            resolve(argument);
+        }
         return null;
     }
 
@@ -383,13 +376,10 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         currentFunction = type;
 
         beginScope();
-        function.params.forEach((param) -> {
-            declare(param.key);
-            define(param.key);
-            if (param.value != null) {
-                resolve(param.value);
-            }
-        });
+        for(Token param:function.params){
+            declare(param);
+            define(param);
+        }
         resolve(function.body);
         endScope();
         currentFunction = enclosingFunction;

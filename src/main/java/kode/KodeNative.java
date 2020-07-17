@@ -34,13 +34,13 @@ class KodeNative implements KodeCallable {
     }
 
     @Override
-    public List<Pair<String, Object>> arity() {
-        return Arrays.asList(new Pair("params", ValueList.create(new ArrayList())).setType(TokenType.STAR));
+    public int arity() {
+        return 1;
     }
 
     @Override
-    public Object call(Map<String, Object> arguments) {
-        Object p = arguments.get("params");
+    public Object call(Object[] arguments) {
+        Object p = arguments[0];
         List params;
         if (p instanceof KodeInstance) {
             if (ValueList.isList((KodeInstance) p)) {

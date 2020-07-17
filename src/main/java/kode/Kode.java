@@ -63,9 +63,9 @@ class Kode {
                 Interpreter interpreter = new Interpreter();
                 interpreter.globals.define(Kode.__NAME__, interpreter.toKodeValue(Kode.__MAIN__));
                 for (;;) {
+                    try {
                     hadError = false;
                     hadRuntimeError = false;
-                    try {
                         Pair run = run("<shell>", KodeHelper.scanf(">>>"), interpreter);
                         if (run != null) {
                             if (run.value != null) {

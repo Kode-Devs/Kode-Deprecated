@@ -12,15 +12,16 @@ import java.util.List;
  *
  * @author dell
  */
-class RuntimeError extends RuntimeException {
+class RuntimeError extends Error
+{
 
     List<Token> token = new ArrayList<>();
     KodeInstance instance = null;
     String type = null;
 
     RuntimeError(String message, Token token) {
+        this(ValueError.create(message));
         this.token.add(token);
-        this.instance = ValueError.create(message);
         this.type = "Runtime Error";
     }
 

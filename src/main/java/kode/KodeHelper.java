@@ -7,6 +7,8 @@ package kode;
 
 import java.awt.Color;
 import java.io.IOException;
+import javax.swing.JOptionPane;
+import org.beryx.textio.AbstractTextTerminal;
 import org.beryx.textio.TextIO;
 import org.beryx.textio.TextIoFactory;
 
@@ -36,8 +38,14 @@ public class KodeHelper {
         textIO.getTextTerminal().registerUserInterruptHandler((e) -> {
             exit(0);
         }, true);
-        textIO.getTextTerminal().setBookmark(CLC);
 
+        // KeyBoard Interrupt
+        if (textIO.getTextTerminal().registerHandler(AbstractTextTerminal.DEFAULT_USER_INTERRUPT_KEY, t -> {
+            throw new RuntimeError("Keyboard Interrupt Found.");
+        }) == false) {
+            JOptionPane.showMessageDialog(null, "Failed to Set KeyBoard Interrupt.", "Warning!!!", JOptionPane.WARNING_MESSAGE);
+        }
+        textIO.getTextTerminal().setBookmark(CLC);
         Kode.start_console(args);
         exit(0);
     }
@@ -84,7 +92,7 @@ public class KodeHelper {
         if (System.console() != null) {
             try {
                 if (System.getProperty("os.name", "undefined").contains("Windows")) {
-                    new ProcessBuilder("cmd","/c","cls").inheritIO().start().waitFor();
+                    new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
                 } else {
                     Runtime.getRuntime().exec("clear");
                 }

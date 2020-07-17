@@ -305,30 +305,42 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
 
     @Override
     public Void visitWhileStmt(Stmt.While stmt) {
+        int cnt = 0;
         while (isTruthy(evaluate(stmt.condition))) {
             try {
+                if(cnt==100000){
+                    KodeHelper.printf_err("[INFO]: The While Loop has already iterated for a lot of time...\nDo you want to Continue iterating ?");
+                    if(!KodeHelper.scanf("").equalsIgnoreCase("y"))
+                        throw new RuntimeError("User Cancelled.");
+                    cnt=0;
+                }
+                cnt++;
                 execute(stmt.body);
             } catch (Break b) {
                 break;
             } catch (Continue c) {
             }
-            System.gc();
         }
         return null;
     }
 
     @Override
     public Void visitForStmt(Stmt.For stmt) {
-        execute(stmt.init);
-        while (isTruthy(evaluate(stmt.condition))) {
+        int cnt = 0;
+        for (execute(stmt.init);isTruthy(evaluate(stmt.condition));execute(stmt.increment)) {
             try {
+                if(cnt==100000){
+                    KodeHelper.printf_err("[INFO]: The For Loop has already iterated for a lot of time...\nDo you want to Continue iterating ?");
+                    if(!KodeHelper.scanf("").equalsIgnoreCase("y"))
+                        throw new RuntimeError("User Cancelled.");
+                    cnt=0;
+                }
+                cnt++;
                 execute(stmt.body);
             } catch (Break b) {
                 break;
             } catch (Continue c) {
             }
-            System.gc();
-            execute(stmt.increment);
         }
         return null;
     }

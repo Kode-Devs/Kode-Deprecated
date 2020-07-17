@@ -42,20 +42,16 @@ class KodeFunction implements KodeCallable {
     }
 
     @Override
-    public List<Pair<String, Object>> arity() {
-        List<Pair<String, Object>> temp = new ArrayList();
-        declaration.args.forEach((t) -> {
-            temp.add(new Pair(t.key.lexeme, t.value).setType(t.type));
-        });
-        return temp;
+    public int arity() {
+        return declaration.params.length;
     }
 
     @Override
-    public Object call(Map<String, Object> arguments) {
+    public Object call(Object... arguments) {
         Environment environment = new Environment(closure);
-        arguments.entrySet().forEach((arg) -> {
-            environment.define(arg.getKey(), arg.getValue());
-        });
+        for (int i = 0; i < declaration.params.length; i++) {
+            environment.define(declaration.params[i].lexeme, arguments[i]);
+        }
 
         try {
             interpreter.executeBlock(declaration.body, environment);
@@ -71,17 +67,5 @@ class KodeFunction implements KodeCallable {
             return closure.getAt(0, "this");
         }
         return null;
-    }
-
-    Object call(List<Object> args) {
-        List<Pair<String, Object>> arity = this.arity();
-        if (arity.size() != args.size()) {
-            throw new RuntimeError("Number of argument crossed.");
-        }
-        Map<String, Object> arguments = new HashMap();
-        for (int i = 0; i < arity.size(); i++) {
-            arguments.put(arity.get(i).key, args.get(i) != null ? args.get(i) : arity.get(i).value);
-        }
-        return this.call(arguments);
     }
 }

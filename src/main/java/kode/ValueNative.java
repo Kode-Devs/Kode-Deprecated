@@ -5,11 +5,6 @@
  */
 package kode;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
 /**
  *
  * @author dell
@@ -22,7 +17,7 @@ class ValueNative extends Value {
         KodeInstance instance = new KodeInstance(val);
         instance.data = x;
         KodeFunction initializer = val.findMethod(Kode.INIT);
-        initializer.bind(instance).call(Arrays.asList());
+        initializer.bind(instance).call();
         return instance;
     }
 
@@ -32,12 +27,12 @@ class ValueNative extends Value {
         this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, null, interpreter) {
 
             @Override
-            public List<Pair<String, Object>> arity() {
-                return new ArrayList();
+            public int arity() {
+                return 0;
             }
 
             @Override
-            public Object call(Map<String, Object> arguments) {
+            public Object call(Object... arguments) {
                 Object This = closure.getAt(0, "this");
                 if (This instanceof KodeInstance) {
                     return interpreter.toKodeValue("<native object '" + ((KodeInstance) This).data + "'>");

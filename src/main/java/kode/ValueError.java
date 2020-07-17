@@ -5,11 +5,6 @@
  */
 package kode;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -23,9 +18,7 @@ class ValueError extends Value {
     static KodeInstance create(String msg) {
         KodeInstance instance = new KodeInstance(val);
         KodeFunction initializer = val.findMethod(Kode.INIT);
-        Map par = new HashMap();
-        par.put("args", val.interpreter.toKodeValue(Arrays.asList(val.interpreter.toKodeValue(msg))));
-        initializer.bind(instance).call(par);
+        initializer.bind(instance).call(val.interpreter.toKodeValue(msg));
         return instance;
     }
 
@@ -35,15 +28,15 @@ class ValueError extends Value {
         this.methods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, null, interpreter) {
 
             @Override
-            public List<Pair<String, Object>> arity() {
-                return Arrays.asList(new Pair("args", interpreter.toKodeValue(Arrays.asList())).setType(TokenType.STAR));
+            public int arity() {
+                return 1;
             }
 
             @Override
-            public Object call(Map<String, Object> arguments) {
+            public Object call(Object... arguments) {
                 Object at = closure.getAt(0, "this");
                 if (at instanceof KodeInstance) {
-                    ((KodeInstance) at).set("args", arguments.get("args"));
+                    ((KodeInstance) at).set("args", arguments[0]);
                 }
                 return at;
             }
@@ -54,12 +47,12 @@ class ValueError extends Value {
         this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, null, interpreter) {
 
             @Override
-            public List<Pair<String, Object>> arity() {
-                return new ArrayList();
+            public int arity() {
+                return 0;
             }
 
             @Override
-            public Object call(Map<String, Object> arguments) {
+            public Object call(Object... arguments) {
                 Object This = closure.getAt(0, "this");
                 if (This instanceof KodeInstance) {
                     Object get = ((KodeInstance) This).get("args");

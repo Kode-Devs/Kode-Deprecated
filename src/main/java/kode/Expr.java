@@ -85,7 +85,7 @@ abstract class Expr {
 
     static class Call extends Expr {
 
-        Call(Expr callee, Token paren, List<Pair<Token, Expr>> arguments) {
+        Call(Expr callee, Token paren, Expr[] arguments) {
             this.callee = callee;
             this.paren = paren;
             this.arguments = arguments;
@@ -98,7 +98,7 @@ abstract class Expr {
 
         final Expr callee;
         final Token paren;
-        final List<Pair<Token, Expr>> arguments;
+        final Expr[] arguments;
     }
     
     static class GetAtIndex extends Expr {

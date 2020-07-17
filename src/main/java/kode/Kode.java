@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
 import lib.warnings;
 import math.KodeNumber;
@@ -38,13 +37,13 @@ class Kode {
     static final String USAGE = "Usage: kode [script]";
 
     static String getVersion() {
-        return Kode.NAME + " " + Kode.VERSION;
+        return NAME + " " + VERSION;
     }
 
     static String getIntro() {
         String res = Kode.getVersion();
         try {
-            res += " ( " + Kode.AUTHOR + ", "
+            res += " ( " + AUTHOR + ", "
                     + new Date(new File(Kode.class.getProtectionDomain().getCodeSource().getLocation().toURI()).lastModified()) + " ) ";
         } catch (URISyntaxException e) {
         }
@@ -54,37 +53,38 @@ class Kode {
 
     public static void main(String... args) {
         switch (args.length) {
-            case 1:
-                Kode.VERSION = args[0];
             case 0:
+                break;
+            case 1:
+                VERSION = args[0];
                 //<editor-fold defaultstate="collapsed" desc="Shell">
-                KodeHelper.printfln(Kode.getIntro());
-                KodeHelper.printfln("Call exit() to quit shell.");
+                IO.printfln(Kode.getIntro());
+                IO.printfln("Call exit() to quit shell.");
                 Interpreter interpreter = new Interpreter();
                 interpreter.globals.define(Kode.__NAME__, interpreter.toKodeValue(Kode.__MAIN__));
                 for (;;) {
                     try {
                         hadError = false;
                         hadRuntimeError = false;
-                        KodeHelper.printf(">>>");
-                        Pair run = run("<shell>", KodeHelper.scanf(), interpreter);
+                        IO.printf(">>>");
+                        Pair run = run("<shell>", IO.scanf(), interpreter);
                         if (run != null) {
                             if (run.value != null) {
                                 Object value = run.value;
                                 if (value instanceof KodeInstance) {
                                     if (ValueString.isString((KodeInstance) value)) {
-                                        KodeHelper.printfln('\'' + value.toString() + '\'');
+                                        IO.printfln('\'' + value.toString() + '\'');
                                         continue;
                                     }
                                 }
-                                KodeHelper.printfln(value);
+                                IO.printfln(value);
                             }
                         }
                     } catch (RuntimeError error) {
                         Kode.runtimeError(error);
                     } catch (Throwable e) {
                         e.printStackTrace();
-                        KodeHelper.printfln_err("Fatal Error : " + e);
+                        IO.printfln_err("Fatal Error : " + e);
                     }
                 }
             //</editor-fold>
@@ -98,18 +98,18 @@ class Kode {
                         Kode.runtimeError(error);
                     } catch (Throwable e) {
                         e.printStackTrace();
-                        KodeHelper.printfln_err("Fatal Error : " + e);
+                        IO.printfln_err("Fatal Error : " + e);
                     }
                 } else {
-                    KodeHelper.printfln_err("Not a " + Kode.NAME + " runnable file");
+                    IO.printfln_err("Not a " + Kode.NAME + " runnable file");
                     System.exit(64);
                 }
                 //</editor-fold>
                 break;
             default:
-                KodeHelper.printfln_err(Kode.USAGE);
+                IO.printfln_err(USAGE);
         }
-        KodeHelper.exit(0);
+        IO.exit(0);
     }
 
     static String LIBPATH;
@@ -197,9 +197,9 @@ class Kode {
                 }
 
                 if (Pip4kode.checkUpdate(pkgname, p)) {
-                    KodeHelper.printf_err("[Info]: Package '" + pkgname + "' needs an update.\n"
-                            +"Do you want to update the package '" + pkgname + "' ? [y/n]");
-                    if (KodeHelper.scanf().equalsIgnoreCase("y")) {
+                    IO.printf_err("[Info]: Package '" + pkgname + "' needs an update.\n"
+                            + "Do you want to update the package '" + pkgname + "' ? [y/n]");
+                    if (IO.scanf().equalsIgnoreCase("y")) {
                         throw new Exception();
                     }
                 }
@@ -218,22 +218,22 @@ class Kode {
                 return run(name + "." + Kode.EXTENSION, new String(bytes, Charset.defaultCharset()), inter).key;
             }
 
-            KodeHelper.printfln_err("[Info]: Library file " + name + "." + Kode.EXTENSION + " not found in your device.");
+            IO.printfln_err("[Info]: Library file " + name + "." + Kode.EXTENSION + " not found in your device.");
             throw new Exception();
         } catch (Exception e) {
             Pip4kode pip;
             try {
                 pip = new Pip4kode(pkgname);
-                KodeHelper.printfln("Reading package metadata from repository ...");
+                IO.printfln("Reading package metadata from repository ...");
                 pip.init();
-                KodeHelper.printf("Do you want to download the package '" + pip.pkg + "' (" + pip.sizeInWords + ") ? [y/n]");
-                if (!KodeHelper.scanf().equalsIgnoreCase("y")) {
+                IO.printf("Do you want to download the package '" + pip.pkg + "' (" + pip.sizeInWords + ") ? [y/n]");
+                if (!IO.scanf().equalsIgnoreCase("y")) {
                     throw new Exception();
                 }
-                KodeHelper.printfln("Get: " + pip.repositoryRoot + " " + pip.pkg
+                IO.printfln("Get: " + pip.repositoryRoot + " " + pip.pkg
                         + " rev " + pip.latestRevision + " [" + pip.sizeInWords + "]");
                 pip.download(p);
-                KodeHelper.printfln("Download Finished");
+                IO.printfln("Download Finished");
             } catch (Exception ex) {
                 throw new RuntimeError("Requirement " + name + " not satisfied.");
             }
@@ -274,7 +274,7 @@ class Kode {
     }
 
     private static void report(int line, String where, String message) {
-        KodeHelper.printfln_err(
+        IO.printfln_err(
                 "[line " + line + "] Error" + where + ": " + message);
         hadError = true;
     }
@@ -286,7 +286,7 @@ class Kode {
             report(token.line, " near '" + token.lexeme + "' in file " + token.fn, message);
         }
         if (token.line_text != null) {
-            KodeHelper.printfln_err("->\t" + token.line_text.trim());
+            IO.printfln_err("->\t" + token.line_text.trim());
         }
     }
 
@@ -295,12 +295,12 @@ class Kode {
     }
 
     static void runtimeError(RuntimeError error) {
-        KodeHelper.printfln_err(error.getMessage());
+        IO.printfln_err(error.getMessage());
         error.token.forEach((line) -> {
             if (line != null) {
-                KodeHelper.printfln_err("in file " + line.fn + " [ at line " + line.line + " ] near '" + line.lexeme + "'");
+                IO.printfln_err("in file " + line.fn + " [ at line " + line.line + " ] near '" + line.lexeme + "'");
                 if (line.line_text != null) {
-                    KodeHelper.printfln_err("->\t" + line.line_text.trim());
+                    IO.printfln_err("->\t" + line.line_text.trim());
                 }
             }
         });
@@ -414,65 +414,94 @@ class Kode {
     static {
         try {
             LIBPATH = Paths.get(Paths.get(Kode.class.getProtectionDomain().getCodeSource().getLocation().toURI())
-                    .getParent().toFile().getAbsolutePath(), "libs").toAbsolutePath().toString();
+                    .getParent().getParent().toFile().getAbsolutePath(), "libs").toAbsolutePath().toString();      // Get Parent added.
             final Map<String, Object> DEF_GLOBALS = new HashMap();
+            //<editor-fold defaultstate="collapsed" desc="do not delete">
+//            DEF_GLOBALS.put("print", new KodeBuiltinFunction("print", null, INTER) {
+//                @Override
+//                public List<Pair<String, Object>> arity() {
+//                    return Arrays.asList(
+//                            new Pair("str", interpreter.toKodeValue(Arrays.asList(interpreter.toKodeValue("")))).setType(TokenType.STAR),
+//                            new Pair("sep", interpreter.toKodeValue(" ")),
+//                            new Pair("end", interpreter.toKodeValue("\n")));
+//                }
+//
+//                @Override
+//                public Object call(Map<String, Object> arguments) {
+//                    List str = ValueList.toList(arguments.get("str"));
+//                    String sep = ValueString.toStr(arguments.get("sep"));
+//                    String end = ValueString.toStr(arguments.get("end"));
+//                    IO.printf(str.stream().map(ValueString::toStr).collect(Collectors.joining(sep)) + end);
+//                    return null;
+//                }
+//
+//            });
+//            DEF_GLOBALS.put("input", new KodeBuiltinFunction("input", null, INTER) {
+//                @Override
+//                public List<Pair<String, Object>> arity() {
+//                    return Arrays.asList(new Pair("str", interpreter.toKodeValue(Arrays.asList(interpreter.toKodeValue("")))).setType(TokenType.STAR),
+//                            new Pair("sep", interpreter.toKodeValue(" ")),
+//                            new Pair("end", interpreter.toKodeValue("")),
+//                            new Pair("mask", interpreter.toKodeValue(false)));
+//                }
+//
+//                @Override
+//                public Object call(Map<String, Object> arguments) {
+//                    List str = ValueList.toList(arguments.get("str"));
+//                    String sep = ValueString.toStr(arguments.get("sep"));
+//                    String end = ValueString.toStr(arguments.get("end"));
+//                    String msg = str.stream().map(ValueString::toStr).collect(Collectors.joining(sep)) + end;
+//                    if (ValueBool.toBoolean(arguments.get("mask"))) {
+//                        IO.printf(msg);
+//                        return interpreter.toKodeValue(IO.scanf_pwd());
+//                    }
+//                    IO.printf(msg);
+//                    return interpreter.toKodeValue(IO.scanf());
+//                }
+//
+//            });
+//</editor-fold>
             DEF_GLOBALS.put("print", new KodeBuiltinFunction("print", null, INTER) {
                 @Override
-                public List<Pair<String, Object>> arity() {
-                    return Arrays.asList(
-                            new Pair("str", interpreter.toKodeValue(Arrays.asList(interpreter.toKodeValue("")))).setType(TokenType.STAR),
-                            new Pair("sep", interpreter.toKodeValue(" ")),
-                            new Pair("end", interpreter.toKodeValue("\n")));
+                public int arity() {
+                    return 1;
                 }
 
                 @Override
-                public Object call(Map<String, Object> arguments) {
-                    List str = ValueList.toList(arguments.get("str"));
-                    String sep = ValueString.toStr(arguments.get("sep"));
-                    String end = ValueString.toStr(arguments.get("end"));
-                    KodeHelper.printf(str.stream().map(ValueString::toStr).collect(Collectors.joining(sep)) + end);
+                public Object call(Object... arguments) {
+                    IO.printf(arguments[0]);
                     return null;
                 }
 
             });
             DEF_GLOBALS.put("input", new KodeBuiltinFunction("input", null, INTER) {
                 @Override
-                public List<Pair<String, Object>> arity() {
-                    return Arrays.asList(new Pair("str", interpreter.toKodeValue(Arrays.asList(interpreter.toKodeValue("")))).setType(TokenType.STAR),
-                            new Pair("sep", interpreter.toKodeValue(" ")),
-                            new Pair("end", interpreter.toKodeValue("")),
-                            new Pair("mask", interpreter.toKodeValue(false)));
+                public int arity() {
+                    return 1;
                 }
 
                 @Override
-                public Object call(Map<String, Object> arguments) {
-                    List str = ValueList.toList(arguments.get("str"));
-                    String sep = ValueString.toStr(arguments.get("sep"));
-                    String end = ValueString.toStr(arguments.get("end"));
-                    String msg = str.stream().map(ValueString::toStr).collect(Collectors.joining(sep)) + end;
-                    if (ValueBool.toBoolean(arguments.get("mask"))) {
-                        KodeHelper.printf(msg);
-                        return interpreter.toKodeValue(KodeHelper.scanf_pwd());
-                    }
-                    KodeHelper.printf(msg);
-                    return interpreter.toKodeValue(KodeHelper.scanf());
+                public Object call(Object... arguments) {
+                    IO.printf(arguments[0]);
+                    return interpreter.toKodeValue(IO.scanf());
                 }
 
             });
+
             DEF_GLOBALS.put("len", new KodeBuiltinFunction("len", null, INTER) {
                 @Override
-                public List<Pair<String, Object>> arity() {
-                    return Arrays.asList(new Pair("obj", null));
+                public int arity() {
+                    return 1;
                 }
 
                 @Override
-                public Object call(Map<String, Object> arguments) {
-                    Object obj = arguments.get("obj");
+                public Object call(Object... arguments) {
+                    Object obj = arguments[0];
                     try {
                         if (obj instanceof KodeInstance) {
                             Object fun = ((KodeInstance) obj).get(Kode.LEN);
                             if (fun instanceof KodeFunction) {
-                                return ((KodeFunction) fun).call(Arrays.asList());
+                                return ((KodeFunction) fun).call();
                             }
                         }
                         throw new NotImplemented();
@@ -484,13 +513,13 @@ class Kode {
             });
             DEF_GLOBALS.put("dir", new KodeBuiltinFunction("dir", null, INTER) {
                 @Override
-                public List<Pair<String, Object>> arity() {
-                    return Arrays.asList(new Pair("obj", null));
+                public int arity() {
+                    return 1;
                 }
 
                 @Override
-                public Object call(Map<String, Object> arguments) {
-                    Object obj = arguments.get("obj");
+                public Object call(Object... arguments) {
+                    Object obj = arguments[0];
                     Set<String> dir = new TreeSet();
                     if (obj instanceof KodeInstance) {
                         dir.addAll(((KodeInstance) obj).fields.keySet());
@@ -515,36 +544,36 @@ class Kode {
             });
             DEF_GLOBALS.put("id", new KodeBuiltinFunction("id", null, INTER) {
                 @Override
-                public List<Pair<String, Object>> arity() {
-                    return Arrays.asList(new Pair("obj", null));
+                public int arity() {
+                    return 1;
                 }
 
                 @Override
-                public Object call(Map<String, Object> arguments) {
-                    return interpreter.toKodeValue(arguments.get("obj").hashCode());
+                public Object call(Object... arguments) {
+                    return interpreter.toKodeValue(arguments[0].hashCode());
                 }
 
             });
             DEF_GLOBALS.put("now", new KodeBuiltinFunction("now", null, INTER) {
                 @Override
-                public List<Pair<String, Object>> arity() {
-                    return Arrays.asList();
+                public int arity() {
+                    return 0;
                 }
 
                 @Override
-                public Object call(Map<String, Object> arguments) {
+                public Object call(Object... arguments) {
                     return interpreter.toKodeValue(System.currentTimeMillis());
                 }
 
             });
             DEF_GLOBALS.put("free", new KodeBuiltinFunction("free", null, INTER) {
                 @Override
-                public List<Pair<String, Object>> arity() {
-                    return Arrays.asList();
+                public int arity() {
+                    return 0;
                 }
 
                 @Override
-                public Object call(Map<String, Object> arguments) {
+                public Object call(Object... arguments) {
                     System.gc();
                     return null;
                 }
@@ -552,40 +581,40 @@ class Kode {
             });
             DEF_GLOBALS.put("resetLine", new KodeBuiltinFunction("resetLine", null, INTER) {
                 @Override
-                public List<Pair<String, Object>> arity() {
-                    return Arrays.asList();
+                public int arity() {
+                    return 0;
                 }
 
                 @Override
-                public Object call(Map<String, Object> arguments) {
-                    KodeHelper.resetLine();
+                public Object call(Object... arguments) {
+                    IO.resetLine();
                     return null;
                 }
 
             });
             DEF_GLOBALS.put("clear", new KodeBuiltinFunction("clear", null, INTER) {
                 @Override
-                public List<Pair<String, Object>> arity() {
-                    return Arrays.asList();
+                public int arity() {
+                    return 0;
                 }
 
                 @Override
-                public Object call(Map<String, Object> arguments) {
-                    KodeHelper.clc();
+                public Object call(Object... arguments) {
+                    IO.clc();
                     return null;
                 }
 
             });
             DEF_GLOBALS.put("isinstance", new KodeBuiltinFunction("isinstance", null, INTER) {
                 @Override
-                public List<Pair<String, Object>> arity() {
-                    return Arrays.asList(new Pair("object", null), new Pair("type", null));
+                public int arity() {
+                    return 2;
                 }
 
                 @Override
-                public Object call(Map<String, Object> arguments) {
-                    Object object = arguments.get("object");
-                    Object type = arguments.get("type");
+                public Object call(Object... arguments) {
+                    Object object = arguments[0];
+                    Object type = arguments[1];
                     if (!(object instanceof KodeInstance)) {
                         throw new RuntimeError("Value passed for argument 'object' is not an instance of a class.");
                     }
@@ -598,14 +627,14 @@ class Kode {
             });
             DEF_GLOBALS.put("issubclass", new KodeBuiltinFunction("issubclass", null, INTER) {
                 @Override
-                public List<Pair<String, Object>> arity() {
-                    return Arrays.asList(new Pair("object", null), new Pair("type", null));
+                public int arity() {
+                    return 2;
                 }
 
                 @Override
-                public Object call(Map<String, Object> arguments) {
-                    Object object = arguments.get("object");
-                    Object type = arguments.get("type");
+                public Object call(Object... arguments) {
+                    Object object = arguments[0];
+                    Object type = arguments[1];
                     if (!(object instanceof KodeClass)) {
                         throw new RuntimeError("Value passed for argument 'object' is not a class.");
                     }
@@ -618,17 +647,13 @@ class Kode {
             });
             DEF_GLOBALS.put("exit", new KodeBuiltinFunction("exit", null, INTER) {
                 @Override
-                public List<Pair<String, Object>> arity() {
-                    return Arrays.asList(new Pair("status", interpreter.toKodeValue(0)));
+                public int arity() {
+                    return 0;
                 }
 
                 @Override
-                public Object call(Map<String, Object> arguments) {
-                    try {
-                        KodeHelper.exit(ValueNumber.toNumber(arguments.get("status")).getAsIndex());
-                    } catch (Exception ex) {
-                        KodeHelper.exit(0);
-                    }
+                public Object call(Object... arguments) {
+                    IO.exit(0);
                     return null;
                 }
 
@@ -636,18 +661,13 @@ class Kode {
             DEF_GLOBALS.put("help", new KodeBuiltinFunction("help", null, INTER) {
 
                 @Override
-                String doc() {
-                    return "Call help(obj) to get the help document attached with the object 'obj'.";
+                public int arity() {
+                    return 1;
                 }
 
                 @Override
-                public List<Pair<String, Object>> arity() {
-                    return Arrays.asList(new Pair("obj", this));
-                }
-
-                @Override
-                public Object call(Map<String, Object> arguments) {
-                    Object get = arguments.get("obj");
+                public Object call(Object... arguments) {
+                    Object get = arguments[0];
                     String doc = null;
                     if (get instanceof KodeFunction) {
                         doc = ((KodeFunction) get).__doc__;
@@ -661,24 +681,23 @@ class Kode {
                     if (doc == null) {
                         doc = "No Documentation Avialable for element of type '" + Kode.type(get) + "'.";
                     }
-                    KodeHelper.printfln(doc);
+                    IO.printfln(doc);
                     return null;
                 }
 
             });
             DEF_GLOBALS.put("hasattr", new KodeBuiltinFunction("hasattr", null, INTER) {
                 @Override
-                public List<Pair<String, Object>> arity() {
-                    return Arrays.asList(new Pair("object", null), new Pair("attribute", null));
+                public int arity() {
+                    return 2;
                 }
 
                 @Override
-                public Object call(Map<String, Object> arguments) {
-                    Object object = arguments.get("object");
-                    String attribute = arguments.get("attribute").toString();
+                public Object call(Object... arguments) {
+                    Object object = arguments[0];
                     if (object instanceof KodeInstance) {
                         try {
-                            ((KodeInstance) object).get(attribute);
+                            ((KodeInstance) object).get(arguments[1].toString());
                             return this.interpreter.toKodeValue(true);
                         } catch (RuntimeError e) {
                             return this.interpreter.toKodeValue(false);
@@ -690,17 +709,15 @@ class Kode {
             });
             DEF_GLOBALS.put("setattr", new KodeBuiltinFunction("setattr", null, INTER) {
                 @Override
-                public List<Pair<String, Object>> arity() {
-                    return Arrays.asList(new Pair("object", null), new Pair("attribute", null), new Pair("value", null));
+                public int arity() {
+                    return 3;
                 }
 
                 @Override
-                public Object call(Map<String, Object> arguments) {
-                    Object object = arguments.get("object");
-                    String attribute = arguments.get("attribute").toString();
-                    Object value = arguments.get("value");
+                public Object call(Object... arguments) {
+                    Object object = arguments[0];
                     if (object instanceof KodeInstance) {
-                        ((KodeInstance) object).set(attribute, value);
+                        ((KodeInstance) object).set(arguments[1].toString(), arguments[2]);
                         return null;
                     }
                     throw new RuntimeError("Value passed for argument 'object' is not an instance of a class.");
@@ -709,20 +726,18 @@ class Kode {
             });
             DEF_GLOBALS.put("getattr", new KodeBuiltinFunction("getattr", null, INTER) {
                 @Override
-                public List<Pair<String, Object>> arity() {
-                    return Arrays.asList(new Pair("object", null), new Pair("attribute", null));
+                public int arity() {
+                    return 2;
                 }
 
                 @Override
-                public Object call(Map<String, Object> arguments) {
-                    Object object = arguments.get("object");
-                    String attribute = arguments.get("attribute").toString();
+                public Object call(Object... arguments) {
+                    Object object = arguments[0];
                     if (object instanceof KodeInstance) {
                         try {
-                            return this.interpreter.toKodeValue(((KodeInstance) object).get(attribute));
+                            return this.interpreter.toKodeValue(((KodeInstance) object).get(arguments[1].toString()));
                         } catch (RuntimeError e) {
                             throw e;
-//                            return this.interpreter.toKodeValue(false);
                         }
                     }
                     throw new RuntimeError("Value passed for argument 'object' is not an instance of a class.");
@@ -731,26 +746,25 @@ class Kode {
             });
             DEF_GLOBALS.put("callable", new KodeBuiltinFunction("callable", null, INTER) {
                 @Override
-                public List<Pair<String, Object>> arity() {
-                    return Arrays.asList(new Pair("object", null));
+                public int arity() {
+                    return 1;
                 }
 
                 @Override
-                public Object call(Map<String, Object> arguments) {
-                    Object object = arguments.get("object");
-                    return this.interpreter.toKodeValue(object instanceof KodeCallable);
+                public Object call(Object... arguments) {
+                    return this.interpreter.toKodeValue(arguments[0] instanceof KodeCallable);
                 }
 
             });
             DEF_GLOBALS.put("eval", new KodeBuiltinFunction("eval", null, INTER) {
                 @Override
-                public List<Pair<String, Object>> arity() {
-                    return Arrays.asList(new Pair("src", null));
+                public int arity() {
+                    return 1;
                 }
 
                 @Override
-                public Object call(Map<String, Object> arguments) {
-                    Object src = arguments.get("src");
+                public Object call(Object... arguments) {
+                    Object src = arguments[0];
                     if (src instanceof KodeInstance) {
                         if (ValueString.isString((KodeInstance) src)) {
                             try {
@@ -806,11 +820,12 @@ class Kode {
             module.inter = INTER;
             module.run();
             if (module.hadError || module.hadRuntimeError) {
-                throw new Exception();
+                throw new Exception("Had Error");
             }
         } catch (Exception ex) {
+            ex.printStackTrace();
             JOptionPane.showMessageDialog(null, "Failed to Initialize Interpreter\nReason : " + ex);
-            KodeHelper.exit(1);
+            IO.exit(1);
         }
     }
 }

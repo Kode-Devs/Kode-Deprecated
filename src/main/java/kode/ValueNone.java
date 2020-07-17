@@ -5,10 +5,6 @@
  */
 package kode;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 /**
  *
  * @author dell
@@ -20,7 +16,7 @@ class ValueNone extends Value {
     static KodeInstance create() {
         KodeInstance instance = new KodeInstance(val);
         KodeFunction initializer = val.findMethod(Kode.INIT);
-        initializer.bind(instance).call(new ArrayList());
+        initializer.bind(instance).call();
         return instance;
     }
 
@@ -30,12 +26,12 @@ class ValueNone extends Value {
         this.methods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, null, interpreter) {
 
             @Override
-            public List<Pair<String, Object>> arity() {
-                return new ArrayList();
+            public int arity() {
+                return 0;
             }
 
             @Override
-            public Object call(Map<String, Object> arguments) {
+            public Object call(Object... arguments) {
                 return closure.getAt(0, "this");
             }
         });
@@ -45,12 +41,12 @@ class ValueNone extends Value {
         this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, null, interpreter) {
 
             @Override
-            public List<Pair<String, Object>> arity() {
-                return new ArrayList();
+            public int arity() {
+                return 0;
             }
 
             @Override
-            public Object call(Map<String, Object> arguments) {
+            public Object call(Object... arguments) {
                 Object This = closure.getAt(0, "this");
                 if (This instanceof KodeInstance) {
                     return interpreter.toKodeValue(Kode.stringify(null));

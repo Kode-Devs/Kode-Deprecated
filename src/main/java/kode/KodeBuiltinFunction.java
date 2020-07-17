@@ -6,7 +6,6 @@
 package kode;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import math.KodeMath;
 
@@ -42,10 +41,10 @@ abstract class KodeBuiltinFunction extends KodeFunction {
     }
 
     @Override
-    public abstract List<Pair<String, Object>> arity();
+    public abstract int arity();
 
     @Override
-    public abstract Object call(Map<String, Object> arguments);
+    public abstract Object call(Object... arguments);
 
     //<editor-fold defaultstate="collapsed" desc="Comparator">
     boolean eq(Object left, Object right) {

@@ -5,11 +5,6 @@
  */
 package kode;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
 /**
  *
  * @author dell
@@ -24,15 +19,15 @@ class ValueType extends Value {
         this.methods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, null, interpreter) {
             
             @Override
-            public List<Pair<String, Object>> arity() {
-                return Arrays.asList(new Pair("obj", null));
+            public int arity() {
+                return 1;
             }
             
             @Override
-            public Object call(Map<String, Object> arguments) {
+            public Object call(Object... arguments) {
                 Object This = closure.getAt(0, "this");
                 if (This instanceof KodeInstance) {
-                    ((KodeInstance) This).data = Kode.type(arguments.get("obj"));
+                    ((KodeInstance) This).data = Kode.type(arguments[0]);
                 }
                 return This;
             }
@@ -43,12 +38,12 @@ class ValueType extends Value {
         this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, null, interpreter) {
             
             @Override
-            public List<Pair<String, Object>> arity() {
-                return new ArrayList();
+            public int arity() {
+                return 0;
             }
             
             @Override
-            public Object call(Map<String, Object> arguments) {
+            public Object call(Object... arguments) {
                 Object This = closure.getAt(0, "this");
                 if (This instanceof KodeInstance) {
                     return interpreter.toKodeValue("<type '"+((KodeInstance) This).data+"'>");

@@ -98,7 +98,7 @@ abstract class Stmt {
 
     static class Function extends Stmt {
 
-        Function(Token name, List<Pair<Token, Expr>> params, List<Stmt> body, String doc) {
+        Function(Token name, Token[] params, List<Stmt> body, String doc) {
             this.name = name;
             this.params = params;
             this.body = body;
@@ -111,8 +111,7 @@ abstract class Stmt {
         }
 
         final Token name;
-        final List<Pair<Token, Expr>> params;
-        final List<Pair<Token, Object>> args = new ArrayList();
+        final Token[] params;
         final List<Stmt> body;
         final String doc;
     }

@@ -5,11 +5,7 @@
  */
 package kode;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  *
@@ -22,7 +18,7 @@ class ValueList extends Value {
     static KodeInstance create(List x) {
         KodeInstance instance = new KodeInstance(val);
         KodeFunction initializer = val.findMethod(Kode.INIT);
-        initializer.bind(instance).call(Arrays.asList(x));
+        initializer.bind(instance).call(x);
         return instance;
     }
 
@@ -32,15 +28,15 @@ class ValueList extends Value {
         this.methods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, null, interpreter) {
 
             @Override
-            public List<Pair<String, Object>> arity() {
-                return Arrays.asList(new Pair("x", false));
+            public int arity() {
+                return 1;
             }
 
             @Override
-            public Object call(Map<String, Object> arguments) {
+            public Object call(Object... arguments) {
                 Object This = closure.getAt(0, "this");
                 if (This instanceof KodeInstance) {
-                    ((KodeInstance) This).data = ValueList.toList(arguments.get("x"));
+                    ((KodeInstance) This).data = ValueList.toList(arguments[0]);
                 }
                 return This;
             }
@@ -51,12 +47,12 @@ class ValueList extends Value {
         this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, null, interpreter) {
 
             @Override
-            public List<Pair<String, Object>> arity() {
-                return new ArrayList();
+            public int arity() {
+                return 0;
             }
 
             @Override
-            public Object call(Map<String, Object> arguments) {
+            public Object call(Object... arguments) {
                 Object This = closure.getAt(0, "this");
                 if (This instanceof KodeInstance) {
                     Object i;
@@ -83,14 +79,14 @@ class ValueList extends Value {
         this.methods.put("append", new KodeBuiltinFunction("append", null, interpreter) {
 
             @Override
-            public List<Pair<String, Object>> arity() {
-                return Arrays.asList(new Pair("obj", null));
+            public int arity() {
+                return 1;
             }
 
             @Override
-            public Object call(Map<String, Object> arguments) {
+            public Object call(Object... arguments) {
                 Object This = closure.getAt(0, "this");
-                Object obj = arguments.get("obj");
+                Object obj = arguments[0];
                 if (This instanceof KodeInstance) {
                     if (ValueList.isList((KodeInstance) This)) {
                         ValueList.toList(This).add(interpreter.toKodeValue(obj));
@@ -119,10 +115,10 @@ class ValueList extends Value {
                     if (((KodeInstance) x_).fields.containsKey(Kode.LIST)) {
                         Object get = ((KodeInstance) x_).fields.get(Kode.LIST);
                         if (get instanceof KodeFunction) {
-                            return toList(((KodeFunction) get).bind((KodeInstance) x_).call(new HashMap()), a);
+                            return toList(((KodeFunction) get).bind((KodeInstance) x_).call(), a);
                         }
                     }
-                    return toList(((KodeInstance) x_).klass.findMethod(Kode.LIST).bind((KodeInstance) x_).call(new HashMap()), a);
+                    return toList(((KodeInstance) x_).klass.findMethod(Kode.LIST).bind((KodeInstance) x_).call(), a);
                 } catch (NotImplemented e) {
                     throw new RuntimeError("Object of type '" + Kode.type(a) + "' is not Iterable in Nature", null);
                 }

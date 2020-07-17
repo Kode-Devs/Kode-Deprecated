@@ -7,6 +7,7 @@ package kode;
 
 import java.awt.Color;
 import java.io.IOException;
+import java.nio.file.Paths;
 import javax.swing.JOptionPane;
 import org.beryx.textio.AbstractTextTerminal;
 import org.beryx.textio.TextIO;
@@ -16,19 +17,19 @@ import org.beryx.textio.TextIoFactory;
  *
  * @author dell
  */
-public class KodeHelper {
+public class IO {
 
     public static final TextIO TEXTIO = TextIoFactory.getTextIO();
     private static final String CLC = "clc";
 
-    static{
+    static {
         TEXTIO.getTextTerminal().getProperties().setPromptColor(Color.WHITE);
         TEXTIO.getTextTerminal().getProperties().setInputColor(Color.CYAN);
         TEXTIO.getTextTerminal().getProperties().setPromptBold(false);
         TEXTIO.getTextTerminal().getProperties().setInputBold(false);
         TEXTIO.getTextTerminal().getProperties().setPromptItalic(false);
         TEXTIO.getTextTerminal().getProperties().setInputItalic(false);
-        TEXTIO.getTextTerminal().getProperties().put("pane.title", Kode.getVersion());
+        TEXTIO.getTextTerminal().getProperties().put("pane.title", Kode.getVersion() + " - " + Paths.get("").toAbsolutePath());
 
         TEXTIO.getTextTerminal().registerUserInterruptHandler((e) -> {
             exit(0);

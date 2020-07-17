@@ -5,7 +5,7 @@
  */
 package lib;
 
-import kode.KodeHelper;
+import kode.IO;
 
 /**
  *
@@ -14,6 +14,6 @@ import kode.KodeHelper;
 public class warnings {
 
     public static void print_warning(Object msg) {
-        KodeHelper.printfln_err(msg);
+        IO.printfln_err(msg);
     }
 }

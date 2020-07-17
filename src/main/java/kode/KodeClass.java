@@ -6,12 +6,9 @@
 package kode;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import math.KodeMath;
 
 /**
@@ -39,12 +36,12 @@ class KodeClass implements KodeCallable {
         //<editor-fold defaultstate="collapsed" desc="init">
         sm.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, null, interpreter) {
             @Override
-            public List<Pair<String, Object>> arity() {
-                return new ArrayList();
+            public int arity() {
+                return 0;
             }
 
             @Override
-            public Object call(Map<String, Object> arguments) {
+            public Object call(Object... arguments) {
                 return closure.getAt(0, "this");
             }
         });
@@ -53,13 +50,13 @@ class KodeClass implements KodeCallable {
         //<editor-fold defaultstate="collapsed" desc="str">
         sm.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, null, interpreter) {
             @Override
-            public List<Pair<String, Object>> arity() {
-                return new ArrayList();
+            public int arity() {
+                return 0;
             }
 
             @Override
-            public Object call(Map<String, Object> arguments) {
-                return "<object of '" + class_name + "'>";
+            public Object call(Object... arguments) {
+                return "<object of '" + class_name + "'>"; //BUG
             }
         });
         //</editor-fold>
@@ -67,12 +64,12 @@ class KodeClass implements KodeCallable {
         sm.put(Kode.NUMBER, new KodeBuiltinFunction(Kode.NUMBER, null, interpreter) {
 
             @Override
-            public List<Pair<String, Object>> arity() {
-                return new ArrayList();
+            public int arity() {
+                return 0;
             }
 
             @Override
-            public Object call(Map<String, Object> arguments) {
+            public Object call(Object... arguments) {
                 throw new NotImplemented();
             }
         });
@@ -81,12 +78,12 @@ class KodeClass implements KodeCallable {
         sm.put(Kode.LIST, new KodeBuiltinFunction(Kode.LIST, null, interpreter) {
 
             @Override
-            public List<Pair<String, Object>> arity() {
-                return new ArrayList();
+            public int arity() {
+                return 0;
             }
 
             @Override
-            public Object call(Map<String, Object> arguments) {
+            public Object call(Object... arguments) {
                 throw new NotImplemented();
             }
         });
@@ -95,12 +92,12 @@ class KodeClass implements KodeCallable {
         sm.put(Kode.BOOLEAN, new KodeBuiltinFunction(Kode.BOOLEAN, null, interpreter) {
 
             @Override
-            public List<Pair<String, Object>> arity() {
-                return new ArrayList();
+            public int arity() {
+                return 0;
             }
 
             @Override
-            public Object call(Map<String, Object> arguments) {
+            public Object call(Object... arguments) {
                 Object This = closure.getAt(0, "this");
                 if (This instanceof KodeInstance) {
                     Object o;
@@ -128,12 +125,12 @@ class KodeClass implements KodeCallable {
         sm.put(Kode.NEG, new KodeBuiltinFunction(Kode.NEG, null, interpreter) {
 
             @Override
-            public List<Pair<String, Object>> arity() {
-                return new ArrayList();
+            public int arity() {
+                return 0;
             }
 
             @Override
-            public Object call(Map<String, Object> arguments) {
+            public Object call(Object... arguments) {
                 Object This = closure.getAt(0, "this");
                 if (This instanceof KodeInstance) {
                     if (ValueBool.isBool((KodeInstance) This)) {
@@ -151,12 +148,12 @@ class KodeClass implements KodeCallable {
         sm.put(Kode.POS, new KodeBuiltinFunction(Kode.POS, null, interpreter) {
 
             @Override
-            public List<Pair<String, Object>> arity() {
-                return new ArrayList();
+            public int arity() {
+                return 0;
             }
 
             @Override
-            public Object call(Map<String, Object> arguments) {
+            public Object call(Object... arguments) {
                 Object This = closure.getAt(0, "this");
                 if (This instanceof KodeInstance) {
                     if (ValueBool.isBool((KodeInstance) This)) {
@@ -174,14 +171,14 @@ class KodeClass implements KodeCallable {
         sm.put(Kode.GET_ITEM, new KodeBuiltinFunction(Kode.GET_ITEM, null, interpreter) {
 
             @Override
-            public List<Pair<String, Object>> arity() {
-                return Arrays.asList(new Pair("idx", null));
+            public int arity() {
+                return 1;
             }
 
             @Override
-            public Object call(Map<String, Object> arguments) {
+            public Object call(Object... arguments) {
                 Object This = closure.getAt(0, "this");
-                Object index = arguments.get("idx");
+                Object index = arguments[0];
                 if (This instanceof KodeInstance && index instanceof KodeInstance) {
                     if (ValueNumber.isNumber((KodeInstance) index)) {
                         int toNumber;
@@ -206,8 +203,6 @@ class KodeClass implements KodeCallable {
                                 throw new RuntimeError("String Index Out Of Bound : " + Kode.stringify(toNumber), null);
                             }
                         }
-                    } else if (ValueList.isList((KodeInstance) index)) {
-
                     }
                 }
                 throw new NotImplemented();
@@ -218,14 +213,14 @@ class KodeClass implements KodeCallable {
         sm.put(Kode.SET_ITEM, new KodeBuiltinFunction(Kode.SET_ITEM, null, interpreter) {
 
             @Override
-            public List<Pair<String, Object>> arity() {
-                return Arrays.asList(new Pair("idx", null), new Pair("obj", null));
+            public int arity() {
+                return 2;
             }
 
             @Override
-            public Object call(Map<String, Object> arguments) {
+            public Object call(Object... arguments) {
                 Object This = closure.getAt(0, "this");
-                Object index = arguments.get("idx");
+                Object index = arguments[0];
                 if (This instanceof KodeInstance && index instanceof KodeInstance) {
                     if (ValueNumber.isNumber((KodeInstance) index)) {
                         int toNumber;
@@ -238,7 +233,7 @@ class KodeClass implements KodeCallable {
                         }
                         if (ValueList.isList((KodeInstance) This)) {
                             try {
-                                ValueList.toList(This).set(toNumber, arguments.get("obj"));
+                                ValueList.toList(This).set(toNumber, arguments[1]);
                                 return null;
                             } catch (IndexOutOfBoundsException e) {
                                 throw new RuntimeError("List Index Out Of Bound : " + Kode.stringify(toNumber), null);
@@ -254,12 +249,12 @@ class KodeClass implements KodeCallable {
         sm.put(Kode.LEN, new KodeBuiltinFunction(Kode.LEN, null, interpreter) {
 
             @Override
-            public List<Pair<String, Object>> arity() {
-                return new ArrayList();
+            public int arity() {
+                return 0;
             }
 
             @Override
-            public Object call(Map<String, Object> arguments) {
+            public Object call(Object... arguments) {
                 Object This = closure.getAt(0, "this");
                 if (This instanceof KodeInstance) {
                     if (ValueString.isString((KodeInstance) This)) {
@@ -278,14 +273,14 @@ class KodeClass implements KodeCallable {
         sm.put(Kode.ADD, new KodeBuiltinFunction(Kode.ADD, null, interpreter) {
 
             @Override
-            public List<Pair<String, Object>> arity() {
-                return Arrays.asList(new Pair("obj", null));
+            public int arity() {
+                return 1;
             }
 
             @Override
-            public Object call(Map<String, Object> arguments) {
+            public Object call(Object... arguments) {
                 Object left = closure.getAt(0, "this");
-                Object right = arguments.get("obj");
+                Object right = arguments[0];
                 if (left instanceof KodeInstance && right instanceof KodeInstance) {
                     if (ValueString.isString((KodeInstance) left) && ValueString.isString((KodeInstance) right)) {
                         return interpreter.toKodeValue(ValueString.toStr(left).concat(ValueString.toStr(right)));
@@ -312,14 +307,14 @@ class KodeClass implements KodeCallable {
         sm.put(Kode.RADD, new KodeBuiltinFunction(Kode.RADD, null, interpreter) {
 
             @Override
-            public List<Pair<String, Object>> arity() {
-                return Arrays.asList(new Pair("obj", null));
+            public int arity() {
+                return 1;
             }
 
             @Override
-            public Object call(Map<String, Object> arguments) {
+            public Object call(Object... arguments) {
                 Object right = closure.getAt(0, "this");
-                Object left = arguments.get("obj");
+                Object left = arguments[0];
                 if (left instanceof KodeInstance && right instanceof KodeInstance) {
                     if (ValueString.isString((KodeInstance) left) && ValueString.isString((KodeInstance) right)) {
                         return interpreter.toKodeValue(ValueString.toStr(left).concat(ValueString.toStr(right)));
@@ -348,14 +343,14 @@ class KodeClass implements KodeCallable {
         sm.put(Kode.SUB, new KodeBuiltinFunction(Kode.SUB, null, interpreter) {
 
             @Override
-            public List<Pair<String, Object>> arity() {
-                return Arrays.asList(new Pair("obj", null));
+            public int arity() {
+                return 1;
             }
 
             @Override
-            public Object call(Map<String, Object> arguments) {
+            public Object call(Object... arguments) {
                 Object left = closure.getAt(0, "this");
-                Object right = arguments.get("obj");
+                Object right = arguments[0];
                 if (left instanceof KodeInstance && right instanceof KodeInstance) {
                     if (ValueBool.isBool((KodeInstance) left)) {
                         left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
@@ -373,14 +368,14 @@ class KodeClass implements KodeCallable {
         sm.put(Kode.RSUB, new KodeBuiltinFunction(Kode.RSUB, null, interpreter) {
 
             @Override
-            public List<Pair<String, Object>> arity() {
-                return Arrays.asList(new Pair("obj", null));
+            public int arity() {
+                return 1;
             }
 
             @Override
-            public Object call(Map<String, Object> arguments) {
+            public Object call(Object... arguments) {
                 Object right = closure.getAt(0, "this");
-                Object left = arguments.get("obj");
+                Object left = arguments[0];
                 if (left instanceof KodeInstance && right instanceof KodeInstance) {
                     if (ValueBool.isBool((KodeInstance) left)) {
                         left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
@@ -400,14 +395,14 @@ class KodeClass implements KodeCallable {
         sm.put(Kode.MUL, new KodeBuiltinFunction(Kode.MUL, null, interpreter) {
 
             @Override
-            public List<Pair<String, Object>> arity() {
-                return Arrays.asList(new Pair("obj", null));
+            public int arity() {
+                return 1;
             }
 
             @Override
-            public Object call(Map<String, Object> arguments) {
+            public Object call(Object... arguments) {
                 Object left = closure.getAt(0, "this");
-                Object right = arguments.get("obj");
+                Object right = arguments[0];
                 if (left instanceof KodeInstance && right instanceof KodeInstance) {
                     if (ValueBool.isBool((KodeInstance) left)) {
                         left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
@@ -469,14 +464,14 @@ class KodeClass implements KodeCallable {
         sm.put(Kode.RMUL, new KodeBuiltinFunction(Kode.RMUL, null, interpreter) {
 
             @Override
-            public List<Pair<String, Object>> arity() {
-                return Arrays.asList(new Pair("obj", null));
+            public int arity() {
+                return 1;
             }
 
             @Override
-            public Object call(Map<String, Object> arguments) {
+            public Object call(Object... arguments) {
                 Object right = closure.getAt(0, "this");
-                Object left = arguments.get("obj");
+                Object left = arguments[0];
                 if (left instanceof KodeInstance && right instanceof KodeInstance) {
                     if (ValueBool.isBool((KodeInstance) left)) {
                         left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
@@ -540,14 +535,14 @@ class KodeClass implements KodeCallable {
         sm.put(Kode.TRUE_DIV, new KodeBuiltinFunction(Kode.TRUE_DIV, null, interpreter) {
 
             @Override
-            public List<Pair<String, Object>> arity() {
-                return Arrays.asList(new Pair("obj", null));
+            public int arity() {
+                return 1;
             }
 
             @Override
-            public Object call(Map<String, Object> arguments) {
+            public Object call(Object... arguments) {
                 Object left = closure.getAt(0, "this");
-                Object right = arguments.get("obj");
+                Object right = arguments[0];
                 if (left instanceof KodeInstance && right instanceof KodeInstance) {
                     if (ValueBool.isBool((KodeInstance) left)) {
                         left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
@@ -565,14 +560,14 @@ class KodeClass implements KodeCallable {
         sm.put(Kode.RTRUE_DIV, new KodeBuiltinFunction(Kode.RTRUE_DIV, null, interpreter) {
 
             @Override
-            public List<Pair<String, Object>> arity() {
-                return Arrays.asList(new Pair("obj", null));
+            public int arity() {
+                return 1;
             }
 
             @Override
-            public Object call(Map<String, Object> arguments) {
+            public Object call(Object... arguments) {
                 Object right = closure.getAt(0, "this");
-                Object left = arguments.get("obj");
+                Object left = arguments[0];
                 if (left instanceof KodeInstance && right instanceof KodeInstance) {
                     if (ValueBool.isBool((KodeInstance) left)) {
                         left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
@@ -592,14 +587,14 @@ class KodeClass implements KodeCallable {
         sm.put(Kode.FLOOR_DIV, new KodeBuiltinFunction(Kode.FLOOR_DIV, null, interpreter) {
 
             @Override
-            public List<Pair<String, Object>> arity() {
-                return Arrays.asList(new Pair("obj", null));
+            public int arity() {
+                return 1;
             }
 
             @Override
-            public Object call(Map<String, Object> arguments) {
+            public Object call(Object... arguments) {
                 Object left = closure.getAt(0, "this");
-                Object right = arguments.get("obj");
+                Object right = arguments[0];
                 if (left instanceof KodeInstance && right instanceof KodeInstance) {
                     if (ValueBool.isBool((KodeInstance) left)) {
                         left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
@@ -617,14 +612,14 @@ class KodeClass implements KodeCallable {
         sm.put(Kode.RFLOOR_DIV, new KodeBuiltinFunction(Kode.RFLOOR_DIV, null, interpreter) {
 
             @Override
-            public List<Pair<String, Object>> arity() {
-                return Arrays.asList(new Pair("obj", null));
+            public int arity() {
+                return 1;
             }
 
             @Override
-            public Object call(Map<String, Object> arguments) {
+            public Object call(Object... arguments) {
                 Object right = closure.getAt(0, "this");
-                Object left = arguments.get("obj");
+                Object left = arguments[0];
                 if (left instanceof KodeInstance && right instanceof KodeInstance) {
                     if (ValueBool.isBool((KodeInstance) left)) {
                         left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
@@ -644,14 +639,14 @@ class KodeClass implements KodeCallable {
         sm.put(Kode.MOD, new KodeBuiltinFunction(Kode.MOD, null, interpreter) {
 
             @Override
-            public List<Pair<String, Object>> arity() {
-                return Arrays.asList(new Pair("obj", null));
+            public int arity() {
+                return 1;
             }
 
             @Override
-            public Object call(Map<String, Object> arguments) {
+            public Object call(Object... arguments) {
                 Object left = closure.getAt(0, "this");
-                Object right = arguments.get("obj");
+                Object right = arguments[0];
                 if (left instanceof KodeInstance && right instanceof KodeInstance) {
                     if (ValueBool.isBool((KodeInstance) left)) {
                         left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
@@ -669,14 +664,14 @@ class KodeClass implements KodeCallable {
         sm.put(Kode.RMOD, new KodeBuiltinFunction(Kode.RMOD, null, interpreter) {
 
             @Override
-            public List<Pair<String, Object>> arity() {
-                return Arrays.asList(new Pair("obj", null));
+            public int arity() {
+                return 1;
             }
 
             @Override
-            public Object call(Map<String, Object> arguments) {
+            public Object call(Object... arguments) {
                 Object right = closure.getAt(0, "this");
-                Object left = arguments.get("obj");
+                Object left = arguments[0];
                 if (left instanceof KodeInstance && right instanceof KodeInstance) {
                     if (ValueBool.isBool((KodeInstance) left)) {
                         left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
@@ -696,14 +691,14 @@ class KodeClass implements KodeCallable {
         sm.put(Kode.POWER, new KodeBuiltinFunction(Kode.POWER, null, interpreter) {
 
             @Override
-            public List<Pair<String, Object>> arity() {
-                return Arrays.asList(new Pair("obj", null));
+            public int arity() {
+                return 1;
             }
 
             @Override
-            public Object call(Map<String, Object> arguments) {
+            public Object call(Object... arguments) {
                 Object left = closure.getAt(0, "this");
-                Object right = arguments.get("obj");
+                Object right = arguments[0];
                 if (left instanceof KodeInstance && right instanceof KodeInstance) {
                     if (ValueBool.isBool((KodeInstance) left)) {
                         left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
@@ -725,14 +720,14 @@ class KodeClass implements KodeCallable {
         sm.put(Kode.RPOWER, new KodeBuiltinFunction(Kode.RPOWER, null, interpreter) {
 
             @Override
-            public List<Pair<String, Object>> arity() {
-                return Arrays.asList(new Pair("obj", null));
+            public int arity() {
+                return 1;
             }
 
             @Override
-            public Object call(Map<String, Object> arguments) {
+            public Object call(Object... arguments) {
                 Object right = closure.getAt(0, "this");
-                Object left = arguments.get("obj");
+                Object left = arguments[0];
                 if (left instanceof KodeInstance && right instanceof KodeInstance) {
                     if (ValueBool.isBool((KodeInstance) left)) {
                         left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
@@ -757,15 +752,13 @@ class KodeClass implements KodeCallable {
         sm.put(Kode.EQ, new KodeBuiltinFunction(Kode.EQ, null, interpreter) {
 
             @Override
-            public List<Pair<String, Object>> arity() {
-                return Arrays.asList(new Pair("obj", null));
+            public int arity() {
+                return 1;
             }
 
             @Override
-            public Object call(Map<String, Object> arguments) {
-                Object left = closure.getAt(0, "this");
-                Object right = arguments.get("obj");
-                return interpreter.toKodeValue(eq(left, right));
+            public Object call(Object... arguments) {
+                return interpreter.toKodeValue(eq(closure.getAt(0, "this"), arguments[0]));
             }
         });
         //</editor-fold>
@@ -773,15 +766,13 @@ class KodeClass implements KodeCallable {
         sm.put(Kode.NE, new KodeBuiltinFunction(Kode.NE, null, interpreter) {
 
             @Override
-            public List<Pair<String, Object>> arity() {
-                return Arrays.asList(new Pair("obj", null));
+            public int arity() {
+                return 1;
             }
 
             @Override
-            public Object call(Map<String, Object> arguments) {
-                Object left = closure.getAt(0, "this");
-                Object right = arguments.get("obj");
-                return interpreter.toKodeValue(ne(left, right));
+            public Object call(Object... arguments) {
+                return interpreter.toKodeValue(ne(closure.getAt(0, "this"), arguments[0]));
             }
         });
         //</editor-fold>
@@ -789,15 +780,13 @@ class KodeClass implements KodeCallable {
         sm.put(Kode.LT, new KodeBuiltinFunction(Kode.LT, null, interpreter) {
 
             @Override
-            public List<Pair<String, Object>> arity() {
-                return Arrays.asList(new Pair("obj", null));
+            public int arity() {
+                return 1;
             }
 
             @Override
-            public Object call(Map<String, Object> arguments) {
-                Object left = closure.getAt(0, "this");
-                Object right = arguments.get("obj");
-                return interpreter.toKodeValue(lt(left, right));
+            public Object call(Object... arguments) {
+                return interpreter.toKodeValue(lt(closure.getAt(0, "this"), arguments[0]));
             }
         });
         //</editor-fold>
@@ -805,15 +794,13 @@ class KodeClass implements KodeCallable {
         sm.put(Kode.LE, new KodeBuiltinFunction(Kode.LE, null, interpreter) {
 
             @Override
-            public List<Pair<String, Object>> arity() {
-                return Arrays.asList(new Pair("obj", null));
+            public int arity() {
+                return 1;
             }
 
             @Override
-            public Object call(Map<String, Object> arguments) {
-                Object left = closure.getAt(0, "this");
-                Object right = arguments.get("obj");
-                return interpreter.toKodeValue(le(left, right));
+            public Object call(Object... arguments) {
+                return interpreter.toKodeValue(le(closure.getAt(0, "this"), arguments[0]));
             }
         });
         //</editor-fold>
@@ -821,15 +808,13 @@ class KodeClass implements KodeCallable {
         sm.put(Kode.GT, new KodeBuiltinFunction(Kode.GT, null, interpreter) {
 
             @Override
-            public List<Pair<String, Object>> arity() {
-                return Arrays.asList(new Pair("obj", null));
+            public int arity() {
+                return 1;
             }
 
             @Override
-            public Object call(Map<String, Object> arguments) {
-                Object left = closure.getAt(0, "this");
-                Object right = arguments.get("obj");
-                return interpreter.toKodeValue(gt(left, right));
+            public Object call(Object... arguments) {
+                return interpreter.toKodeValue(gt(closure.getAt(0, "this"), arguments[0]));
             }
         });
         //</editor-fold>
@@ -837,15 +822,13 @@ class KodeClass implements KodeCallable {
         sm.put(Kode.GE, new KodeBuiltinFunction(Kode.GE, null, interpreter) {
 
             @Override
-            public List<Pair<String, Object>> arity() {
-                return Arrays.asList(new Pair("obj", null));
+            public int arity() {
+                return 1;
             }
 
             @Override
-            public Object call(Map<String, Object> arguments) {
-                Object left = closure.getAt(0, "this");
-                Object right = arguments.get("obj");
-                return interpreter.toKodeValue(ge(left, right));
+            public Object call(Object... arguments) {
+                return interpreter.toKodeValue(ge(closure.getAt(0, "this"), arguments[0]));
             }
         });
         //</editor-fold>
@@ -875,7 +858,7 @@ class KodeClass implements KodeCallable {
     }
 
     @Override
-    public Object call(Map<String, Object> arguments) {
+    public Object call(Object... arguments) {
         KodeInstance instance = new KodeInstance(this);
         KodeFunction initializer = findMethod(Kode.INIT);
         initializer.bind(instance).call(arguments);
@@ -883,10 +866,10 @@ class KodeClass implements KodeCallable {
     }
 
     @Override
-    public List<Pair<String, Object>> arity() {
+    public int arity() {
         KodeFunction initializer = findMethod(Kode.INIT);
         if (initializer == null) {
-            return new ArrayList();
+            return 0;
         }
         return initializer.arity();
     }

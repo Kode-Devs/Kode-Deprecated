@@ -52,7 +52,7 @@ class Kode {
         return res;
     }
 
-    static void start_console(String... args) {
+    public static void main(String... args) {
         switch (args.length) {
             case 1:
                 Kode.VERSION = args[0];
@@ -64,9 +64,10 @@ class Kode {
                 interpreter.globals.define(Kode.__NAME__, interpreter.toKodeValue(Kode.__MAIN__));
                 for (;;) {
                     try {
-                    hadError = false;
-                    hadRuntimeError = false;
-                        Pair run = run("<shell>", KodeHelper.scanf(">>>"), interpreter);
+                        hadError = false;
+                        hadRuntimeError = false;
+                        KodeHelper.printf(">>>");
+                        Pair run = run("<shell>", KodeHelper.scanf(), interpreter);
                         if (run != null) {
                             if (run.value != null) {
                                 Object value = run.value;
@@ -196,9 +197,9 @@ class Kode {
                 }
 
                 if (Pip4kode.checkUpdate(pkgname, p)) {
-                    KodeHelper.printfln_err("[Info]: Package '" + pkgname + "' needs an update.");
-                    if (KodeHelper.scanf("Do you want to update the package '" + pkgname + "' ? [y/n]")
-                            .equalsIgnoreCase("y")) {
+                    KodeHelper.printf_err("[Info]: Package '" + pkgname + "' needs an update.\n"
+                            +"Do you want to update the package '" + pkgname + "' ? [y/n]");
+                    if (KodeHelper.scanf().equalsIgnoreCase("y")) {
                         throw new Exception();
                     }
                 }
@@ -225,8 +226,8 @@ class Kode {
                 pip = new Pip4kode(pkgname);
                 KodeHelper.printfln("Reading package metadata from repository ...");
                 pip.init();
-                if (!KodeHelper.scanf("Do you want to download the package '" + pip.pkg + "' (" + pip.sizeInWords + ") ? [y/n]")
-                        .equalsIgnoreCase("y")) {
+                KodeHelper.printf("Do you want to download the package '" + pip.pkg + "' (" + pip.sizeInWords + ") ? [y/n]");
+                if (!KodeHelper.scanf().equalsIgnoreCase("y")) {
                     throw new Exception();
                 }
                 KodeHelper.printfln("Get: " + pip.repositoryRoot + " " + pip.pkg
@@ -450,9 +451,11 @@ class Kode {
                     String end = ValueString.toStr(arguments.get("end"));
                     String msg = str.stream().map(ValueString::toStr).collect(Collectors.joining(sep)) + end;
                     if (ValueBool.toBoolean(arguments.get("mask"))) {
-                        return interpreter.toKodeValue(KodeHelper.scanf_pwd(msg));
+                        KodeHelper.printf(msg);
+                        return interpreter.toKodeValue(KodeHelper.scanf_pwd());
                     }
-                    return interpreter.toKodeValue(KodeHelper.scanf(msg));
+                    KodeHelper.printf(msg);
+                    return interpreter.toKodeValue(KodeHelper.scanf());
                 }
 
             });

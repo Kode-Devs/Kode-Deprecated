@@ -18,40 +18,33 @@ import org.beryx.textio.TextIoFactory;
  */
 public class KodeHelper {
 
-    public static TextIO textIO = TextIoFactory.getTextIO();
-
-    private static final Color OUT_COLOR = Color.WHITE;
-    private static final Color IN_COLOR = Color.CYAN;
-    private static final Color ERR_COLOR = Color.YELLOW;
-
+    public static final TextIO TEXTIO = TextIoFactory.getTextIO();
     private static final String CLC = "clc";
 
-    public static final void main(String... args) {
-        textIO.getTextTerminal().getProperties().setPromptColor(KodeHelper.OUT_COLOR);
-        textIO.getTextTerminal().getProperties().setInputColor(KodeHelper.IN_COLOR);
-        textIO.getTextTerminal().getProperties().setPromptBold(false);
-        textIO.getTextTerminal().getProperties().setInputBold(false);
-        textIO.getTextTerminal().getProperties().setPromptItalic(false);
-        textIO.getTextTerminal().getProperties().setInputItalic(false);
-        textIO.getTextTerminal().getProperties().put("pane.title", Kode.getVersion());
+    static{
+        TEXTIO.getTextTerminal().getProperties().setPromptColor(Color.WHITE);
+        TEXTIO.getTextTerminal().getProperties().setInputColor(Color.CYAN);
+        TEXTIO.getTextTerminal().getProperties().setPromptBold(false);
+        TEXTIO.getTextTerminal().getProperties().setInputBold(false);
+        TEXTIO.getTextTerminal().getProperties().setPromptItalic(false);
+        TEXTIO.getTextTerminal().getProperties().setInputItalic(false);
+        TEXTIO.getTextTerminal().getProperties().put("pane.title", Kode.getVersion());
 
-        textIO.getTextTerminal().registerUserInterruptHandler((e) -> {
+        TEXTIO.getTextTerminal().registerUserInterruptHandler((e) -> {
             exit(0);
         }, true);
 
         // KeyBoard Interrupt
-        if (textIO.getTextTerminal().registerHandler(AbstractTextTerminal.DEFAULT_USER_INTERRUPT_KEY, t -> {
+        if (TEXTIO.getTextTerminal().registerHandler(AbstractTextTerminal.DEFAULT_USER_INTERRUPT_KEY, t -> {
             throw new RuntimeError("Keyboard Interrupt Found.");
         }) == false) {
             JOptionPane.showMessageDialog(null, "Failed to Set KeyBoard Interrupt.", "Warning!!!", JOptionPane.WARNING_MESSAGE);
         }
-        textIO.getTextTerminal().setBookmark(CLC);
-        Kode.start_console(args);
-        exit(0);
+        TEXTIO.getTextTerminal().setBookmark(CLC);
     }
 
     public static void printf(Object obj) {
-        textIO.getTextTerminal().print(obj.toString());
+        TEXTIO.getTextTerminal().print(obj.toString());
     }
 
     public final static void printfln(Object obj) {
@@ -60,7 +53,7 @@ public class KodeHelper {
     }
 
     public static void printf_err(Object obj) {
-        textIO.getTextTerminal().executeWithPropertiesConfigurator(props -> props.setPromptColor(KodeHelper.ERR_COLOR),
+        TEXTIO.getTextTerminal().executeWithPropertiesConfigurator(props -> props.setPromptColor(Color.YELLOW),
                 term -> term.print(obj.toString()));
     }
 
@@ -69,23 +62,21 @@ public class KodeHelper {
         printf_err(System.lineSeparator());
     }
 
-    public static String scanf(Object obj) {
-        KodeHelper.printf(obj);
-        return textIO.newStringInputReader()
+    public static String scanf() {
+        return TEXTIO.newStringInputReader()
                 .withMinLength(0)
                 .read();
     }
 
-    public static String scanf_pwd(Object obj) {
-        KodeHelper.printf(obj);
-        return textIO.newStringInputReader()
+    public static String scanf_pwd() {
+        return TEXTIO.newStringInputReader()
                 .withInputMasking(true)
                 .withMinLength(0)
                 .read();
     }
 
     public static boolean resetLine() {
-        return textIO.getTextTerminal().resetLine();
+        return TEXTIO.getTextTerminal().resetLine();
     }
 
     public static void clc() {
@@ -100,11 +91,11 @@ public class KodeHelper {
             } catch (IOException | InterruptedException e) {
             }
         }
-        textIO.getTextTerminal().resetToBookmark(CLC);
+        TEXTIO.getTextTerminal().resetToBookmark(CLC);
     }
 
     public static final void exit(int status) {
-        textIO.getTextTerminal().dispose();
+        TEXTIO.getTextTerminal().dispose();
         System.exit(status);
     }
 

@@ -37,7 +37,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>kode.KodeHelper</mainClass>
+                            <mainClass>kode.Kode</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

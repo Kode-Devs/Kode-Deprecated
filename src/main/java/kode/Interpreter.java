@@ -310,7 +310,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
             try {
                 if(cnt==100000){
                     KodeHelper.printf_err("[INFO]: The While Loop has already iterated for a lot of time...\nDo you want to Continue iterating ?");
-                    if(!KodeHelper.scanf("").equalsIgnoreCase("y"))
+                    if(!KodeHelper.scanf().equalsIgnoreCase("y"))
                         throw new RuntimeError("User Cancelled.");
                     cnt=0;
                 }
@@ -331,7 +331,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
             try {
                 if(cnt==100000){
                     KodeHelper.printf_err("[INFO]: The For Loop has already iterated for a lot of time...\nDo you want to Continue iterating ?");
-                    if(!KodeHelper.scanf("").equalsIgnoreCase("y"))
+                    if(!KodeHelper.scanf().equalsIgnoreCase("y"))
                         throw new RuntimeError("User Cancelled.");
                     cnt=0;
                 }

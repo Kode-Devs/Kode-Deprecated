@@ -6,9 +6,7 @@
 package kode;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  *
@@ -43,14 +41,23 @@ class KodeFunction implements KodeCallable {
 
     @Override
     public int arity() {
-        return declaration.params.length;
+        return declaration.params.length * (declaration.params[declaration.params.length - 1].lexeme.equals(Kode.VARARGIN) ? -1 : 1);
     }
 
     @Override
     public Object call(Object... arguments) {
         Environment environment = new Environment(closure);
-        for (int i = 0; i < declaration.params.length; i++) {
+        for (int i = 0; i < declaration.params.length - 1; i++) {
             environment.define(declaration.params[i].lexeme, arguments[i]);
+        }
+        if (declaration.params[declaration.params.length - 1].lexeme.equals(Kode.VARARGIN)) {
+            List varargin = new ArrayList();
+            for (int j = declaration.params.length - 1; j < arguments.length; j++) {
+                varargin.add(arguments[j]);
+            }
+            environment.define(Kode.VARARGIN, this.interpreter.toKodeValue(varargin));
+        } else {
+            environment.define(declaration.params[declaration.params.length - 1].lexeme, arguments[declaration.params.length - 1]);
         }
 
         try {

@@ -121,6 +121,7 @@ class Kode {
     static final String INIT = "__init__";
     static final String INFINITY = "Infinity";
     static final String NAN = "NaN";
+    static final String VARARGIN = "varargin";
     static final String __NAME__ = "__name__";
     static final String __MAIN__ = "__main__";
 

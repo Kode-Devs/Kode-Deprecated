@@ -184,7 +184,7 @@ class Parser {
     private Stmt requireStatement(Token imp) {
         List<Token> value = new ArrayList();
 //        do {
-            value.add(consume(IDENTIFIER, "Module name Expected."));
+        value.add(consume(IDENTIFIER, "Module name Expected."));
 //        } while (match(DOT));
         Token alias = null;
         if (match(AS)) {
@@ -197,7 +197,7 @@ class Parser {
     private Stmt requireStatementFrom(Token imp) {
         List<Token> value = new ArrayList();
 //        do {
-            value.add(consume(IDENTIFIER, "Module name Expected."));
+        value.add(consume(IDENTIFIER, "Module name Expected."));
 //        } while (match(DOT));
         consume(IMPORT, "Expect import keyword.");
         List<Token> field = new ArrayList();
@@ -281,6 +281,9 @@ class Parser {
                     throw error(peek(), "Cannot have more than " + Integer.MAX_VALUE + " parameters.");
                 }
                 parameters.add(consume(IDENTIFIER, "Expect parameter name."));
+                if (parameters.get(parameters.size() - 1).lexeme.equals(Kode.VARARGIN) && match(COMMA)) {
+                    throw error(peek(), "'" + Kode.VARARGIN + "' is a special input parameter and must only be included as the last input parameter.");
+                }
             } while (match(COMMA));
         }
         consume(RIGHT_PAREN, "Expect ')' after parameters.");

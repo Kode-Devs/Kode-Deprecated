@@ -298,6 +298,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
             try {
                 if (cnt == 100000) {
                     IO.printf_err("[INFO]: The While Loop has already iterated for a lot of time...\nDo you want to Continue iterating ?");
+                    Runtime.getRuntime().gc();
                     if (!IO.scanf().equalsIgnoreCase("y")) {
                         throw new RuntimeError("User Cancelled.");
                     }
@@ -323,6 +324,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
             try {
                 if (cnt == 100000) {
                     IO.printf_err("[INFO]: The For Loop has already iterated for a lot of time...\nDo you want to Continue iterating ?");
+                    Runtime.getRuntime().gc();
                     if (!IO.scanf().equalsIgnoreCase("y")) {
                         throw new RuntimeError("User Cancelled.");
                     }
@@ -427,7 +429,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
         if (!(callee instanceof KodeCallable)) {
             throw new RuntimeError("Can only call functions and classes.", expr.paren);
         }
-        
+
         // TODO Make Some Adjustments here.
         Object[] arguments = new Object[expr.arguments.length];
         for (int i = 0; i < expr.arguments.length; i++) {
@@ -435,10 +437,13 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
         }
 
         KodeCallable function = (KodeCallable) callee;
-        if (arguments.length != function.arity()) {
-            throw new RuntimeError("Expected "
-                    + function.arity() + " arguments but got "
-                    + arguments.length + ".", expr.paren);
+
+        if (function.arity() < 0 && arguments.length < -function.arity() - 1) {
+            throw new RuntimeError("Expected minimum " + (-function.arity() - 1)
+                    + " arguments but got " + arguments.length + ".", expr.paren);
+        } else if (function.arity() >= 0 && arguments.length != function.arity()) {
+            throw new RuntimeError("Expected " + function.arity()
+                    + " arguments but got " + arguments.length + ".", expr.paren);
         }
         return function.call(arguments);
     }

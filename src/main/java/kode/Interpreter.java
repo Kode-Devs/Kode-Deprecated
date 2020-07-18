@@ -429,8 +429,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
         }
         
         // TODO Make Some Adjustments here.
-        Object[] arguments = expr.arguments;
-//        Object[] arguments = new Object[expr.arguments.length];
+        Object[] arguments = new Object[expr.arguments.length];
         for (int i = 0; i < expr.arguments.length; i++) {
             arguments[i] = evaluate(expr.arguments[i]);
         }

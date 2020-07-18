@@ -12,6 +12,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.IntStream;
 import javax.swing.JOptionPane;
 import lib.warnings;
 import math.KodeNumber;
@@ -462,7 +464,7 @@ class Kode {
 //
 //            });
 //</editor-fold>
-            DEF_GLOBALS.put("print", new KodeBuiltinFunction("print", null, INTER) {
+            DEF_GLOBALS.put("disp", new KodeBuiltinFunction("print", null, INTER) {
                 @Override
                 public int arity() {
                     return 1;
@@ -470,7 +472,45 @@ class Kode {
 
                 @Override
                 public Object call(Object... arguments) {
-                    IO.printf(arguments[0]);
+                    IO.printf(arguments[0]+"\n");
+                    return null;
+                }
+
+            });
+            DEF_GLOBALS.put("sprintf", new KodeBuiltinFunction("printf", null, INTER) {
+                @Override
+                public int arity() {
+                    return -2;
+                }
+
+                @Override
+                public Object call(Object... arguments) {
+                    List ll = new ArrayList();
+                    for (int i = 1; i < arguments.length; i++) {
+                        Object toJava = Interpreter.toJava(arguments[i]);
+                        if (toJava instanceof KodeNumber) {
+                            ll.add(((KodeNumber) toJava).isInteger() ? ((KodeNumber) toJava).getInteger() : ((KodeNumber) toJava).getFloat());
+                        } else {
+                            ll.add(toJava);
+                        }
+                    }
+                    try {
+                        return this.interpreter.toKodeValue(String.format(arguments[0].toString(), ll.toArray()));
+                    } catch (Exception e) {
+                        throw new RuntimeError("Format error -> " + e);
+                    }
+                }
+
+            });
+            DEF_GLOBALS.put("printf", new KodeBuiltinFunction("printf", null, INTER) {
+                @Override
+                public int arity() {
+                    return -2;
+                }
+
+                @Override
+                public Object call(Object... arguments) {
+                    IO.printf(((KodeCallable) DEF_GLOBALS.get("sprintf")).call(arguments));
                     return null;
                 }
 

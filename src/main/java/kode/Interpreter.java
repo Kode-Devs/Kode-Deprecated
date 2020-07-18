@@ -319,7 +319,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
         if (stmt.init != null) {
             execute(stmt.init);
         }
-        while (stmt.condition != null ? isTruthy(evaluate(stmt.condition)) : true) {
+        while (isTruthy(evaluate(stmt.condition))) {
             try {
                 if (cnt == 100000) {
                     IO.printf_err("[INFO]: The For Loop has already iterated for a lot of time...\nDo you want to Continue iterating ?");
@@ -429,8 +429,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
         }
         
         // TODO Make Some Adjustments here.
-        Object[] arguments = expr.arguments;
-//        Object[] arguments = new Object[expr.arguments.length];
+        Object[] arguments = new Object[expr.arguments.length];
         for (int i = 0; i < expr.arguments.length; i++) {
             arguments[i] = evaluate(expr.arguments[i]);
         }

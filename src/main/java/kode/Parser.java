@@ -156,36 +156,15 @@ class Parser {
 
     private Stmt forStatement() {
         consume(LEFT_PAREN, "Expect '(' after 'for'.");
+        Stmt initializer = match(SEMICOLON) ? null : (match(VAR) ? varDeclaration() : expressionStatement());
 
-        Stmt initializer;
-        if (match(SEMICOLON)) {
-            initializer = null;
-        } else if (match(VAR)) {
-            initializer = varDeclaration();
-        } else {
-            initializer = expressionStatement();
-        }
-
-        Expr condition = null;
-        if (!check(SEMICOLON)) {
-            condition = expression();
-        }
+        Expr condition = check(SEMICOLON) ? new Expr.Literal(true) : expression();
         consume(SEMICOLON, "Expect ';' after loop condition.");
 
-        Expr increment = null;
-        if (!check(RIGHT_PAREN)) {
-            increment = expression();
-        }
+        Stmt increment = check(RIGHT_PAREN) ? null : new Stmt.Expression(expression());
         consume(RIGHT_PAREN, "Expect ')' after for clauses.");
 
-        Stmt body = statement();
-
-        if (condition == null) {
-            condition = new Expr.Literal(true);
-        }
-        body = new Stmt.For(initializer, condition, new Stmt.Expression(increment), body);
-
-        return body;
+        return new Stmt.For(initializer, condition, increment, statement());
     }
 
     private Stmt ifStatement() {
@@ -299,7 +278,7 @@ class Parser {
         if (!check(RIGHT_PAREN)) {
             do {
                 if (parameters.size() >= Integer.MAX_VALUE) {
-                    throw error(peek(), "Cannot have more than "+Integer.MAX_VALUE+" parameters.");
+                    throw error(peek(), "Cannot have more than " + Integer.MAX_VALUE + " parameters.");
                 }
                 parameters.add(consume(IDENTIFIER, "Expect parameter name."));
             } while (match(COMMA));
@@ -448,7 +427,7 @@ class Parser {
         if (!check(RIGHT_PAREN)) {
             do {
                 if (arguments.size() >= Integer.MAX_VALUE) {
-                    throw error(peek(), "Cannot have more than "+Integer.MAX_VALUE+" arguments.");
+                    throw error(peek(), "Cannot have more than " + Integer.MAX_VALUE + " arguments.");
                 }
                 arguments.add(expression());
             } while (match(COMMA));

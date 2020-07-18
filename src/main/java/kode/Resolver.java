@@ -118,7 +118,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         }
         return null;
     }
-    
+
     @Override
     public Void visitRequireStmt(Stmt.Require stmt) {
         if (stmt.methods != null) {
@@ -129,13 +129,13 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         } else if (stmt.alias != null) {
             declare(stmt.alias);
             define(stmt.alias);
-        } else{
-            declare(stmt.dir.get(stmt.dir.size()-1));
-            define(stmt.dir.get(stmt.dir.size()-1));
+        } else {
+            declare(stmt.dir.get(stmt.dir.size() - 1));
+            define(stmt.dir.get(stmt.dir.size() - 1));
         }
         return null;
     }
-    
+
     @Override
     public Void visitRaiseStmt(Stmt.Raise stmt) {
         resolve(stmt.value);
@@ -200,9 +200,13 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
     @Override
     public Void visitForStmt(Stmt.For stmt) {
-        resolve(stmt.init);
+        if (stmt.init != null) {
+            resolve(stmt.init);
+        }
         resolve(stmt.condition);
-        resolve(stmt.increment);
+        if (stmt.increment != null) {
+            resolve(stmt.increment);
+        }
         boolean previous = loopon;
         loopon = true;
         resolve(stmt.body);
@@ -227,7 +231,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     @Override
     public Void visitCallExpr(Expr.Call expr) {
         resolve(expr.callee);
-        for(Expr argument:expr.arguments){
+        for (Expr argument : expr.arguments) {
             resolve(argument);
         }
         return null;
@@ -376,7 +380,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         currentFunction = type;
 
         beginScope();
-        for(Token param:function.params){
+        for (Token param : function.params) {
             declare(param);
             define(param);
         }
@@ -424,8 +428,8 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
         // Not found. Assume it is global.                   
     }
-    
-    void error(Token token, String message){
+
+    void error(Token token, String message) {
         Kode.error(token, message);
     }
 

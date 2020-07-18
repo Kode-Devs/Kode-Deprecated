@@ -32,15 +32,16 @@ public class IO {
         TEXTIO.getTextTerminal().getProperties().put("pane.title", Kode.getVersion() + " - " + Paths.get("").toAbsolutePath());
 
         TEXTIO.getTextTerminal().registerUserInterruptHandler((e) -> {
-            exit(0);
+            throw new RuntimeError("Keyboard Interrupt Found.");
+//            exit(0);
         }, true);
 
         // KeyBoard Interrupt
-        if (TEXTIO.getTextTerminal().registerHandler(AbstractTextTerminal.DEFAULT_USER_INTERRUPT_KEY, t -> {
-            throw new RuntimeError("Keyboard Interrupt Found.");
-        }) == false) {
-            JOptionPane.showMessageDialog(null, "Failed to Set KeyBoard Interrupt.", "Warning!!!", JOptionPane.WARNING_MESSAGE);
-        }
+//        if (TEXTIO.getTextTerminal().registerHandler(AbstractTextTerminal.DEFAULT_USER_INTERRUPT_KEY, t -> {
+//            throw new RuntimeError("Keyboard Interrupt Found.");
+//        }) == false) {
+//            JOptionPane.showMessageDialog(null, "Failed to Set KeyBoard Interrupt.", "Warning!!!", JOptionPane.WARNING_MESSAGE);
+//        }
         TEXTIO.getTextTerminal().setBookmark(CLC);
     }
 

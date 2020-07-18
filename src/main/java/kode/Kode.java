@@ -414,7 +414,7 @@ class Kode {
     static {
         try {
             LIBPATH = Paths.get(Paths.get(Kode.class.getProtectionDomain().getCodeSource().getLocation().toURI())
-                    .getParent().getParent().toFile().getAbsolutePath(), "libs").toAbsolutePath().toString();      // Get Parent added.
+                    .getParent().getParent().toFile().getAbsolutePath(), "libs").toAbsolutePath().toString(); // Get Parent added.
             final Map<String, Object> DEF_GLOBALS = new HashMap();
             //<editor-fold defaultstate="collapsed" desc="do not delete">
 //            DEF_GLOBALS.put("print", new KodeBuiltinFunction("print", null, INTER) {

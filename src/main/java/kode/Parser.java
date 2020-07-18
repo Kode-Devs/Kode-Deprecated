@@ -183,9 +183,9 @@ class Parser {
 
     private Stmt requireStatement(Token imp) {
         List<Token> value = new ArrayList();
-        do {
+//        do {
             value.add(consume(IDENTIFIER, "Module name Expected."));
-        } while (match(DOT));
+//        } while (match(DOT));
         Token alias = null;
         if (match(AS)) {
             alias = consume(IDENTIFIER, "Expect alias name.");
@@ -196,9 +196,9 @@ class Parser {
 
     private Stmt requireStatementFrom(Token imp) {
         List<Token> value = new ArrayList();
-        do {
+//        do {
             value.add(consume(IDENTIFIER, "Module name Expected."));
-        } while (match(DOT));
+//        } while (match(DOT));
         consume(IMPORT, "Expect import keyword.");
         List<Token> field = new ArrayList();
         do {

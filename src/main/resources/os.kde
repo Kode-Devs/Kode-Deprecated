@@ -2,5 +2,5 @@
 var name = native lib.os.getProperties("os.name");
 
 fun System(varargin){
-    return native lib.os.System(varargin);
+    return native lib.os.system(varargin);
 }

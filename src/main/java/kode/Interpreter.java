@@ -445,7 +445,12 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
             throw new RuntimeError("Expected " + function.arity()
                     + " arguments but got " + arguments.length + ".", expr.paren);
         }
-        return function.call(arguments);
+        try {
+            return function.call(arguments);
+        } catch (RuntimeError e) {
+            e.token.add(expr.paren);
+            throw e;
+        }
     }
 
     @Override

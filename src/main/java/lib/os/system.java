@@ -16,7 +16,7 @@ import kni.KodeObject;
  *
  * @author dell
  */
-public class System implements KNI {
+public class system implements KNI {
 
     @Override
     public KodeObject call(KodeObject... args) throws Throwable {

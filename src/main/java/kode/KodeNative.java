@@ -11,9 +11,7 @@ import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import kni.KNI;
 import kni.KodeObject;
 
@@ -35,30 +33,18 @@ class KodeNative implements KodeCallable {
 
     @Override
     public int arity() {
-        return 1;
+        return -1;
     }
 
     @Override
     public Object call(Object... arguments) {
-        Object p = arguments[0];
-        List params;
-        if (p instanceof KodeInstance) {
-            if (ValueList.isList((KodeInstance) p)) {
-                params = (List) ValueList.toList(p);
-            } else {
-                throw new RuntimeError("Argument params must be of type List", null);
-            }
-        } else {
-            throw new RuntimeError("Argument params must be of type List", null);
-        }
-
         try {
             Object newInstance = new URLClassLoader(
                     addToList(this.pkg == null ? Paths.get("shared-lib") : Paths.get(Kode.LIBPATH, this.pkg, "shared-lib")).toArray(new URL[]{}),
                     Kode.class.getClassLoader()).loadClass(this.className).newInstance();
-            KodeObject[] args = new KodeObject[params.size()];
-            for (int i = 0; i < params.size(); i++) {
-                Object get = params.get(i);
+            KodeObject[] args = new KodeObject[arguments.length];
+            for (int i = 0; i < arguments.length; i++) {
+                Object get = arguments[i];
                 if (get instanceof KodeInstance) {
                     if (ValueNative.isNative((KodeInstance) get)) {
                         args[i] = new KodeObject(((KodeInstance) get).data).asNative();

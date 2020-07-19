@@ -5,6 +5,8 @@
  */
 package kode;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import math.KodeNumber;
 
 /**
@@ -14,29 +16,29 @@ import math.KodeNumber;
 class ValueNumber extends Value {
     
     @Override
-    String doc(){
-        return "Number Class wrapping over Java Double data-type."; 
+    String doc() {
+        return "Number Class wrapping over Java Double data-type.";        
     }
-
+    
     static Value val = new ValueNumber(new Interpreter());
-
+    
     static KodeInstance create(KodeNumber x) {
         KodeInstance instance = new KodeInstance(val);
         KodeFunction initializer = val.findMethod(Kode.INIT);
         initializer.bind(instance).call(x);
         return instance;
     }
-
+    
     private ValueNumber(Interpreter interpreter) {
         super("Number", interpreter);
         //<editor-fold defaultstate="collapsed" desc="init">
         this.methods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, null, interpreter) {
-
+            
             @Override
             public int arity() {
                 return 1;
             }
-
+            
             @Override
             public Object call(Object... arguments) {
                 Object This = closure.getAt(0, "this");
@@ -47,15 +49,14 @@ class ValueNumber extends Value {
             }
         });
 //</editor-fold>
-
         //<editor-fold defaultstate="collapsed" desc="str">
         this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, null, interpreter) {
-
+            
             @Override
             public int arity() {
                 return 0;
             }
-
+            
             @Override
             public Object call(Object... arguments) {
                 Object This = closure.getAt(0, "this");
@@ -66,8 +67,133 @@ class ValueNumber extends Value {
             }
         });
 //</editor-fold>
-    }
+        //<editor-fold defaultstate="collapsed" desc="num">
+        this.methods.put(Kode.NUMBER, new KodeBuiltinFunction(Kode.NUMBER, null, interpreter) {
+            
+            @Override
+            public int arity() {
+                return 0;
+            }
+            
+            @Override
+            public Object call(Object... arguments) {
+                Object This = closure.getAt(0, "this");
+                if (This instanceof KodeInstance) {
+                    return This;
+                }
+                throw new NotImplemented();
+            }
+        });
+//</editor-fold>
+        //<editor-fold defaultstate="collapsed" desc="bool">
+        this.methods.put(Kode.BOOLEAN, new KodeBuiltinFunction(Kode.BOOLEAN, null, interpreter) {
+            
+            @Override
+            public int arity() {
+                return 0;
+            }
+            
+            @Override
+            public Object call(Object... arguments) {
+                Object This = closure.getAt(0, "this");
+                if (This instanceof KodeInstance) {
+                    return interpreter.toKodeValue(interpreter.isTruthy(((KodeInstance) This).data));
+                }
+                throw new NotImplemented();
+            }
+        });
+//</editor-fold>
 
+        //<editor-fold defaultstate="collapsed" desc="isInteger">
+        this.methods.put("isInt", new KodeBuiltinFunction("isInt", null, interpreter) {
+            
+            @Override
+            public int arity() {
+                return 0;
+            }
+            
+            @Override
+            public Object call(Object... arguments) {
+                Object This = closure.getAt(0, "this");
+                if (This instanceof KodeInstance) {
+                    if (ValueNumber.isNumber((KodeInstance) This)) {
+                        return interpreter.toKodeValue(ValueNumber.toNumber(This).isInteger());
+                    }
+                }
+                throw new NotImplemented();
+            }
+        });
+//</editor-fold>
+        //<editor-fold defaultstate="collapsed" desc="asInt">
+        this.methods.put("asInt", new KodeBuiltinFunction("asInt", null, interpreter) {
+            
+            @Override
+            public int arity() {
+                return 0;
+            }
+            
+            @Override
+            public Object call(Object... arguments) {
+                Object This = closure.getAt(0, "this");
+                if (This instanceof KodeInstance) {
+                    if (ValueNumber.isNumber((KodeInstance) This)) {
+                        try{
+                        return interpreter.toKodeValue(ValueNumber.toNumber(This).getInteger());
+                        }catch(ArithmeticException e){
+                            throw new RuntimeError("Has fractional part.");
+                        }
+                    }
+                }
+                throw new NotImplemented();
+            }
+        });
+//</editor-fold>
+        //<editor-fold defaultstate="collapsed" desc="asReal">
+        this.methods.put("asReal", new KodeBuiltinFunction("asReal", null, interpreter) {
+            
+            @Override
+            public int arity() {
+                return 0;
+            }
+            
+            @Override
+            public Object call(Object... arguments) {
+                Object This = closure.getAt(0, "this");
+                if (This instanceof KodeInstance) {
+                    if (ValueNumber.isNumber((KodeInstance) This)) {
+                        return interpreter.toKodeValue(ValueNumber.toNumber(This).getFloat());
+                    }
+                }
+                throw new NotImplemented();
+            }
+        });
+//</editor-fold>
+        //<editor-fold defaultstate="collapsed" desc="asIndex">
+        this.methods.put("asIndex", new KodeBuiltinFunction("asIndex", null, interpreter) {
+            
+            @Override
+            public int arity() {
+                return 0;
+            }
+            
+            @Override
+            public Object call(Object... arguments) {
+                Object This = closure.getAt(0, "this");
+                if (This instanceof KodeInstance) {
+                    if (ValueNumber.isNumber((KodeInstance) This)) {
+                        try {
+                            return interpreter.toKodeValue(ValueNumber.toNumber(This).getAsIndex());
+                        } catch (ArithmeticException ex) {
+                            throw new RuntimeError("Its value falls beyond range of Indexing.");
+                        }
+                    }
+                }
+                throw new NotImplemented();
+            }
+        });
+//</editor-fold>
+    }
+    
     static KodeNumber toNumber(Object x_) {
         return ValueNumber.toNumber(x_, x_);
     }
@@ -101,5 +227,5 @@ class ValueNumber extends Value {
     final static boolean isNumber(KodeInstance i) {
         return instanceOf(i.klass, ValueNumber.class);
     }
-
+    
 }

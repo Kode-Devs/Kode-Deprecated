@@ -24,12 +24,12 @@ class ValueBool extends Value {
         super("Bool", interpreter);
         //<editor-fold defaultstate="collapsed" desc="init">
         this.methods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, null, interpreter) {
-            
+
             @Override
             public int arity() {
                 return 0;
             }
-            
+
             @Override
             public Object call(Object... arguments) {
                 Object This = closure.getAt(0, "this");
@@ -40,20 +40,55 @@ class ValueBool extends Value {
             }
         });
 //</editor-fold>
-
         //<editor-fold defaultstate="collapsed" desc="str">
         this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, null, interpreter) {
-            
+
             @Override
             public int arity() {
                 return 0;
             }
-            
+
             @Override
             public Object call(Object... arguments) {
                 Object This = closure.getAt(0, "this");
                 if (This instanceof KodeInstance) {
                     return interpreter.toKodeValue(Kode.stringify(((KodeInstance) This).data));
+                }
+                throw new NotImplemented();
+            }
+        });
+//</editor-fold>
+        //<editor-fold defaultstate="collapsed" desc="bool">
+        this.methods.put(Kode.BOOLEAN, new KodeBuiltinFunction(Kode.BOOLEAN, null, interpreter) {
+
+            @Override
+            public int arity() {
+                return 0;
+            }
+
+            @Override
+            public Object call(Object... arguments) {
+                Object This = closure.getAt(0, "this");
+                if (This instanceof KodeInstance) {
+                    return This;
+                }
+                throw new NotImplemented();
+            }
+        });
+//</editor-fold>
+        //<editor-fold defaultstate="collapsed" desc="num">
+        this.methods.put(Kode.NUMBER, new KodeBuiltinFunction(Kode.NUMBER, null, interpreter) {
+
+            @Override
+            public int arity() {
+                return 0;
+            }
+
+            @Override
+            public Object call(Object... arguments) {
+                Object This = closure.getAt(0, "this");
+                if (This instanceof KodeInstance) {
+                    return interpreter.toKodeValue(Interpreter.isTruthy(This) ? 1 : 0);
                 }
                 throw new NotImplemented();
             }
@@ -82,12 +117,10 @@ class ValueBool extends Value {
                     }
                     return toBoolean(((KodeInstance) x_).klass.findMethod(Kode.BOOLEAN).bind((KodeInstance) x_).call(), a);
                 } catch (NotImplemented e) {
-                    throw new RuntimeError("Object of type '" + Kode.type(a) + "' is not Boolean in Nature", null);
                 }
             }
-        } else {
-            throw new RuntimeError("Object of type '" + Kode.type(a) + "' is not Boolean in Nature", null);
         }
+        return Interpreter.isTruthy(x_);
     }
 //</editor-fold>
 

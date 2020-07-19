@@ -98,24 +98,6 @@ class KodeClass implements KodeCallable {
 
             @Override
             public Object call(Object... arguments) {
-                Object This = closure.getAt(0, "this");
-                if (This instanceof KodeInstance) {
-                    Object o;
-                    if (ValueNumber.isNumber((KodeInstance) This)) {
-                        o = ValueNumber.toNumber(This);
-                    } else if (ValueNone.isNone((KodeInstance) This)) {
-                        o = null;
-                    } else if (ValueBool.isBool((KodeInstance) This)) {
-                        o = ValueBool.toBoolean(This);
-                    } else if (ValueString.isString((KodeInstance) This)) {
-                        o = ValueString.toStr(This);
-                    } else if (ValueList.isList((KodeInstance) This)) {
-                        o = ValueList.toList(This);
-                    } else {
-                        o = true;
-                    }
-                    return interpreter.toKodeValue(interpreter.isTruthy(o));
-                }
                 return interpreter.toKodeValue(interpreter.isTruthy(true));
             }
         });
@@ -551,7 +533,11 @@ class KodeClass implements KodeCallable {
                         right = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0);
                     }
                     if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
-                        return interpreter.toKodeValue(KodeMath.divide(ValueNumber.toNumber(left), ValueNumber.toNumber(right)));
+                        try {
+                            return interpreter.toKodeValue(KodeMath.divide(ValueNumber.toNumber(left), ValueNumber.toNumber(right)));
+                        } catch (ArithmeticException ex) {
+                            throw new RuntimeError(ex.getMessage());
+                        }
                     }
                 }
                 throw new NotImplemented();
@@ -576,7 +562,11 @@ class KodeClass implements KodeCallable {
                         right = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0);
                     }
                     if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
-                        return interpreter.toKodeValue(KodeMath.divide(ValueNumber.toNumber(left), ValueNumber.toNumber(right)));
+                        try {
+                            return interpreter.toKodeValue(KodeMath.divide(ValueNumber.toNumber(left), ValueNumber.toNumber(right)));
+                        } catch (ArithmeticException ex) {
+                            throw new RuntimeError(ex.getMessage());
+                        }
                     }
                 }
                 throw new NotImplemented();
@@ -603,7 +593,11 @@ class KodeClass implements KodeCallable {
                         right = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0);
                     }
                     if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
-                        return interpreter.toKodeValue(KodeMath.floor_div(ValueNumber.toNumber(left), ValueNumber.toNumber(right)));
+                        try {
+                            return interpreter.toKodeValue(KodeMath.floor_div(ValueNumber.toNumber(left), ValueNumber.toNumber(right)));
+                        } catch (ArithmeticException ex) {
+                            throw new RuntimeError(ex.getMessage());
+                        }
                     }
                 }
                 throw new NotImplemented();
@@ -628,7 +622,11 @@ class KodeClass implements KodeCallable {
                         right = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0);
                     }
                     if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
-                        return interpreter.toKodeValue(KodeMath.floor_div(ValueNumber.toNumber(left), ValueNumber.toNumber(right)));
+                        try {
+                            return interpreter.toKodeValue(KodeMath.floor_div(ValueNumber.toNumber(left), ValueNumber.toNumber(right)));
+                        } catch (ArithmeticException ex) {
+                            throw new RuntimeError(ex.getMessage());
+                        }
                     }
                 }
                 throw new NotImplemented();
@@ -655,7 +653,11 @@ class KodeClass implements KodeCallable {
                         right = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0);
                     }
                     if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
-                        return interpreter.toKodeValue(KodeMath.modulo(ValueNumber.toNumber(left), ValueNumber.toNumber(right)));
+                        try {
+                            return interpreter.toKodeValue(KodeMath.modulo(ValueNumber.toNumber(left), ValueNumber.toNumber(right)));
+                        } catch (ArithmeticException ex) {
+                            throw new RuntimeError(ex.getMessage());
+                        }
                     }
                 }
                 throw new NotImplemented();
@@ -680,7 +682,11 @@ class KodeClass implements KodeCallable {
                         right = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0);
                     }
                     if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
-                        return interpreter.toKodeValue(KodeMath.modulo(ValueNumber.toNumber(left), ValueNumber.toNumber(right)));
+                        try {
+                            return interpreter.toKodeValue(KodeMath.modulo(ValueNumber.toNumber(left), ValueNumber.toNumber(right)));
+                        } catch (ArithmeticException ex) {
+                            throw new RuntimeError(ex.getMessage());
+                        }
                     }
                 }
                 throw new NotImplemented();

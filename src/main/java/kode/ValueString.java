@@ -42,7 +42,6 @@ class ValueString extends Value {
             }
         });
 //</editor-fold>
-
         //<editor-fold defaultstate="collapsed" desc="str">
         this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, null, interpreter) {
 
@@ -61,95 +60,68 @@ class ValueString extends Value {
             }
         });
 //</editor-fold>
-//        //<editor-fold defaultstate="collapsed" desc="num">
-//        this.methods.put(Kode.NUMBER, new KodeBuiltinFunction(Kode.NUMBER, null, interpreter) {
-//
-//            @Override
-//            public List<Pair<String, Object>> arity() {
-//                return new ArrayList();
-//            }
-//
-//            @Override
-//            public Object call(Map<String, Object> arguments) {
-//                Object This = closure.getAt(0, "this");
-//                if (This instanceof KodeInstance) {
-//                    try {
-//                        return interpreter.toKodeValue(toNumber.toNumber(((KodeInstance) This).data));
-//                    } catch (Exception ex) {
-//                        throw new RuntimeError(ex.getMessage(), null);
-//                    }
-//                }
-//                throw new NotImplemented();
-//            }
-//        });
-////</editor-fold>
-//        //<editor-fold defaultstate="collapsed" desc="bool">
-//        this.methods.put(Kode.BOOLEAN, new KodeBuiltinFunction(Kode.BOOLEAN, null, interpreter) {
-//
-//            @Override
-//            public List<Pair<String, Object>> arity() {
-//                return new ArrayList();
-//            }
-//
-//            @Override
-//            public Object call(Map<String, Object> arguments) {
-//                Object This = closure.getAt(0, "this");
-//                if (This instanceof KodeInstance) {
-//                    return interpreter.toKodeValue(interpreter.isTruthy(((KodeInstance) This).data));
-//                }
-//                throw new NotImplemented();
-//            }
-//        });
-////</editor-fold>
-//        //<editor-fold defaultstate="collapsed" desc="list">
-//        this.methods.put(Kode.LIST, new KodeBuiltinFunction(Kode.LIST, null, interpreter) {
-//
-//            @Override
-//            public List<Pair<String, Object>> arity() {
-//                return new ArrayList();
-//            }
-//
-//            @Override
-//            public Object call(Map<String, Object> arguments) {
-//                Object This = closure.getAt(0, "this");
-//                if (This instanceof KodeInstance) {
-//                    try {
-//                        List ll = new ArrayList();
-//                        for (char ch : ((String) ((KodeInstance) This).data).toCharArray()) {
-//                            ll.add(interpreter.toKodeValue("" + ch));
-//                        }
-//                        return interpreter.toKodeValue(ll);
-//                    } catch (Exception ex) {
-//                        throw new RuntimeError(ex.getMessage(), null);
-//                    }
-//                }
-//                throw new NotImplemented();
-//            }
-//        });
-////</editor-fold>
-//
-//        //<editor-fold defaultstate="collapsed" desc="concat">
-//        this.methods.put("concat", new KodeBuiltinFunction("concat", null, interpreter) {
-//
-//            @Override
-//            public List<Pair<String, Object>> arity() {
-//                return Arrays.asList(new Pair("obj", null));
-//            }
-//
-//            @Override
-//            public Object call(Map<String, Object> arguments) {
-//                Object This = closure.getAt(0, "this");
-//                Object obj = arguments.get("obj");
-//                if (This instanceof KodeInstance && obj instanceof KodeInstance) {
-//                    if (ValueString.isString((KodeInstance) This) && ValueString.isString((KodeInstance) obj)) {
-//                        return interpreter.toKodeValue(ValueString.toStr(This).concat(ValueString.toStr(obj)));
-//                    }
-//                }
-//                throw new NotImplemented();
-//            }
-//        });
-////</editor-fold>
+        //<editor-fold defaultstate="collapsed" desc="num">
+        this.methods.put(Kode.NUMBER, new KodeBuiltinFunction(Kode.NUMBER, null, interpreter) {
 
+            @Override
+            public int arity() {
+                return 0;
+            }
+
+            @Override
+            public Object call(Object... arguments) {
+                Object This = closure.getAt(0, "this");
+                if (This instanceof KodeInstance) {
+                    try {
+                        return interpreter.toKodeValue(toNumber.toNumber(((KodeInstance) This).data));
+                    } catch (Exception ex) {
+                        throw new RuntimeError(ex.getMessage(), null);
+                    }
+                }
+                throw new NotImplemented();
+            }
+        });
+//</editor-fold>
+        //<editor-fold defaultstate="collapsed" desc="bool">
+        this.methods.put(Kode.BOOLEAN, new KodeBuiltinFunction(Kode.BOOLEAN, null, interpreter) {
+
+            @Override
+            public int arity() {
+                return 0;
+            }
+
+            @Override
+            public Object call(Object... arguments) {
+                Object This = closure.getAt(0, "this");
+                if (This instanceof KodeInstance) {
+                    return interpreter.toKodeValue(interpreter.isTruthy(((KodeInstance) This).data));
+                }
+                throw new NotImplemented();
+            }
+        });
+//</editor-fold>
+        //<editor-fold defaultstate="collapsed" desc="list">
+        this.methods.put(Kode.LIST, new KodeBuiltinFunction(Kode.LIST, null, interpreter) {
+
+            @Override
+            public int arity() {
+                return 0;
+            }
+
+            @Override
+            public Object call(Object... arguments) {
+                Object This = closure.getAt(0, "this");
+                if (This instanceof KodeInstance) {
+                    try {
+                        return interpreter.toKodeValue(((String) ((KodeInstance) This).data).toCharArray());
+                    } catch (Exception ex) {
+                        throw new RuntimeError(ex.getMessage(), null);
+                    }
+                }
+                throw new NotImplemented();
+            }
+        });
+//</editor-fold>
     }
 
     static String toStr(Object x_) {

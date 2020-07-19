@@ -217,11 +217,7 @@ class Parser {
 
     private Stmt returnStatement() {
         Token keyword = previous();
-        Expr value = null;
-        if (!check(SEMICOLON)) {
-            value = expression();
-        }
-
+        Expr value = check(SEMICOLON)? null: expression();
         consume(SEMICOLON, "Expect ';' after return value.");
         return new Stmt.Return(keyword, value);
     }
@@ -418,7 +414,7 @@ class Parser {
 
         while (match(POWER)) {
             Token operator = previous();
-            Expr right = call();
+            Expr right = unary();
             expr = new Expr.Binary(expr, operator, right);
         }
 

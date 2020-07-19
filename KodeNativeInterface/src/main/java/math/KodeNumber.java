@@ -53,21 +53,21 @@ public class KodeNumber {
         return this.num;
     }
 
-    public BigInteger getInteger() {
+    public BigInteger getInteger() throws ArithmeticException {
         if (this.isInt) {
             return this.numInt;
         }
         return new BigDecimal(this.num).toBigIntegerExact();
     }
 
-    public int getAsIndex() throws Exception {
+    public int getAsIndex() throws ArithmeticException {
         if (this.isInt) {
             return this.numInt.intValueExact();
         }
         return new BigDecimal(this.num).intValueExact();
     }
-    
-    public boolean isInteger(){
+
+    public boolean isInteger() {
         return this.isInt;
     }
 }

@@ -36,7 +36,6 @@ class ValueNone extends Value {
             }
         });
 //</editor-fold>
-
         //<editor-fold defaultstate="collapsed" desc="str">
         this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, null, interpreter) {
 
@@ -50,6 +49,24 @@ class ValueNone extends Value {
                 Object This = closure.getAt(0, "this");
                 if (This instanceof KodeInstance) {
                     return interpreter.toKodeValue(Kode.stringify(null));
+                }
+                throw new NotImplemented();
+            }
+        });
+//</editor-fold>
+        //<editor-fold defaultstate="collapsed" desc="bool">
+        this.methods.put(Kode.BOOLEAN, new KodeBuiltinFunction(Kode.BOOLEAN, null, interpreter) {
+
+            @Override
+            public int arity() {
+                return 0;
+            }
+
+            @Override
+            public Object call(Object... arguments) {
+                Object This = closure.getAt(0, "this");
+                if (This instanceof KodeInstance) {
+                    return interpreter.toKodeValue(interpreter.isTruthy(((KodeInstance) This).data));
                 }
                 throw new NotImplemented();
             }

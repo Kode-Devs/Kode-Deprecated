@@ -17,7 +17,7 @@ class KodeInstance {
     String __doc__ = null;
 
     KodeClass klass;
-    Object data;
+    Object data = null;
     boolean reccured = false; 
     Map<String, Object> fields = new HashMap<>();
 

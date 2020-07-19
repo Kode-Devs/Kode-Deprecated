@@ -85,21 +85,30 @@ public abstract class KodeMath {
         return KodeNumber.valueOf(left.getFloat() * right.getFloat());
     }
 
-    public static KodeNumber divide(KodeNumber left, KodeNumber right) {
+    public static KodeNumber divide(KodeNumber left, KodeNumber right) throws ArithmeticException {
+        if(KodeMath.equal(right, KodeNumber.valueOf(0))){
+            throw new ArithmeticException("Division by Zero.");
+        }
         if (left.isInteger() && right.isInteger()) {
             return KodeNumber.valueOf(left.getInteger().divide(right.getInteger())); // NOTE : Division will work as integral div if both are ints 
         }
         return KodeNumber.valueOf(left.getFloat() / right.getFloat());
     }
 
-    public static KodeNumber floor_div(KodeNumber left, KodeNumber right) {
+    public static KodeNumber floor_div(KodeNumber left, KodeNumber right) throws ArithmeticException {
+        if(KodeMath.equal(right, KodeNumber.valueOf(0))){
+            throw new ArithmeticException("Division by Zero.");
+        }
         if (left.isInteger() && right.isInteger()) {
             return KodeNumber.valueOf(left.getInteger().divide(right.getInteger()));
         }
         return KodeNumber.valueOf(Math.floor(left.getFloat() / right.getFloat()));
     }
 
-    public static KodeNumber modulo(KodeNumber left, KodeNumber right) {
+    public static KodeNumber modulo(KodeNumber left, KodeNumber right)  throws ArithmeticException {
+        if(KodeMath.equal(right, KodeNumber.valueOf(0))){
+            throw new ArithmeticException("Division by Zero.");
+        }
         if (left.isInteger() && right.isInteger()) {
             return KodeNumber.valueOf(left.getInteger().remainder(right.getInteger()));
         }
@@ -108,7 +117,10 @@ public abstract class KodeMath {
 
     public static KodeNumber exponent(KodeNumber left, KodeNumber right) throws Exception {
         if (left.isInteger() && right.isInteger()) {
+            try{
                 return KodeNumber.valueOf(left.getInteger().pow(right.getAsIndex()));
+            }catch(ArithmeticException e){
+            }
         }
         return KodeNumber.valueOf(Math.pow(left.getFloat(), right.getFloat()));
     }

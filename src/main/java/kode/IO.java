@@ -8,8 +8,7 @@ package kode;
 import java.awt.Color;
 import java.io.IOException;
 import java.nio.file.Paths;
-import javax.swing.JOptionPane;
-import org.beryx.textio.AbstractTextTerminal;
+import java.util.Date;
 import org.beryx.textio.TextIO;
 import org.beryx.textio.TextIoFactory;
 
@@ -19,10 +18,12 @@ import org.beryx.textio.TextIoFactory;
  */
 public class IO {
 
-    public static final TextIO TEXTIO = TextIoFactory.getTextIO();
+    public static final TextIO TEXTIO;
     private static final String CLC = "clc";
 
     static {
+        System.err.println("\n-------- " + new Date() + " --------");
+        TEXTIO = TextIoFactory.getTextIO();
         TEXTIO.getTextTerminal().getProperties().setPromptColor(Color.WHITE);
         TEXTIO.getTextTerminal().getProperties().setInputColor(Color.CYAN);
         TEXTIO.getTextTerminal().getProperties().setPromptBold(false);
@@ -32,8 +33,8 @@ public class IO {
         TEXTIO.getTextTerminal().getProperties().put("pane.title", Kode.getVersion() + " - " + Paths.get("").toAbsolutePath());
 
         TEXTIO.getTextTerminal().registerUserInterruptHandler((e) -> {
-            throw new RuntimeError("Keyboard Interrupt Found.");
-//            exit(0);
+//            throw new RuntimeError("Keyboard Interrupt Found.");
+            exit(0);
         }, true);
 
         // KeyBoard Interrupt

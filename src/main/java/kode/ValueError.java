@@ -29,7 +29,7 @@ class ValueError extends Value {
 
             @Override
             public int arity() {
-                return 1;
+                return -1;
             }
 
             @Override

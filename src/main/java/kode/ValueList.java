@@ -42,7 +42,6 @@ class ValueList extends Value {
             }
         });
 //</editor-fold>
-
         //<editor-fold defaultstate="collapsed" desc="str">
         this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, null, interpreter) {
 
@@ -69,6 +68,42 @@ class ValueList extends Value {
                         ((KodeInstance) This).reccured = false;
                         throw e;
                     }
+                }
+                throw new NotImplemented();
+            }
+        });
+//</editor-fold>
+        //<editor-fold defaultstate="collapsed" desc="bool">
+        this.methods.put(Kode.BOOLEAN, new KodeBuiltinFunction(Kode.BOOLEAN, null, interpreter) {
+
+            @Override
+            public int arity() {
+                return 0;
+            }
+
+            @Override
+            public Object call(Object... arguments) {
+                Object This = closure.getAt(0, "this");
+                if (This instanceof KodeInstance) {
+                    return interpreter.toKodeValue(interpreter.isTruthy(((KodeInstance) This).data));
+                }
+                throw new NotImplemented();
+            }
+        });
+//</editor-fold>
+        //<editor-fold defaultstate="collapsed" desc="list">
+        this.methods.put(Kode.LIST, new KodeBuiltinFunction(Kode.LIST, null, interpreter) {
+
+            @Override
+            public int arity() {
+                return 0;
+            }
+
+            @Override
+            public Object call(Object... arguments) {
+                Object This = closure.getAt(0, "this");
+                if (This instanceof KodeInstance) {
+                    return This;
                 }
                 throw new NotImplemented();
             }

@@ -251,7 +251,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
                 e.token.add(stmt.keyword);
                 throw e;
             }
-            if (Kode.instanceOf((KodeInstance) value, ValueError.val)) {
+            if (ValueError.isError((KodeInstance) value)) {
                 RuntimeError e = new RuntimeError((KodeInstance) value);
                 e.token.add(stmt.keyword);
                 throw e;
@@ -562,7 +562,6 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
         try {
             executeBlock(stmt.tryStmt, new Environment(environment));
         } catch (RuntimeError e) {
-            KodeInstance instance = e.instance;
             for (Stmt.Catch c : stmt.catchs) {
                 Object err_type = c.ErrorType == null ? ValueError.val : evaluate(c.ErrorType);
                 KodeClass cls;
@@ -571,8 +570,8 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
                 } else {
                     throw new RuntimeError(c.ErrorType.name.lexeme + " is not a Error class name", c.ErrorType.name);
                 }
-                if (Kode.instanceOf(instance, cls)) {
-                    c.instance = instance;
+                if (Kode.instanceOf(e.instance, cls)) {
+                    c.instance = e.instance;
                     this.execute(c);
                     return null;
                 }
@@ -601,7 +600,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
         }
     }
 
-    boolean isTruthy(Object object) {
+    static boolean isTruthy(Object object) {
         if (object == null) {
             return false;
         }

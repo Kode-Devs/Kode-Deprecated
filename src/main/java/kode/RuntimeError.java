@@ -17,12 +17,10 @@ class RuntimeError extends Error
 
     List<Token> token = new ArrayList<>();
     KodeInstance instance = null;
-    String type = null;
 
     RuntimeError(String message, Token token) {
         this(ValueError.create(message));
         this.token.add(token);
-        this.type = "Runtime Error";
     }
 
     RuntimeError(String message) {
@@ -35,13 +33,12 @@ class RuntimeError extends Error
 
     @Override
     public String getMessage() {
-        String class_name = this.type == null ? this.instance.klass.class_name : this.type;
-        return class_name + " : " + this.instance.toString();
+        return this.instance.klass.class_name + ": " + this.instance.toString();
     }
 
     @Override
     public String getLocalizedMessage() {
-        return this.getMessage();
+        return this.instance.toString();
     }
 
     @Override

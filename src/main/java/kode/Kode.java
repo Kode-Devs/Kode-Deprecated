@@ -254,7 +254,9 @@ class Kode {
     static void runtimeError(RuntimeError error) {
         error.token.removeIf(a -> a == null);
         Collections.reverse(error.token);
-        for (BigInteger i = BigInteger.ZERO; i.compareTo((BigInteger) error.instance.data) < 0 && !error.token.empty(); i = i.add(BigInteger.ONE)) {
+        for (BigInteger i = BigInteger.ZERO; i.compareTo(
+                error.instance.data instanceof BigInteger ? (BigInteger) error.instance.data : BigInteger.ZERO
+        ) < 0 && !error.token.empty(); i = i.add(BigInteger.ONE)) {
             error.token.pop();
         }
         if (!error.token.empty()) {

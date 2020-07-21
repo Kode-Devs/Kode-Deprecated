@@ -5,8 +5,6 @@
  */
 package kode;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -44,7 +42,6 @@ class ValueError extends Value {
             }
         });
 //</editor-fold>
-
         //<editor-fold defaultstate="collapsed" desc="str">
         this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, null, interpreter) {
 
@@ -82,7 +79,6 @@ class ValueError extends Value {
             }
         });
 //</editor-fold>
-
         //<editor-fold defaultstate="collapsed" desc="skip">
         this.methods.put("skip", new KodeBuiltinFunction("skip", null, interpreter) {
 
@@ -110,15 +106,6 @@ class ValueError extends Value {
             }
         });
 //</editor-fold>
-    }
-
-    @Override
-    public Object call(Object... arguments) {
-        KodeInstance instance = new KodeInstance(this);
-        instance.data = BigInteger.ZERO;
-        instance.set("args", this.interpreter.toKodeValue(new ArrayList()));
-        findMethod(Kode.INIT).bind(instance).call(arguments);
-        return instance;
     }
 
     final static boolean isError(KodeInstance i) {

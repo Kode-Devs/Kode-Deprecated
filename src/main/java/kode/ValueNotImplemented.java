@@ -5,9 +5,6 @@
  */
 package kode;
 
-import java.util.Arrays;
-import java.util.stream.Collectors;
-
 /**
  *
  * @author dell
@@ -41,35 +38,6 @@ class ValueNotImplemented extends Value {
                             .call(this.interpreter.toKodeValue("This method is not implemented yet."));
                 }
                 return at;
-            }
-        });
-//</editor-fold>
-        //<editor-fold defaultstate="collapsed" desc="str">
-        this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, null, interpreter) {
-
-            @Override
-            public int arity() {
-                return 0;
-            }
-
-            @Override
-            public Object call(Object... arguments) {
-                Object This = closure.getAt(0, "this");
-                if (This instanceof KodeInstance) {
-                    Object get = ((KodeInstance) This).get("args");
-                    if (get == null) {
-                        get = "<Missing Error Details>";
-                    }
-                    if (get instanceof KodeInstance) {
-                        if (ValueList.isList((KodeInstance) get)) {
-                            get = ValueList.toList(get).stream()
-                                    .map(n -> n.toString())
-                                    .collect(Collectors.joining("\n"));
-                        }
-                    }
-                    return interpreter.toKodeValue(get.toString());
-                }
-                throw new NotImplemented();
             }
         });
 //</editor-fold>

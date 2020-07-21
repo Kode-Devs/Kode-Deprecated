@@ -866,8 +866,7 @@ class KodeClass implements KodeCallable {
     @Override
     public Object call(Object... arguments) {
         KodeInstance instance = new KodeInstance(this);
-        KodeFunction initializer = findMethod(Kode.INIT);
-        initializer.bind(instance).call(arguments);
+        findMethod(Kode.INIT).bind(instance).call(arguments);
         return instance;
     }
 

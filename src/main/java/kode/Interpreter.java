@@ -34,12 +34,14 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
                 ret = execute(statement);
             }
             return ret;
-        } catch (RuntimeError error) {
-            throw error;
         } catch (StackOverflowError error) {
             throw new RuntimeError("Max Depth of Recursion Exceeded.");
         } catch (java.lang.OutOfMemoryError error) {
             throw new RuntimeError(error.getMessage());
+        } catch (RuntimeError error) {
+            throw error;
+        } catch (Throwable error) {
+            throw new RuntimeError("Fatal: " + error.getMessage());
         }
     }
 

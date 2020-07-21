@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.IllegalFormatException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -187,10 +188,10 @@ class Kode {
         String p = Paths.get(Kode.LIBPATH, pkgname).toAbsolutePath().toString();
         try {
             if (fromDir) {
-                FileSearch path = new FileSearch("./", name + "." + Kode.EXTENSION);
-                if (path.exists()) {
-                    byte[] bytes = Files.readAllBytes(path.path.toAbsolutePath());
-                    return run(path.path.toAbsolutePath().toFile().getName(), new String(bytes, Charset.defaultCharset()), inter).key;
+                Path path = Paths.get("./", name + "." + Kode.EXTENSION).toAbsolutePath();
+                if (path.toFile().exists()) {
+                    byte[] bytes = Files.readAllBytes(path);
+                    return run(path.toFile().getName(), new String(bytes, Charset.defaultCharset()), inter).key;
                 }
 
                 if (Pip4kode.checkUpdate(pkgname, p)) {
@@ -201,10 +202,10 @@ class Kode {
                     }
                 }
 
-                path = new FileSearch(p, name + "." + Kode.EXTENSION);
-                if (path.exists()) {
-                    byte[] bytes = Files.readAllBytes(path.path.toAbsolutePath());
-                    return run(path.path.toAbsolutePath().toFile().getName(), new String(bytes, Charset.defaultCharset()), inter).key;
+                path = Paths.get(p, name + "." + Kode.EXTENSION).toAbsolutePath();
+                if (path.toFile().exists()) {
+                    byte[] bytes = Files.readAllBytes(path);
+                    return run(path.toFile().getName(), new String(bytes, Charset.defaultCharset()), inter).key;
                 }
             }
 
@@ -410,11 +411,17 @@ class Kode {
                             ll.add(toJava);
                         }
                     }
-                    try {
-                        return this.interpreter.toKodeValue(String.format(arguments[0].toString(), ll.toArray()));
-                    } catch (Exception e) {
-                        throw new RuntimeError("Format error -> " + e);
+                    Object temp = arguments[0];
+                    if (temp instanceof KodeInstance) {
+                        if (ValueString.isString((KodeInstance) temp)) {
+                            try {
+                                return this.interpreter.toKodeValue(String.format(ValueString.toStr(temp), ll.toArray()));
+                            } catch (IllegalFormatException e) {
+                                throw new RuntimeError("Format error -> " + e);
+                            }
+                        }
                     }
+                    throw new NotImplemented();
                 }
 
             });
@@ -444,7 +451,6 @@ class Kode {
                 }
 
             });
-
             DEF_GLOBALS.put("len", new KodeBuiltinFunction("len", null, INTER) {
                 @Override
                 public int arity() {
@@ -725,7 +731,7 @@ class Kode {
                     if (src instanceof KodeInstance) {
                         if (ValueString.isString((KodeInstance) src)) {
                             try {
-                                return eval(ValueString.toStr(src));
+                                return run("<eval>", ValueString.toStr(src), new Interpreter()).value;
                             } catch (RuntimeError ex) {
                                 throw ex;
                             } catch (Throwable ex) {
@@ -736,19 +742,94 @@ class Kode {
                     throw new NotImplemented();
                 }
 
-                private Object eval(String source) throws Throwable {
-                    Interpreter inter = new Interpreter();
-                    Lexer scanner = new Lexer("<eval>", source);
-                    List<Token> tokens = scanner.scanTokens();
-                    Parser parser = new Parser(tokens);
-                    List<Stmt> statements = parser.parse();
-                    Resolver resolver = new Resolver(inter);
-                    resolver.resolve(statements);
-                    return inter.interpret(statements);
+            });
+            DEF_GLOBALS.put("ord", new KodeBuiltinFunction("ord", null, INTER) {
+
+                @Override
+                String doc() {
+                    return "\nBuiltin Function ord(ch)"
+                            + "\n------------------------------"
+                            + "\nIt returns the Integer Number value representation of any character."
+                            + "\n"
+                            + "\nparameters"
+                            + "\n----------"
+                            + "\nch : Character whose Integer Number value is needed."
+                            + "\n"
+                            + "\nreturns"
+                            + "\n-------"
+                            + "\nReturns the corresponding Integer Number value of the argument ch."
+                            + "\n"
+                            + "\nthrows"
+                            + "\n------"
+                            + "\nThrows Error if a String of length 1 is not passed as ch.\n";
+                }
+
+                @Override
+                public int arity() {
+                    return 1;
+                }
+
+                @Override
+                public Object call(Object... arguments) {
+                    Object temp = arguments[0];
+                    if (temp instanceof KodeInstance) {
+                        if (ValueString.isString((KodeInstance) temp)) {
+                            String ch = ValueString.toStr(temp);
+                            if (ch.length() != 1) {
+                                throw new RuntimeError("ord() expected a Character, but " + Kode.type(temp) + " of length " + ch.length() + " found");
+                            }
+                            return this.interpreter.toKodeValue((long) ch.charAt(0));
+                        }
+                    }
+                    throw new RuntimeError("ord() expected String of length 1, but " + Kode.type(temp) + " found");
                 }
 
             });
+            DEF_GLOBALS.put("chr", new KodeBuiltinFunction("chr", null, INTER) {
 
+                @Override
+                String doc() {
+                    return "\nBuiltin Function chr(n)"
+                            + "\n------------------------------"
+                            + "\nIt returns the character representation associated with the Integer Number."
+                            + "\n"
+                            + "\nparameters"
+                            + "\n----------"
+                            + "\nn : Integer Number whose corresponding Character value is needed."
+                            + "\n"
+                            + "\nreturns"
+                            + "\n-------"
+                            + "\nReturns the corresponding Character value of the argument n."
+                            + "\n"
+                            + "\nthrows"
+                            + "\n------"
+                            + "\nThrows Error if a Integer Number within " + Long.MIN_VALUE + " to " + Long.MAX_VALUE + " is not passed.\n";
+                }
+
+                @Override
+                public int arity() {
+                    return 1;
+                }
+
+                @Override
+                public Object call(Object... arguments) {
+                    Object temp = arguments[0];
+                    if (temp instanceof KodeInstance) {
+                        if (ValueNumber.isNumber((KodeInstance) temp)) {
+                            KodeNumber asIndex = ValueNumber.toNumber(temp);
+                            if (!asIndex.isInteger()) {
+                                try {
+                                    return this.interpreter.toKodeValue((char) asIndex.getInteger().longValueExact());
+                                } catch (ArithmeticException e) {
+                                    throw new RuntimeError("Integer Number Out Of Range.");
+                                }
+                            }
+                        }
+                    }
+                    throw new RuntimeError("Integer Number expected, got" + Kode.type(temp));
+                }
+
+            });
             DEF_GLOBALS.put(ValueNumber.val.class_name, ValueNumber.val);   //Number
             DEF_GLOBALS.put(ValueString.val.class_name, ValueString.val);   //String
             DEF_GLOBALS.put(ValueBool.val.class_name, ValueBool.val);   //Bool

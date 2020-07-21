@@ -6,7 +6,8 @@
 package kode;
 
 import java.math.BigInteger;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -37,8 +38,7 @@ class ValueError extends Value {
             public Object call(Object... arguments) {
                 Object This = closure.getAt(0, "this");
                 if (This instanceof KodeInstance) {
-                    ((KodeInstance) This).set("args", arguments[0]);
-                    ((KodeInstance) This).data = BigInteger.ZERO;
+                    ((KodeInstance) This).set("args", this.interpreter.toKodeValue(arguments));
                 }
                 return This;
             }
@@ -63,9 +63,17 @@ class ValueError extends Value {
                     }
                     if (get instanceof KodeInstance) {
                         if (ValueList.isList((KodeInstance) get)) {
-                            get = ValueList.toList(get).stream()
-                                    .map(n -> n.toString())
-                                    .collect(Collectors.joining("\n"));
+                            List toList = ValueList.toList(get);
+                            switch (toList.size()) {
+                                case 0:
+                                    get = "<Missing Error Details>";
+                                    break;
+                                case 1:
+                                    get = toList.get(0);
+                                    break;
+                                default:
+                                    get = toList;
+                            }
                         }
                     }
                     return interpreter.toKodeValue(get.toString());
@@ -102,6 +110,15 @@ class ValueError extends Value {
             }
         });
 //</editor-fold>
+    }
+
+    @Override
+    public Object call(Object... arguments) {
+        KodeInstance instance = new KodeInstance(this);
+        instance.data = BigInteger.ZERO;
+        instance.set("args", this.interpreter.toKodeValue(new ArrayList()));
+        findMethod(Kode.INIT).bind(instance).call(arguments);
+        return instance;
     }
 
     final static boolean isError(KodeInstance i) {

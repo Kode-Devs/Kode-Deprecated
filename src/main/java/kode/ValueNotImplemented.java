@@ -37,7 +37,8 @@ class ValueNotImplemented extends Value {
             public Object call(Object... arguments) {
                 Object at = closure.getAt(0, "this");
                 if (at instanceof KodeInstance) {
-                    ((KodeInstance) at).set("args", val.interpreter.toKodeValue(Arrays.asList("This method is not implemented yet.")));
+                    ((KodeInstance) at).klass.superclass.findMethod(Kode.INIT).bind((KodeInstance) at)
+                            .call(this.interpreter.toKodeValue("This method is not implemented yet."));
                 }
                 return at;
             }

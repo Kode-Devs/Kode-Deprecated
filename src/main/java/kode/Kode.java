@@ -7,6 +7,9 @@ package kode;
 
 import java.io.File;
 import java.io.InputStream;
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryNotificationInfo;
+import java.math.BigInteger;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -14,13 +17,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.stream.IntStream;
+import javax.management.NotificationEmitter;
 import javax.swing.JOptionPane;
 import lib.warnings;
 import math.KodeNumber;
@@ -66,8 +70,6 @@ class Kode {
                 interpreter.globals.define(Kode.__NAME__, interpreter.toKodeValue(Kode.__MAIN__));
                 for (;;) {
                     try {
-                        hadError = false;
-                        hadRuntimeError = false;
                         IO.printf(">>>");
                         Pair run = run("<shell>", IO.scanf(), interpreter);
                         if (run != null) {
@@ -82,11 +84,8 @@ class Kode {
                                 IO.printfln(value);
                             }
                         }
-                    } catch (RuntimeError error) {
-                        Kode.runtimeError(error);
                     } catch (Throwable e) {
-                        e.printStackTrace();
-                        IO.printfln_err("Fatal Error : " + e);
+                        handleThrowable(e);
                     }
                 }
             //</editor-fold>
@@ -96,15 +95,12 @@ class Kode {
                 if (path.getFileName().toString().endsWith("." + Kode.EXTENSION)) {
                     try {
                         runFile(path.toAbsolutePath().toString(), new Interpreter());
-                    } catch (RuntimeError error) {
-                        Kode.runtimeError(error);
                     } catch (Throwable e) {
-                        e.printStackTrace();
-                        IO.printfln_err("Fatal Error : " + e);
+                        handleThrowable(e);
                     }
                 } else {
                     IO.printfln_err("Not a " + Kode.NAME + " runnable file");
-                    System.exit(64);
+                    IO.exit(64);
                 }
                 //</editor-fold>
                 break;
@@ -114,10 +110,16 @@ class Kode {
         IO.exit(0);
     }
 
-    static String LIBPATH;
+    static void handleThrowable(Throwable e) {
+        if (e instanceof RuntimeError) {
+            Kode.runtimeError((RuntimeError) e);
+        } else {
+            e.printStackTrace();
+            IO.printfln_err("Fatal Error : " + e);
+        }
+    }
 
-    static boolean hadError = false;
-    static boolean hadRuntimeError = false;
+    static String LIBPATH;
     static Map<String, KodeModule> ModuleRegistry = new HashMap();
 
     static final String INIT = "__init__";
@@ -170,25 +172,17 @@ class Kode {
     static final String GT = "__gt__";
     static final String GE = "__ge__";
 
-    static void runFile(String path, Interpreter inter) throws Exception {
+    static void runFile(String path, Interpreter inter) throws Throwable {
         byte[] bytes = Files.readAllBytes(Paths.get(path));
         inter.globals.define(Kode.__NAME__, inter.toKodeValue(Kode.__MAIN__));
         run(Paths.get(path).toFile().getName(), new String(bytes, Charset.defaultCharset()), inter);
-
-        // Indicate an error in the exit code.
-        if (hadError) {
-            System.exit(65);
-        }
-        if (hadRuntimeError) {
-            System.exit(70);
-        }
     }
 
-    static String runLib(String name, Interpreter inter) throws Exception {
+    static String runLib(String name, Interpreter inter) throws Throwable {
         return runLib(name, true, inter);
     }
 
-    static String runLib(String name, boolean fromDir, Interpreter inter) throws Exception {
+    static String runLib(String name, boolean fromDir, Interpreter inter) throws Throwable {
         String pkgname = Paths.get(name).getName(0).toString();
         String p = Paths.get(Kode.LIBPATH, pkgname).toAbsolutePath().toString();
         try {
@@ -244,70 +238,32 @@ class Kode {
         }
     }
 
-    static Pair<String, Object> run(String fn, String source, Interpreter inter) throws Exception {
-        Lexer scanner = new Lexer(fn, source);
-        List<Token> tokens = scanner.scanTokens();
-
-        // Stop if there was a unknown char error.
-        if (hadError) {
-            return null;
-        }
-
+    static Pair<String, Object> run(String fn, String source, Interpreter inter) throws Throwable {
+        List<Token> tokens = new Lexer(fn, source).scanTokens();
         Parser parser = new Parser(tokens);
         List<Stmt> statements = parser.parse();
-
-        // Stop if there was a syntax error.
-        if (hadError) {
-            return null;
-        }
-
-        Resolver resolver = new Resolver(inter);
-        resolver.resolve(statements);
-
-        // Stop if there was a resolution error.
-        if (hadError) {
-            return null;
-        }
-
+        new Resolver(inter).resolve(statements);
         return new Pair(parser.doc, inter.interpret(statements));
     }
 
-    static void error(String fn, int line, String message) {
-        report(line, " in file '" + fn + "'", message);
-    }
-
-    private static void report(int line, String where, String message) {
-        IO.printfln_err(
-                "[line " + line + "] Error" + where + ": " + message);
-        hadError = true;
-    }
-
-    static void error(Token token, String message) {
-        if (token.type == TokenType.EOF) {
-            report(token.line, " near end in file " + token.fn, message);
-        } else {
-            report(token.line, " near '" + token.lexeme + "' in file " + token.fn, message);
-        }
-        if (token.line_text != null) {
-            IO.printfln_err("->\t" + token.line_text.trim());
-        }
-    }
-
     static void warning(String message) {
-        warnings.print_warning("Warning: " + message);
+        warnings.print_warning("[Warning]: " + message);
     }
 
     static void runtimeError(RuntimeError error) {
-        IO.printfln_err(error.getMessage());
+        error.token.removeIf(a -> a == null);
+        Collections.reverse(error.token);
+        for (BigInteger i = BigInteger.ZERO; i.compareTo((BigInteger) error.instance.data) < 0 && !error.token.empty(); i = i.add(BigInteger.ONE)) {
+            error.token.pop();
+        }
+        if (!error.token.empty()) {
+            IO.printfln_err("Traceback (most recent call last):");
+        }
         error.token.forEach((line) -> {
-            if (line != null) {
-                IO.printfln_err("in file " + line.fn + " [ at line " + line.line + " ] near '" + line.lexeme + "'");
-                if (line.line_text != null) {
-                    IO.printfln_err("->\t" + line.line_text.trim());
-                }
-            }
+            IO.printfln_err("  File '" + line.fn + "', line " + line.line + ", near '" + line.lexeme + "'");
+            IO.printfln_err("    " + line.line_text.trim());
         });
-        hadRuntimeError = true;
+        IO.printfln_err(error.getMessage());
     }
 
     static String stringify(Object object) {
@@ -416,54 +372,14 @@ class Kode {
 
     static {
         try {
+            ((NotificationEmitter) ManagementFactory.getMemoryMXBean()).addNotificationListener((n, hb) -> {
+                if (n.getType().equals(MemoryNotificationInfo.MEMORY_THRESHOLD_EXCEEDED)) {
+                    IO.printfln_err("[INFO]: Low on Memory.");
+                }
+            }, null, null);
             LIBPATH = Paths.get(Paths.get(Kode.class.getProtectionDomain().getCodeSource().getLocation().toURI())
                     .getParent().getParent().toFile().getAbsolutePath(), "libs").toAbsolutePath().toString(); // Get Parent added.
             final Map<String, Object> DEF_GLOBALS = new HashMap();
-            //<editor-fold defaultstate="collapsed" desc="do not delete">
-//            DEF_GLOBALS.put("print", new KodeBuiltinFunction("print", null, INTER) {
-//                @Override
-//                public List<Pair<String, Object>> arity() {
-//                    return Arrays.asList(
-//                            new Pair("str", interpreter.toKodeValue(Arrays.asList(interpreter.toKodeValue("")))).setType(TokenType.STAR),
-//                            new Pair("sep", interpreter.toKodeValue(" ")),
-//                            new Pair("end", interpreter.toKodeValue("\n")));
-//                }
-//
-//                @Override
-//                public Object call(Map<String, Object> arguments) {
-//                    List str = ValueList.toList(arguments.get("str"));
-//                    String sep = ValueString.toStr(arguments.get("sep"));
-//                    String end = ValueString.toStr(arguments.get("end"));
-//                    IO.printf(str.stream().map(ValueString::toStr).collect(Collectors.joining(sep)) + end);
-//                    return null;
-//                }
-//
-//            });
-//            DEF_GLOBALS.put("input", new KodeBuiltinFunction("input", null, INTER) {
-//                @Override
-//                public List<Pair<String, Object>> arity() {
-//                    return Arrays.asList(new Pair("str", interpreter.toKodeValue(Arrays.asList(interpreter.toKodeValue("")))).setType(TokenType.STAR),
-//                            new Pair("sep", interpreter.toKodeValue(" ")),
-//                            new Pair("end", interpreter.toKodeValue("")),
-//                            new Pair("mask", interpreter.toKodeValue(false)));
-//                }
-//
-//                @Override
-//                public Object call(Map<String, Object> arguments) {
-//                    List str = ValueList.toList(arguments.get("str"));
-//                    String sep = ValueString.toStr(arguments.get("sep"));
-//                    String end = ValueString.toStr(arguments.get("end"));
-//                    String msg = str.stream().map(ValueString::toStr).collect(Collectors.joining(sep)) + end;
-//                    if (ValueBool.toBoolean(arguments.get("mask"))) {
-//                        IO.printf(msg);
-//                        return interpreter.toKodeValue(IO.scanf_pwd());
-//                    }
-//                    IO.printf(msg);
-//                    return interpreter.toKodeValue(IO.scanf());
-//                }
-//
-//            });
-//</editor-fold>
             DEF_GLOBALS.put("disp", new KodeBuiltinFunction("print", null, INTER) {
                 @Override
                 public int arity() {
@@ -472,7 +388,7 @@ class Kode {
 
                 @Override
                 public Object call(Object... arguments) {
-                    IO.printf(arguments[0]+"\n");
+                    IO.printf(arguments[0] + "\n");
                     return null;
                 }
 
@@ -822,26 +738,11 @@ class Kode {
 
                 private Object eval(String source) throws Throwable {
                     Interpreter inter = new Interpreter();
-                    Lexer scanner = new Lexer("<eval>", source) {
-                        @Override
-                        void error(String fn, int line, String message) {
-                            throw new RuntimeError(message);
-                        }
-                    };
+                    Lexer scanner = new Lexer("<eval>", source);
                     List<Token> tokens = scanner.scanTokens();
-                    Parser parser = new Parser(tokens) {
-                        @Override
-                        ParseError error(Token token, String message) {
-                            throw new RuntimeError(message, token);
-                        }
-                    };
+                    Parser parser = new Parser(tokens);
                     List<Stmt> statements = parser.parse();
-                    Resolver resolver = new Resolver(inter) {
-                        @Override
-                        void error(Token token, String message) {
-                            throw new RuntimeError(message, token);
-                        }
-                    };
+                    Resolver resolver = new Resolver(inter);
                     resolver.resolve(statements);
                     return inter.interpret(statements);
                 }
@@ -860,12 +761,9 @@ class Kode {
             Kode.ModuleRegistry.put(Kode.BUILTIN_NAME, module);
             module.inter = INTER;
             module.run();
-            if (module.hadError || module.hadRuntimeError) {
-                throw new Exception("Had Error");
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Failed to Initialize Interpreter\nReason : " + ex);
+        } catch (Throwable ex) {
+            handleThrowable(ex);
+            JOptionPane.showMessageDialog(null, "Failed to Initialize Interpreter\nReason : " + ex.toString());
             IO.exit(1);
         }
     }

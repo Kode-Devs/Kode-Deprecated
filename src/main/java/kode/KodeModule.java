@@ -13,8 +13,6 @@ class KodeModule extends KodeInstance {
 
     String name;
     Interpreter inter = new Interpreter();
-    boolean hadError = false;
-    boolean hadRuntimeError = false;
     private final String path;
 
     KodeModule(String name, String path) {
@@ -23,10 +21,8 @@ class KodeModule extends KodeInstance {
         this.path = path;
     }
 
-    void run() throws Exception {
+    void run() throws Throwable {
         this.__doc__ = Kode.runLib(path, inter);
-        this.hadError = Kode.hadError;
-        this.hadRuntimeError = Kode.hadRuntimeError;
     }
 
     @Override

@@ -17,9 +17,6 @@ import math.KodeNumber;
  */
 class Parser {
 
-    static class ParseError extends RuntimeException {
-    }
-
     String doc = null;
 
     private final List<Token> tokens;
@@ -45,28 +42,22 @@ class Parser {
     }
 
     private Stmt declaration() {
-        try {
-            if (match(CLASS)) {
-                return classDeclaration();
-            }
-            if (match(FUN)) {
-                return function("function");
-            }
-            if (match(VAR)) {
-                return varDeclaration();
-            }
-            if (match(TRY)) {
-                return tryCatch();
-            }
-            if (match(CATCH)) {
-                throw error(previous(), "'except' without 'try' is not possible");
-            }
-
-            return statement();
-        } catch (ParseError error) {
-            synchronize();
-            return null;
+        if (match(CLASS)) {
+            return classDeclaration();
         }
+        if (match(FUN)) {
+            return function("function");
+        }
+        if (match(VAR)) {
+            return varDeclaration();
+        }
+        if (match(TRY)) {
+            return tryCatch();
+        }
+        if (match(CATCH)) {
+            throw error(previous(), "'except' without 'try' is not possible");
+        }
+        return statement();
     }
 
     private Stmt tryCatch() {
@@ -183,9 +174,9 @@ class Parser {
 
     private Stmt requireStatement(Token imp) {
         List<Token> value = new ArrayList();
-//        do {
+        do {
         value.add(consume(IDENTIFIER, "Module name Expected."));
-//        } while (match(DOT));
+        } while (match(DOT));
         Token alias = null;
         if (match(AS)) {
             alias = consume(IDENTIFIER, "Expect alias name.");
@@ -196,9 +187,9 @@ class Parser {
 
     private Stmt requireStatementFrom(Token imp) {
         List<Token> value = new ArrayList();
-//        do {
+        do {
         value.add(consume(IDENTIFIER, "Module name Expected."));
-//        } while (match(DOT));
+        } while (match(DOT));
         consume(IMPORT, "Expect import keyword.");
         List<Token> field = new ArrayList();
         do {
@@ -217,7 +208,7 @@ class Parser {
 
     private Stmt returnStatement() {
         Token keyword = previous();
-        Expr value = check(SEMICOLON)? null: expression();
+        Expr value = check(SEMICOLON) ? null : expression();
         consume(SEMICOLON, "Expect ';' after return value.");
         return new Stmt.Return(keyword, value);
     }
@@ -576,35 +567,7 @@ class Parser {
         return tokens.get(current - 1);
     }
 
-    ParseError error(Token token, String message) {
-        Kode.error(token, message);
-        return new ParseError();
-    }
-
-    private void synchronize() {
-        advance();
-
-        while (!isAtEnd()) {
-            if (previous().type == SEMICOLON) {
-                return;
-            }
-
-            switch (peek().type) {
-                case CLASS:
-                case FUN:
-                case VAR:
-                case FOR:
-                case IF:
-                case WHILE:
-                case RETURN:
-                case IMPORT:
-                case FROM:
-                case BREAK:
-                case CONTINUE:
-                    return;
-            }
-
-            advance();
-        }
+    Error error(Token token, String message) {
+        return new RuntimeError(message, token);
     }
 }

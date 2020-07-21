@@ -38,6 +38,8 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
             throw error;
         } catch (StackOverflowError error) {
             throw new RuntimeError("Max Depth of Recursion Exceeded.");
+        } catch (java.lang.OutOfMemoryError error) {
+            throw new RuntimeError(error.getMessage());
         }
     }
 
@@ -218,13 +220,10 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
                         module.inter.toKodeValue(stmt.imp.fn));
                 try {
                     module.run();
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     Kode.ModuleRegistry.remove(join);
                     throw e;
                 }
-            }
-            if (module.hadError || module.hadRuntimeError) {
-                return null;
             }
             if (stmt.methods != null) {
                 stmt.methods.forEach((item) -> {
@@ -233,13 +232,13 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
             } else {
                 environment.define(stmt.alias != null ? stmt.alias.lexeme : dir.get(dir.size() - 1), module);
             }
+            return null;
         } catch (RuntimeError e) {
             e.token.add(stmt.imp);
             throw e;
-        } catch (Error | Exception e) {
+        } catch (Throwable e) {
             throw new RuntimeError("Failed to Import Module '" + String.join(".", dir) + "'.", stmt.imp);
         }
-        return null;
     }
 
     @Override
@@ -293,18 +292,8 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
 
     @Override
     public Void visitWhileStmt(Stmt.While stmt) {
-        int cnt = 0;
         while (isTruthy(evaluate(stmt.condition))) {
             try {
-                if (cnt == 100000) {
-                    IO.printf_err("[INFO]: The While Loop has already iterated for a lot of time...\nDo you want to Continue iterating ?");
-                    Runtime.getRuntime().gc();
-                    if (!IO.scanf().equalsIgnoreCase("y")) {
-                        throw new RuntimeError("User Cancelled.");
-                    }
-                    cnt = 0;
-                }
-                cnt++;
                 execute(stmt.body);
             } catch (Break b) {
                 break;
@@ -316,21 +305,11 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
 
     @Override
     public Void visitForStmt(Stmt.For stmt) {
-        int cnt = 0;
         if (stmt.init != null) {
             execute(stmt.init);
         }
         while (isTruthy(evaluate(stmt.condition))) {
             try {
-                if (cnt == 100000) {
-                    IO.printf_err("[INFO]: The For Loop has already iterated for a lot of time...\nDo you want to Continue iterating ?");
-                    Runtime.getRuntime().gc();
-                    if (!IO.scanf().equalsIgnoreCase("y")) {
-                        throw new RuntimeError("User Cancelled.");
-                    }
-                    cnt = 0;
-                }
-                cnt++;
                 execute(stmt.body);
             } catch (Break b) {
                 break;

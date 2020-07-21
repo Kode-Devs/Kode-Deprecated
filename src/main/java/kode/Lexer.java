@@ -58,7 +58,7 @@ class Lexer {
         KEYWORDS.put("except", CATCH);
         KEYWORDS.put("raise", RAISE);
     }
-    
+
     Lexer(String fn, String source) {
         this.fn = fn;
         this.source = source;
@@ -74,7 +74,7 @@ class Lexer {
             start = current;
             scanToken();
         }
-        tokens.add(new Token(EOF, "", null, line, null, fn));
+        addToken(EOF);
         return tokens;
     }
 
@@ -206,8 +206,7 @@ class Lexer {
     }
 
     private void addToken(TokenType type, Object literal) {
-        String text = source.substring(start, current);
-        tokens.add(new Token(type, text, literal, line, getLine(line), fn));
+        tokens.add(new Token(type, source.substring(start, current), literal, line, getLine(line), fn));
     }
 
     private boolean match(char expected) {
@@ -240,7 +239,7 @@ class Lexer {
             if (peek() == '\n') {
                 break;
             }
-            
+
             text += advance();
         }
 
@@ -365,9 +364,9 @@ class Lexer {
     private boolean isAlphaNumeric(char c) {
         return isAlpha(c) || isDigit(c);
     }
-    
+
     void error(String fn, int line, String message) {
-        Kode.error(fn, line, message);
+        throw new RuntimeError(message, new Token(EOF, source.substring(start, current), null, line, getLine(line), fn));
     }
 
 }

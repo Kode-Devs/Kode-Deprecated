@@ -5,6 +5,7 @@
  */
 package kode;
 
+import java.math.BigInteger;
 import java.util.stream.Collectors;
 
 /**
@@ -34,11 +35,12 @@ class ValueError extends Value {
 
             @Override
             public Object call(Object... arguments) {
-                Object at = closure.getAt(0, "this");
-                if (at instanceof KodeInstance) {
-                    ((KodeInstance) at).set("args", arguments[0]);
+                Object This = closure.getAt(0, "this");
+                if (This instanceof KodeInstance) {
+                    ((KodeInstance) This).set("args", arguments[0]);
+                    ((KodeInstance) This).data = BigInteger.ZERO;
                 }
-                return at;
+                return This;
             }
         });
 //</editor-fold>
@@ -67,6 +69,34 @@ class ValueError extends Value {
                         }
                     }
                     return interpreter.toKodeValue(get.toString());
+                }
+                throw new NotImplemented();
+            }
+        });
+//</editor-fold>
+
+        //<editor-fold defaultstate="collapsed" desc="skip">
+        this.methods.put("skip", new KodeBuiltinFunction("skip", null, interpreter) {
+
+            @Override
+            public int arity() {
+                return 1;
+            }
+
+            @Override
+            public Object call(Object... arguments) {
+                Object This = closure.getAt(0, "this");
+                Object level = arguments[0];
+                if (This instanceof KodeInstance && level instanceof KodeInstance) {
+                    if (ValueNumber.isNumber((KodeInstance) level)) {
+                        try {
+                            ((KodeInstance) This).data = ValueNumber.toNumber(level).getInteger();
+                            return This;
+                        } catch (ArithmeticException e) {
+                            throw new RuntimeError("Argument has non-zero fractional part.");
+                        }
+                    }
+                    throw new RuntimeError("SArgument is not Numeric in nature.");
                 }
                 throw new NotImplemented();
             }

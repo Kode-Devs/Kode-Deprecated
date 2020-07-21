@@ -18,7 +18,7 @@
         </dependency>
         <dependency>
             <groupId>org.kodeDevs</groupId>
-            <artifactId>KodeNativeInterface</artifactId>
+            <artifactId>KNI</artifactId>
             <version>latest</version>
         </dependency>
     </dependencies>
@@ -60,5 +60,5 @@
             </plugin>
         </plugins>
     </build>
-    <name>Kode</name>
+    <name>Kode Interpreter</name>
 </project>

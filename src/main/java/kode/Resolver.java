@@ -430,7 +430,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     }
 
     void error(Token token, String message) {
-        Kode.error(token, message);
+        throw new RuntimeError(message, token);
     }
 
 }

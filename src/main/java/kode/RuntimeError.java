@@ -5,8 +5,7 @@
  */
 package kode;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Stack;
 
 /**
  *
@@ -15,7 +14,7 @@ import java.util.List;
 class RuntimeError extends Error
 {
 
-    List<Token> token = new ArrayList<>();
+    Stack<Token> token = new Stack<>();
     KodeInstance instance = null;
 
     RuntimeError(String message, Token token) {

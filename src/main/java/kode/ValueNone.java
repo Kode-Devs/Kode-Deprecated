@@ -22,20 +22,6 @@ class ValueNone extends Value {
 
     private ValueNone(Interpreter interpreter) {
         super("NoneType", interpreter);
-        //<editor-fold defaultstate="collapsed" desc="init">
-        this.methods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, null, interpreter) {
-
-            @Override
-            public int arity() {
-                return 0;
-            }
-
-            @Override
-            public Object call(Object... arguments) {
-                return closure.getAt(0, "this");
-            }
-        });
-//</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="str">
         this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, null, interpreter) {
 
@@ -66,7 +52,7 @@ class ValueNone extends Value {
             public Object call(Object... arguments) {
                 Object This = closure.getAt(0, "this");
                 if (This instanceof KodeInstance) {
-                    return interpreter.toKodeValue(interpreter.isTruthy(((KodeInstance) This).data));
+                    return interpreter.toKodeValue(false);
                 }
                 throw new NotImplemented();
             }

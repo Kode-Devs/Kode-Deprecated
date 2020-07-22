@@ -65,7 +65,7 @@ class Lexer {
     }
 
     private String getLine(int line) {
-        return source.split("\n")[line - 1];
+        return source.split("\n", -1)[line - 1]; // BUG split removes trailing empty strings.
     }
 
     List<Token> scanTokens() {

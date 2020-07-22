@@ -12,26 +12,26 @@ import java.util.List;
  * @author dell
  */
 class ValueList extends Value {
-
+    
     static Value val = new ValueList(new Interpreter());
-
+    
     static KodeInstance create(List x) {
         KodeInstance instance = new KodeInstance(val);
         KodeFunction initializer = val.findMethod(Kode.INIT);
         initializer.bind(instance).call(x);
         return instance;
     }
-
+    
     private ValueList(Interpreter interpreter) {
         super("List", interpreter);
         //<editor-fold defaultstate="collapsed" desc="init">
         this.methods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, null, interpreter) {
-
+            
             @Override
             public int arity() {
                 return 1;
             }
-
+            
             @Override
             public Object call(Object... arguments) {
                 Object This = closure.getAt(0, "this");
@@ -44,29 +44,31 @@ class ValueList extends Value {
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="str">
         this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, null, interpreter) {
-
+            
             @Override
             public int arity() {
                 return 0;
             }
-
+            
             @Override
             public Object call(Object... arguments) {
                 Object This = closure.getAt(0, "this");
                 if (This instanceof KodeInstance) {
-                    Object i;
-                    try {
-                        if (!((KodeInstance) This).reccured) {
-                            ((KodeInstance) This).reccured = true;
-                            i = interpreter.toKodeValue(Kode.stringify(((KodeInstance) This).data));
-                        } else {
-                            i = interpreter.toKodeValue(Kode.stringify("[...]"));
+                    if (ValueList.isList((KodeInstance) This)) {
+                        try {
+                            Object i;
+                            if (!((KodeInstance) This).reccured) {
+                                ((KodeInstance) This).reccured = true;
+                                i = interpreter.toKodeValue(Kode.stringify(ValueList.toList(This)));
+                            } else {
+                                i = interpreter.toKodeValue(Kode.stringify("[...]"));
+                            }
+                            ((KodeInstance) This).reccured = false;
+                            return i;
+                        } catch (Throwable e) {
+                            ((KodeInstance) This).reccured = false;
+                            throw e;
                         }
-                        ((KodeInstance) This).reccured = false;
-                        return i;
-                    } catch (Error | Exception e) {
-                        ((KodeInstance) This).reccured = false;
-                        throw e;
                     }
                 }
                 throw new NotImplemented();
@@ -75,17 +77,19 @@ class ValueList extends Value {
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="bool">
         this.methods.put(Kode.BOOLEAN, new KodeBuiltinFunction(Kode.BOOLEAN, null, interpreter) {
-
+            
             @Override
             public int arity() {
                 return 0;
             }
-
+            
             @Override
             public Object call(Object... arguments) {
                 Object This = closure.getAt(0, "this");
                 if (This instanceof KodeInstance) {
-                    return interpreter.toKodeValue(interpreter.isTruthy(((KodeInstance) This).data));
+                    if (ValueList.isList((KodeInstance) This)) {
+                        return interpreter.toKodeValue(Interpreter.isTruthy(ValueList.toList(This)));
+                    }
                 }
                 throw new NotImplemented();
             }
@@ -93,17 +97,19 @@ class ValueList extends Value {
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="list">
         this.methods.put(Kode.LIST, new KodeBuiltinFunction(Kode.LIST, null, interpreter) {
-
+            
             @Override
             public int arity() {
                 return 0;
             }
-
+            
             @Override
             public Object call(Object... arguments) {
                 Object This = closure.getAt(0, "this");
                 if (This instanceof KodeInstance) {
-                    return This;
+                    if (ValueList.isList((KodeInstance) This)) {
+                        return This;
+                    }
                 }
                 throw new NotImplemented();
             }
@@ -112,12 +118,12 @@ class ValueList extends Value {
 
         //<editor-fold defaultstate="collapsed" desc="append">
         this.methods.put("append", new KodeBuiltinFunction("append", null, interpreter) {
-
+            
             @Override
             public int arity() {
                 return 1;
             }
-
+            
             @Override
             public Object call(Object... arguments) {
                 Object This = closure.getAt(0, "this");
@@ -133,7 +139,7 @@ class ValueList extends Value {
         });
 //</editor-fold>
     }
-
+    
     static List toList(Object x_) {
         return ValueList.toList(x_, x_);
     }
@@ -167,5 +173,5 @@ class ValueList extends Value {
     final static boolean isList(KodeInstance i) {
         return instanceOf(i.klass, ValueList.class);
     }
-
+    
 }

@@ -17,12 +17,12 @@ class ValueType extends Value {
         super("type", interpreter);
         //<editor-fold defaultstate="collapsed" desc="init">
         this.methods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, null, interpreter) {
-            
+
             @Override
             public int arity() {
                 return 1;
             }
-            
+
             @Override
             public Object call(Object... arguments) {
                 Object This = closure.getAt(0, "this");
@@ -36,17 +36,19 @@ class ValueType extends Value {
 
         //<editor-fold defaultstate="collapsed" desc="str">
         this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, null, interpreter) {
-            
+
             @Override
             public int arity() {
                 return 0;
             }
-            
+
             @Override
             public Object call(Object... arguments) {
                 Object This = closure.getAt(0, "this");
                 if (This instanceof KodeInstance) {
-                    return interpreter.toKodeValue("<type '"+((KodeInstance) This).data+"'>");
+                    if (((KodeInstance) This).data != null) {
+                        return interpreter.toKodeValue("<type '" + ((KodeInstance) This).data + "'>");
+                    }
                 }
                 throw new NotImplemented();
             }

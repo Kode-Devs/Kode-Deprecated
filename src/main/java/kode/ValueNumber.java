@@ -5,8 +5,6 @@
  */
 package kode;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import math.KodeNumber;
 
 /**
@@ -61,7 +59,9 @@ class ValueNumber extends Value {
             public Object call(Object... arguments) {
                 Object This = closure.getAt(0, "this");
                 if (This instanceof KodeInstance) {
-                    return interpreter.toKodeValue(Kode.stringify(((KodeInstance) This).data));
+                    if (ValueNumber.isNumber((KodeInstance) This)) {
+                        return interpreter.toKodeValue(Kode.stringify(ValueNumber.toNumber(This)));
+                    }
                 }
                 throw new NotImplemented();
             }
@@ -79,7 +79,9 @@ class ValueNumber extends Value {
             public Object call(Object... arguments) {
                 Object This = closure.getAt(0, "this");
                 if (This instanceof KodeInstance) {
-                    return This;
+                    if (ValueNumber.isNumber((KodeInstance) This)) {
+                        return This;
+                    }
                 }
                 throw new NotImplemented();
             }
@@ -97,7 +99,9 @@ class ValueNumber extends Value {
             public Object call(Object... arguments) {
                 Object This = closure.getAt(0, "this");
                 if (This instanceof KodeInstance) {
-                    return interpreter.toKodeValue(interpreter.isTruthy(((KodeInstance) This).data));
+                    if (ValueNumber.isNumber((KodeInstance) This)) {
+                        return interpreter.toKodeValue(Interpreter.isTruthy(ValueNumber.toNumber(This)));
+                    }
                 }
                 throw new NotImplemented();
             }
@@ -137,9 +141,9 @@ class ValueNumber extends Value {
                 Object This = closure.getAt(0, "this");
                 if (This instanceof KodeInstance) {
                     if (ValueNumber.isNumber((KodeInstance) This)) {
-                        try{
-                        return interpreter.toKodeValue(ValueNumber.toNumber(This).getInteger());
-                        }catch(ArithmeticException e){
+                        try {
+                            return interpreter.toKodeValue(ValueNumber.toNumber(This).getInteger());
+                        } catch (ArithmeticException e) {
                             throw new RuntimeError("Has fractional part.");
                         }
                     }

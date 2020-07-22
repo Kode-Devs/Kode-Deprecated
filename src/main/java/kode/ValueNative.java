@@ -35,14 +35,14 @@ class ValueNative extends Value {
             public Object call(Object... arguments) {
                 Object This = closure.getAt(0, "this");
                 if (This instanceof KodeInstance) {
-                    return interpreter.toKodeValue("<native object '" + ((KodeInstance) This).data + "'>");
+                    return interpreter.toKodeValue("<native object '" + ((KodeInstance) This).data == null ? "null" : ((KodeInstance) This).data + "'>");
                 }
                 throw new NotImplemented();
             }
         });
 //</editor-fold>
     }
-    
+
     final static boolean isNative(KodeInstance i) {
         return instanceOf(i.klass, ValueNative.class);
     }

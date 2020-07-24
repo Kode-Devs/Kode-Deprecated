@@ -36,7 +36,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
             return ret;
         } catch (StackOverflowError error) {
             throw new RuntimeError("Max Depth of Recursion Exceeded.");
-        } catch (java.lang.OutOfMemoryError error) {
+        } catch (OutOfMemoryError error) {
             throw new RuntimeError(error.getMessage());
         } catch (RuntimeError error) {
             throw error;
@@ -130,9 +130,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
         Environment previous = this.environment;
         try {
             this.environment = env;
-            for (Stmt statement : statements) {
-                execute(statement);
-            };
+            statements.forEach(this::execute);
         } finally {
             this.environment = previous;
         }
@@ -340,20 +338,22 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     }
 
     private Object BinOP(Object left, Object right, String lop, String rop, Token op) {
-        if (left instanceof KodeInstance && right instanceof KodeInstance) {
+        if (left instanceof KodeInstance) {
             try {
                 Object fun = ((KodeInstance) left).get(lop);
                 if (fun instanceof KodeFunction) {
                     return ((KodeFunction) fun).call(right);
                 }
             } catch (NotImplemented e1) {
-                try {
-                    Object fun = ((KodeInstance) right).get(rop);
-                    if (fun instanceof KodeFunction) {
-                        return ((KodeFunction) fun).call(left);
-                    }
-                } catch (NotImplemented e2) {
+            }
+        }
+        if (right instanceof KodeInstance) {
+            try {
+                Object fun = ((KodeInstance) right).get(rop);
+                if (fun instanceof KodeFunction) {
+                    return ((KodeFunction) fun).call(left);
                 }
+            } catch (NotImplemented e2) {
             }
         }
         if (lop.equals(rop) && lop.equals(Kode.EQ)) {

@@ -22,9 +22,9 @@ abstract class KodeBuiltinFunction extends KodeFunction {
         this.fun_name = name;
         this.__doc__ = doc();
     }
-    
-    String doc(){
-        return null; 
+
+    String doc() {
+        return null;
     }
 
     @Override
@@ -48,12 +48,11 @@ abstract class KodeBuiltinFunction extends KodeFunction {
 
     //<editor-fold defaultstate="collapsed" desc="Comparator">
     boolean eq(Object left, Object right) {
-        Boolean res = Objects.equals(left, right);
+        Boolean res = null;
         if (left instanceof KodeInstance && right instanceof KodeInstance) {
-            if (ValueNone.isNone((KodeInstance) left) && ValueNone.isNone((KodeInstance) right)){
+            if (ValueNone.isNone((KodeInstance) left) && ValueNone.isNone((KodeInstance) right)) {
                 res = true;
-            }
-            else if (ValueNone.isNone((KodeInstance) left) || ValueNone.isNone((KodeInstance) right)){
+            } else if (ValueNone.isNone((KodeInstance) left) || ValueNone.isNone((KodeInstance) right)) {
                 res = false;
             }
             if (ValueBool.isBool((KodeInstance) left)) {
@@ -83,16 +82,18 @@ abstract class KodeBuiltinFunction extends KodeFunction {
                 }
             }
         }
+        if (res == null) {
+            throw new NotImplemented();
+        }
         return res;
     }
 
     boolean ne(Object left, Object right) {
-        Boolean res = !Objects.equals(left, right);
+        Boolean res = null;
         if (left instanceof KodeInstance && right instanceof KodeInstance) {
-            if (ValueNone.isNone((KodeInstance) left) && ValueNone.isNone((KodeInstance) right)){
+            if (ValueNone.isNone((KodeInstance) left) && ValueNone.isNone((KodeInstance) right)) {
                 res = false;
-            }
-            else if (ValueNone.isNone((KodeInstance) left) || ValueNone.isNone((KodeInstance) right)){
+            } else if (ValueNone.isNone((KodeInstance) left) || ValueNone.isNone((KodeInstance) right)) {
                 res = true;
             }
             if (ValueBool.isBool((KodeInstance) left)) {
@@ -121,6 +122,9 @@ abstract class KodeBuiltinFunction extends KodeFunction {
                     res = true;
                 }
             }
+        }
+        if (res == null) {
+            throw new NotImplemented();
         }
         return res;
     }

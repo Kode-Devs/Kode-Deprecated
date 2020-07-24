@@ -12,6 +12,7 @@ import java.lang.management.MemoryNotificationInfo;
 import java.math.BigInteger;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -42,6 +43,7 @@ class Kode {
     static final String EXTENSION = "kde";
     static final String AUTHOR = "Kode-Devs";
     static final String USAGE = "Usage: kode [script]";
+    private static Charset encoding = StandardCharsets.UTF_8;
 
     static String getVersion() {
         return NAME + " " + VERSION;
@@ -176,7 +178,7 @@ class Kode {
     static void runFile(String path, Interpreter inter) throws Throwable {
         byte[] bytes = Files.readAllBytes(Paths.get(path));
         inter.globals.define(Kode.__NAME__, inter.toKodeValue(Kode.__MAIN__));
-        run(Paths.get(path).toFile().getName(), new String(bytes, Charset.defaultCharset()), inter);
+        run(Paths.get(path).toFile().getName(), new String(bytes, encoding), inter);
     }
 
     static String runLib(String name, Interpreter inter) throws Throwable {
@@ -191,7 +193,7 @@ class Kode {
                 Path path = Paths.get("./", name + "." + Kode.EXTENSION).toAbsolutePath();
                 if (path.toFile().exists()) {
                     byte[] bytes = Files.readAllBytes(path);
-                    return run(path.toFile().getName(), new String(bytes, Charset.defaultCharset()), inter).key;
+                    return run(path.toFile().getName(), new String(bytes, encoding), inter).key;
                 }
 
                 if (Pip4kode.checkUpdate(pkgname, p)) {
@@ -205,7 +207,7 @@ class Kode {
                 path = Paths.get(p, name + "." + Kode.EXTENSION).toAbsolutePath();
                 if (path.toFile().exists()) {
                     byte[] bytes = Files.readAllBytes(path);
-                    return run(path.toFile().getName(), new String(bytes, Charset.defaultCharset()), inter).key;
+                    return run(path.toFile().getName(), new String(bytes, encoding), inter).key;
                 }
             }
 
@@ -213,7 +215,7 @@ class Kode {
             InputStream file = Kode.class.getResourceAsStream("/" + name + "." + Kode.EXTENSION);
             if (file != null) {
                 bytes = file.readAllBytes();
-                return run(name + "." + Kode.EXTENSION, new String(bytes, Charset.defaultCharset()), inter).key;
+                return run(name + "." + Kode.EXTENSION, new String(bytes, encoding), inter).key;
             }
 
             IO.printfln_err("[Info]: Library file " + name + "." + Kode.EXTENSION + " not found in your device.");
@@ -819,16 +821,17 @@ class Kode {
                     if (temp instanceof KodeInstance) {
                         if (ValueNumber.isNumber((KodeInstance) temp)) {
                             KodeNumber asIndex = ValueNumber.toNumber(temp);
-                            if (!asIndex.isInteger()) {
+                            if (asIndex.isInteger()) {
                                 try {
                                     return this.interpreter.toKodeValue((char) asIndex.getInteger().longValueExact());
                                 } catch (ArithmeticException e) {
                                     throw new RuntimeError("Integer Number Out Of Range.");
                                 }
                             }
+                            throw new RuntimeError("Integer Number expected, got Decimal Number");
                         }
                     }
-                    throw new RuntimeError("Integer Number expected, got" + Kode.type(temp));
+                    throw new RuntimeError("Integer Number expected, got " + Kode.type(temp));
                 }
 
             });

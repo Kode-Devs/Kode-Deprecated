@@ -74,12 +74,27 @@ public class TextUtils {
                         }
                         ch = (char) code;
                         break;
-                    default: {
-                        String msg = String.format(
+                    case 'u':
+                        String token = "";
+                        int max = Integer.min(from + 4, length);
+                        while (from < max) {
+                            ch = chars[from];
+                            if ("0123456789abcdefABCDEF".indexOf(ch) == -1) {
+                                break;
+                            }
+                            from++;
+                            token += ch;
+                        }
+                        if (token.length() != 4) {
+                            throw new IllegalArgumentException(String.format(
+                                "Invalid escape sequence: \\u%s", token));
+                        }
+                        ch = (char) Integer.parseInt(token, 16);
+                        break;
+                    default:
+                        throw new IllegalArgumentException(String.format(
                                 "Invalid escape sequence: \\%c \\\\u%04X",
-                                ch, (int) ch);
-                        throw new IllegalArgumentException(msg);
-                    }
+                                ch, (int) ch));
                 }
             }
 
@@ -88,5 +103,4 @@ public class TextUtils {
 
         return new String(chars, 0, to);
     }
-    
 }

@@ -5,6 +5,8 @@
  */
 package kode;
 
+import java.util.Objects;
+
 /**
  *
  * @author dell
@@ -27,7 +29,7 @@ class ValueType extends Value {
             public Object call(Object... arguments) {
                 Object This = closure.getAt(0, "this");
                 if (This instanceof KodeInstance) {
-                    ((KodeInstance) This).data = Kode.type(arguments[0]);
+                    ((KodeInstance) This).data = arguments[0];
                 }
                 return This;
             }
@@ -47,13 +49,56 @@ class ValueType extends Value {
                 Object This = closure.getAt(0, "this");
                 if (This instanceof KodeInstance) {
                     if (((KodeInstance) This).data != null) {
-                        return interpreter.toKodeValue("<type '" + ((KodeInstance) This).data + "'>");
+                        return interpreter.toKodeValue("<type '" + Kode.type(((KodeInstance) This).data) + "'>");
                     }
                 }
                 throw new NotImplemented();
             }
         });
 //</editor-fold>
+
+        //<editor-fold defaultstate="collapsed" desc="eq">
+        this.methods.put(Kode.EQ, new KodeBuiltinFunction(Kode.EQ, null, interpreter) {
+
+            @Override
+            public int arity() {
+                return 1;
+            }
+
+            @Override
+            public Object call(Object... arguments) {
+                Object This = closure.getAt(0, "this");
+                if (This instanceof KodeInstance) {
+                    if (arguments[0] instanceof KodeClass && ((KodeInstance) This).data instanceof KodeInstance) {
+                        return interpreter.toKodeValue(
+                                Objects.equals(((KodeInstance) ((KodeInstance) This).data).klass, (KodeClass) arguments[0]));
+                    }
+                }
+                return interpreter.toKodeValue(eq(This, arguments[0]));
+            }
+        });
+        //</editor-fold>
+        //<editor-fold defaultstate="collapsed" desc="ne">
+        this.methods.put(Kode.NE, new KodeBuiltinFunction(Kode.NE, null, interpreter) {
+
+            @Override
+            public int arity() {
+                return 1;
+            }
+
+            @Override
+            public Object call(Object... arguments) {
+                Object This = closure.getAt(0, "this");
+                if (This instanceof KodeInstance) {
+                    if (arguments[0] instanceof KodeClass && ((KodeInstance) This).data instanceof KodeInstance) {
+                        return interpreter.toKodeValue(
+                                !Objects.equals(((KodeInstance) ((KodeInstance) This).data).klass, (KodeClass) arguments[0]));
+                    }
+                }
+                return interpreter.toKodeValue(eq(This, arguments[0]));
+            }
+        });
+        //</editor-fold>
     }
 
 }

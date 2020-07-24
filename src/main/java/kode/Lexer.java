@@ -280,7 +280,7 @@ class Lexer {
             error(fn, line, "Unterminated multi-line string.");
             return;
         }
-
+        
         //Processing
         text = text.stripIndent();
         if (text.startsWith("\n")) {

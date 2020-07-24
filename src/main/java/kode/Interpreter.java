@@ -380,6 +380,10 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
                 return BinOP(left, right, Kode.LT, Kode.LT, expr.operator);
             case LESS_EQUAL:
                 return BinOP(left, right, Kode.LE, Kode.LE, expr.operator);
+            case LSHIFT:
+                return BinOP(left, right, Kode.LSHIFT, Kode.RLSHIFT, expr.operator);
+            case RSHIFT:
+                return BinOP(left, right, Kode.RSHIFT, Kode.RRSHIFT, expr.operator);
             case MINUS:
                 return BinOP(left, right, Kode.SUB, Kode.RSUB, expr.operator);
             case PLUS:
@@ -400,8 +404,9 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
                 return BinOP(left, right, Kode.EQ, Kode.EQ, expr.operator);
         }
 
-        // Unreachable.                                
-        return null;
+        // Unreachable.
+        throw new RuntimeError("Binary Operation '" + expr.operator + "' can not be performed between operands of type '"
+                + Kode.type(left) + "' and '" + Kode.type(right) + "'.", expr.operator);
     }
 
     @Override

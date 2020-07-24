@@ -715,7 +715,7 @@ class KodeClass implements KodeCallable {
                     if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
                         try {
                             return interpreter.toKodeValue(KodeMath.exponent(ValueNumber.toNumber(left), ValueNumber.toNumber(right)));
-                        } catch (Exception ex) {
+                        } catch (ArithmeticException ex) {
                             throw new RuntimeError("TODO");
                         }
                     }
@@ -744,7 +744,127 @@ class KodeClass implements KodeCallable {
                     if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
                         try {
                             return interpreter.toKodeValue(KodeMath.exponent(ValueNumber.toNumber(left), ValueNumber.toNumber(right)));
-                        } catch (Exception ex) {
+                        } catch (ArithmeticException ex) {
+                            throw new RuntimeError("TODO");
+                        }
+                    }
+                }
+                throw new NotImplemented();
+            }
+        });
+        //</editor-fold>
+        //<editor-fold defaultstate="collapsed" desc="lshift">
+        sm.put(Kode.LSHIFT, new KodeBuiltinFunction(Kode.LSHIFT, null, interpreter) {
+
+            @Override
+            public int arity() {
+                return 1;
+            }
+
+            @Override
+            public Object call(Object... arguments) {
+                Object left = closure.getAt(0, "this");
+                Object right = arguments[0];
+                if (left instanceof KodeInstance && right instanceof KodeInstance) {
+                    if (ValueBool.isBool((KodeInstance) left)) {
+                        left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
+                    }
+                    if (ValueBool.isBool((KodeInstance) right)) {
+                        right = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0);
+                    }
+                    if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
+                        try {
+                            return interpreter.toKodeValue(KodeMath.lshift(ValueNumber.toNumber(left), ValueNumber.toNumber(right)));
+                        } catch (ArithmeticException ex) {
+                            throw new RuntimeError("TODO");
+                        }
+                    }
+                }
+                throw new NotImplemented();
+            }
+        });
+        sm.put(Kode.RLSHIFT, new KodeBuiltinFunction(Kode.RLSHIFT, null, interpreter) {
+
+            @Override
+            public int arity() {
+                return 1;
+            }
+
+            @Override
+            public Object call(Object... arguments) {
+                Object right = closure.getAt(0, "this");
+                Object left = arguments[0];
+                if (left instanceof KodeInstance && right instanceof KodeInstance) {
+                    if (ValueBool.isBool((KodeInstance) left)) {
+                        left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
+                    }
+                    if (ValueBool.isBool((KodeInstance) right)) {
+                        right = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0);
+                    }
+                    if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
+                        try {
+                            return interpreter.toKodeValue(KodeMath.lshift(ValueNumber.toNumber(left), ValueNumber.toNumber(right)));
+                        } catch (ArithmeticException ex) {
+                            throw new RuntimeError("TODO");
+                        }
+                    }
+                }
+                throw new NotImplemented();
+            }
+        });
+        //</editor-fold>
+        //<editor-fold defaultstate="collapsed" desc="rshift">
+        sm.put(Kode.RSHIFT, new KodeBuiltinFunction(Kode.RSHIFT, null, interpreter) {
+
+            @Override
+            public int arity() {
+                return 1;
+            }
+
+            @Override
+            public Object call(Object... arguments) {
+                Object left = closure.getAt(0, "this");
+                Object right = arguments[0];
+                if (left instanceof KodeInstance && right instanceof KodeInstance) {
+                    if (ValueBool.isBool((KodeInstance) left)) {
+                        left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
+                    }
+                    if (ValueBool.isBool((KodeInstance) right)) {
+                        right = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0);
+                    }
+                    if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
+                        try {
+                            return interpreter.toKodeValue(KodeMath.rshift(ValueNumber.toNumber(left), ValueNumber.toNumber(right)));
+                        } catch (ArithmeticException ex) {
+                            throw new RuntimeError("TODO");
+                        }
+                    }
+                }
+                throw new NotImplemented();
+            }
+        });
+        sm.put(Kode.RRSHIFT, new KodeBuiltinFunction(Kode.RRSHIFT, null, interpreter) {
+
+            @Override
+            public int arity() {
+                return 1;
+            }
+
+            @Override
+            public Object call(Object... arguments) {
+                Object right = closure.getAt(0, "this");
+                Object left = arguments[0];
+                if (left instanceof KodeInstance && right instanceof KodeInstance) {
+                    if (ValueBool.isBool((KodeInstance) left)) {
+                        left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
+                    }
+                    if (ValueBool.isBool((KodeInstance) right)) {
+                        right = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0);
+                    }
+                    if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
+                        try {
+                            return interpreter.toKodeValue(KodeMath.rshift(ValueNumber.toNumber(left), ValueNumber.toNumber(right)));
+                        } catch (ArithmeticException ex) {
                             throw new RuntimeError("TODO");
                         }
                     }

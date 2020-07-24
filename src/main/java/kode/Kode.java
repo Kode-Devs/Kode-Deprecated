@@ -75,17 +75,14 @@ class Kode {
                     try {
                         IO.printf(">>>");
                         Pair run = run("<shell>", IO.scanf(), interpreter);
-                        if (run != null) {
-                            if (run.value != null) {
-                                Object value = run.value;
-                                if (value instanceof KodeInstance) {
-                                    if (ValueString.isString((KodeInstance) value)) {
-                                        IO.printfln('\'' + value.toString() + '\'');
-                                        continue;
-                                    }
+                        if (run.value != null) {
+                            Object value = run.value;
+                            if (value instanceof KodeInstance) {
+                                if (ValueString.isString((KodeInstance) value)) {
+                                    value = '\'' + value.toString() + '\'';
                                 }
-                                IO.printfln(value);
                             }
+                            IO.printfln(value);
                         }
                     } catch (Throwable e) {
                         handleThrowable(e);
@@ -174,6 +171,12 @@ class Kode {
     static final String LE = "__le__";
     static final String GT = "__gt__";
     static final String GE = "__ge__";
+
+    static final String LSHIFT = "__lshift__";
+    static final String RLSHIFT = "__rlshift__";
+
+    static final String RSHIFT = "__rshift__";
+    static final String RRSHIFT = "__rrshift__";
 
     static void runFile(String path, Interpreter inter) throws Throwable {
         byte[] bytes = Files.readAllBytes(Paths.get(path));

@@ -355,9 +355,21 @@ class Parser {
     }
 
     private Expr comparison() {
-        Expr expr = addition();
+        Expr expr = shift();
 
         while (match(GREATER, GREATER_EQUAL, LESS, LESS_EQUAL)) {
+            Token operator = previous();
+            Expr right = shift();
+            expr = new Expr.Binary(expr, operator, right);
+        }
+
+        return expr;
+    }
+    
+    private Expr shift() {
+        Expr expr = addition();
+
+        while (match(LSHIFT, RSHIFT)) {
             Token operator = previous();
             Expr right = addition();
             expr = new Expr.Binary(expr, operator, right);
@@ -365,6 +377,7 @@ class Parser {
 
         return expr;
     }
+
 
     private Expr addition() {
         Expr expr = multiplication();

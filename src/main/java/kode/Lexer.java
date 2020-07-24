@@ -65,7 +65,7 @@ class Lexer {
     }
 
     private String getLine(int line) {
-        return source.split("\n", -1)[line - 1]; // BUG split removes trailing empty strings.
+        return source.split("\n", -1)[line - 1];
     }
 
     List<Token> scanTokens() {
@@ -136,10 +136,10 @@ class Lexer {
                 addToken(match('=') ? EQUAL_EQUAL : EQUAL);
                 break;
             case '<':
-                addToken(match('=') ? LESS_EQUAL : LESS);
+                addToken(match('=') ? LESS_EQUAL: (match('<') ? LSHIFT : LESS));
                 break;
             case '>':
-                addToken(match('=') ? GREATER_EQUAL : GREATER);
+                addToken(match('=') ? GREATER_EQUAL : (match('>') ? RSHIFT : GREATER));
                 break;
             // Longer Lexemes
             case '/':
@@ -280,7 +280,7 @@ class Lexer {
             error(fn, line, "Unterminated multi-line string.");
             return;
         }
-        
+
         //Processing
         text = text.stripIndent();
         if (text.startsWith("\n")) {

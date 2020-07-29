@@ -7,8 +7,6 @@ package kode;
 
 import java.io.File;
 import java.io.InputStream;
-import java.lang.management.ManagementFactory;
-import java.lang.management.MemoryNotificationInfo;
 import java.math.BigInteger;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
@@ -26,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import javax.management.NotificationEmitter;
 import javax.swing.JOptionPane;
 import lib.warnings;
 import math.KodeNumber;
@@ -60,10 +57,10 @@ class Kode {
         return res;
     }
 
+    static final String HELP = USAGE;
+
     public static void main(String... args) {
         switch (args.length) {
-            case 0:
-                break;
             case 1:
                 VERSION = args[0];
                 //<editor-fold defaultstate="collapsed" desc="Shell">
@@ -90,19 +87,30 @@ class Kode {
                 }
             //</editor-fold>
             case 2:
-                //<editor-fold defaultstate="collapsed" desc="File">
-                Path path = Paths.get(args[1]);
-                if (path.getFileName().toString().endsWith("." + Kode.EXTENSION)) {
-                    try {
-                        runFile(path.toAbsolutePath().toString(), new Interpreter());
-                    } catch (Throwable e) {
-                        handleThrowable(e);
-                    }
-                } else {
-                    IO.printfln_err("Not a " + Kode.NAME + " runnable file");
-                    IO.exit(64);
+                VERSION = args[0];
+                switch (args[1]) {
+                    case "-v":
+                    case "--version":
+                        IO.printfln(Kode.getIntro());
+                        break;
+                    case "-h":
+                    case "--help":
+                        IO.printfln(Kode.HELP);
+                        break;
+                    default://<editor-fold defaultstate="collapsed" desc="File">
+                        Path path = Paths.get(args[1]);
+                        if (path.getFileName().toString().endsWith("." + Kode.EXTENSION)) {
+                            try {
+                                runFile(path.toAbsolutePath().toString(), new Interpreter());
+                            } catch (Throwable e) {
+                                handleThrowable(e);
+                            }
+                        } else {
+                            IO.printfln_err("Not a " + Kode.NAME + " runnable file");
+                            IO.exit(64);
+                        }
+                    //</editor-fold>
                 }
-                //</editor-fold>
                 break;
             default:
                 IO.printfln_err(USAGE);
@@ -185,33 +193,27 @@ class Kode {
     }
 
     static String runLib(String name, Interpreter inter) throws Throwable {
-        return runLib(name, true, inter);
-    }
-
-    static String runLib(String name, boolean fromDir, Interpreter inter) throws Throwable {
         String pkgname = Paths.get(name).getName(0).toString();
         String p = Paths.get(Kode.LIBPATH, pkgname).toAbsolutePath().toString();
         try {
-            if (fromDir) {
-                Path path = Paths.get("./", name + "." + Kode.EXTENSION).toAbsolutePath();
-                if (path.toFile().exists()) {
-                    byte[] bytes = Files.readAllBytes(path);
-                    return run(path.toFile().getName(), new String(bytes, encoding), inter).key;
-                }
+            Path path = Paths.get("./", name + "." + Kode.EXTENSION).toAbsolutePath();
+            if (path.toFile().exists()) {
+                byte[] bytes = Files.readAllBytes(path);
+                return run(path.toFile().getName(), new String(bytes, encoding), inter).key;
+            }
 
-                if (Pip4kode.checkUpdate(pkgname, p)) {
-                    IO.printf_err("[Info]: Package '" + pkgname + "' needs an update.\n"
-                            + "Do you want to update the package '" + pkgname + "' ? [y/n]");
-                    if (IO.scanf().equalsIgnoreCase("y")) {
-                        throw new Exception();
-                    }
+            if (Pip4kode.checkUpdate(pkgname, p)) {
+                IO.printf_err("[Info]: Package '" + pkgname + "' needs an update.\n"
+                        + "Do you want to update the package '" + pkgname + "' ? [y/n]");
+                if (IO.scanf().equalsIgnoreCase("y")) {
+                    throw new Exception();
                 }
+            }
 
-                path = Paths.get(p, name + "." + Kode.EXTENSION).toAbsolutePath();
-                if (path.toFile().exists()) {
-                    byte[] bytes = Files.readAllBytes(path);
-                    return run(path.toFile().getName(), new String(bytes, encoding), inter).key;
-                }
+            path = Paths.get(p, name + "." + Kode.EXTENSION).toAbsolutePath();
+            if (path.toFile().exists()) {
+                byte[] bytes = Files.readAllBytes(path);
+                return run(path.toFile().getName(), new String(bytes, encoding), inter).key;
             }
 
             byte[] bytes;
@@ -224,9 +226,8 @@ class Kode {
             IO.printfln_err("[Info]: Library file " + name + "." + Kode.EXTENSION + " not found in your device.");
             throw new Exception();
         } catch (Exception e) {
-            Pip4kode pip;
             try {
-                pip = new Pip4kode(pkgname);
+                Pip4kode pip = new Pip4kode(pkgname);
                 IO.printfln("Reading package metadata from repository ...");
                 pip.init();
                 IO.printf("Do you want to download the package '" + pip.pkg + "' (" + pip.sizeInWords + ") ? [y/n]");
@@ -235,12 +236,15 @@ class Kode {
                 }
                 IO.printfln("Get: " + pip.repositoryRoot + " " + pip.pkg
                         + " rev " + pip.latestRevision + " [" + pip.sizeInWords + "]");
-                pip.download(p);
-                IO.printfln("Download Finished");
+                if (pip.download(p)) {
+                    IO.printfln("Download Finished");
+                    return runLib(name, inter);
+                } else {
+                    IO.printfln_err("Download Failed");
+                }
             } catch (Exception ex) {
-                throw new RuntimeError("Requirement " + name + " not satisfied.");
             }
-            return runLib(name, fromDir, inter);
+            throw new RuntimeError("Requirement " + name + " not satisfied.");
         }
     }
 
@@ -380,11 +384,6 @@ class Kode {
 
     static {
         try {
-            ((NotificationEmitter) ManagementFactory.getMemoryMXBean()).addNotificationListener((n, hb) -> {
-                if (n.getType().equals(MemoryNotificationInfo.MEMORY_THRESHOLD_EXCEEDED)) {
-                    IO.printfln_err("[INFO]: Low on Memory.");
-                }
-            }, null, null);
             LIBPATH = Paths.get(Paths.get(Kode.class.getProtectionDomain().getCodeSource().getLocation().toURI())
                     .getParent().getParent().toFile().getAbsolutePath(), "libs").toAbsolutePath().toString(); // Get Parent added.
             final Map<String, Object> DEF_GLOBALS = new HashMap();
@@ -448,12 +447,11 @@ class Kode {
             DEF_GLOBALS.put("input", new KodeBuiltinFunction("input", null, INTER) {
                 @Override
                 public int arity() {
-                    return 1;
+                    return 0;
                 }
 
                 @Override
                 public Object call(Object... arguments) {
-                    IO.printf(arguments[0]);
                     return interpreter.toKodeValue(IO.scanf());
                 }
 

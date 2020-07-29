@@ -599,7 +599,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
             return (boolean) object;
         }
         if (object instanceof KodeNumber) {
-            return KodeMath.equal((KodeNumber) object, KodeNumber.valueOf("0"));
+            return KodeMath.not_equal((KodeNumber) object, KodeNumber.valueOf("0"));
         }
         if (object instanceof String) {
             return ((String) object).length() != 0;

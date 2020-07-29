@@ -10,26 +10,26 @@ package kode;
  * @author dell
  */
 class ValueBool extends Value {
-    
+
     static Value val = new ValueBool(new Interpreter());
-    
+
     static KodeInstance create(Boolean x) {
         KodeInstance instance = new KodeInstance(val);
         KodeFunction initializer = val.findMethod(Kode.INIT);
         initializer.bind(instance).call(x);
         return instance;
     }
-    
+
     private ValueBool(Interpreter interpreter) {
         super("Bool", interpreter);
         //<editor-fold defaultstate="collapsed" desc="init">
         this.methods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, null, interpreter) {
-            
+
             @Override
             public int arity() {
                 return 1;
             }
-            
+
             @Override
             public Object call(Object... arguments) {
                 Object This = closure.getAt(0, "this");
@@ -42,12 +42,12 @@ class ValueBool extends Value {
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="str">
         this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, null, interpreter) {
-            
+
             @Override
             public int arity() {
                 return 0;
             }
-            
+
             @Override
             public Object call(Object... arguments) {
                 Object This = closure.getAt(0, "this");
@@ -62,12 +62,12 @@ class ValueBool extends Value {
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="bool">
         this.methods.put(Kode.BOOLEAN, new KodeBuiltinFunction(Kode.BOOLEAN, null, interpreter) {
-            
+
             @Override
             public int arity() {
                 return 0;
             }
-            
+
             @Override
             public Object call(Object... arguments) {
                 Object This = closure.getAt(0, "this");
@@ -82,55 +82,56 @@ class ValueBool extends Value {
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="num">
         this.methods.put(Kode.NUMBER, new KodeBuiltinFunction(Kode.NUMBER, null, interpreter) {
-            
+
             @Override
             public int arity() {
                 return 0;
             }
-            
+
             @Override
             public Object call(Object... arguments) {
                 Object This = closure.getAt(0, "this");
                 if (This instanceof KodeInstance) {
-                    if(ValueBool.isBool((KodeInstance) This))
-                    return interpreter.toKodeValue(Interpreter.isTruthy(ValueBool.toBoolean(This)) ? 1 : 0);
+                    if (ValueBool.isBool((KodeInstance) This)) {
+                        return interpreter.toKodeValue(Interpreter.isTruthy(ValueBool.toBoolean(This)) ? 1 : 0);
+                    }
                 }
                 throw new NotImplemented();
             }
         });
 //</editor-fold>
     }
-    
-    static Boolean toBoolean(Object x_) {
-        return ValueBool.toBoolean(x_, x_);
-    }
 
     //<editor-fold defaultstate="collapsed" desc="toBoolean">
-    private static Boolean toBoolean(Object x_, Object a) {
-        if (x_ instanceof Boolean) {
-            return (Boolean) x_;
-        } else if (x_ instanceof KodeInstance) {
-            if (((KodeInstance) x_).klass instanceof ValueBool) {
-                return (Boolean) ((KodeInstance) x_).data;
-            } else {
-                try {
-                    if (((KodeInstance) x_).fields.containsKey(Kode.BOOLEAN)) {
-                        Object get = ((KodeInstance) x_).fields.get(Kode.BOOLEAN);
-                        if (get instanceof KodeFunction) {
-                            return toBoolean(((KodeFunction) get).bind((KodeInstance) x_).call(), a);
+    static Boolean toBoolean(Object x) {
+        for (;;) {
+            if (x instanceof Boolean) {
+                return (Boolean) x;
+            } else if (x instanceof KodeInstance) {
+                if (((KodeInstance) x).klass instanceof ValueBool) {
+                    return (Boolean) ((KodeInstance) x).data;
+                } else {
+                    try {
+                        if (((KodeInstance) x).fields.containsKey(Kode.BOOLEAN)) {
+                            Object get = ((KodeInstance) x).fields.get(Kode.BOOLEAN);
+                            if (get instanceof KodeFunction) {
+                                x = ((KodeFunction) get).bind((KodeInstance) x).call();
+                                continue;
+                            }
                         }
+                        x = ((KodeInstance) x).klass.findMethod(Kode.BOOLEAN).bind((KodeInstance) x).call();
+                        continue;
+                    } catch (NotImplemented e) {
                     }
-                    return toBoolean(((KodeInstance) x_).klass.findMethod(Kode.BOOLEAN).bind((KodeInstance) x_).call(), a);
-                } catch (NotImplemented e) {
                 }
             }
+            return Interpreter.isTruthy(x);
         }
-        return Interpreter.isTruthy(x_);
     }
 //</editor-fold>
 
     final static boolean isBool(KodeInstance i) {
         return instanceOf(i.klass, ValueBool.class);
     }
-    
+
 }

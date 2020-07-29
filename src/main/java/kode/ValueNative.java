@@ -16,13 +16,25 @@ class ValueNative extends Value {
     static KodeInstance create(Object x) {
         KodeInstance instance = new KodeInstance(val);
         instance.data = x;
-        KodeFunction initializer = val.findMethod(Kode.INIT);
-        initializer.bind(instance).call();
         return instance;
     }
 
     private ValueNative(Interpreter interpreter) {
         super("Native", interpreter);
+        //<editor-fold defaultstate="collapsed" desc="init">
+        this.methods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, null, interpreter) {
+
+            @Override
+            public int arity() {
+                return 0;
+            }
+
+            @Override
+            public Object call(Object... arguments) {
+                throw new NotImplemented();
+            }
+        });
+//</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="str">
         this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, null, interpreter) {
 

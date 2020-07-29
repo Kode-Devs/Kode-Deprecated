@@ -12,31 +12,31 @@ import math.KodeNumber;
  * @author dell
  */
 class ValueNumber extends Value {
-    
+
     @Override
     String doc() {
-        return "Number Class wrapping over Java Double data-type.";        
+        return "Number Class wrapping over Java Double data-type.";
     }
-    
+
     static Value val = new ValueNumber(new Interpreter());
-    
+
     static KodeInstance create(KodeNumber x) {
         KodeInstance instance = new KodeInstance(val);
         KodeFunction initializer = val.findMethod(Kode.INIT);
         initializer.bind(instance).call(x);
         return instance;
     }
-    
+
     private ValueNumber(Interpreter interpreter) {
         super("Number", interpreter);
         //<editor-fold defaultstate="collapsed" desc="init">
         this.methods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, null, interpreter) {
-            
+
             @Override
             public int arity() {
                 return 1;
             }
-            
+
             @Override
             public Object call(Object... arguments) {
                 Object This = closure.getAt(0, "this");
@@ -49,12 +49,12 @@ class ValueNumber extends Value {
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="str">
         this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, null, interpreter) {
-            
+
             @Override
             public int arity() {
                 return 0;
             }
-            
+
             @Override
             public Object call(Object... arguments) {
                 Object This = closure.getAt(0, "this");
@@ -69,12 +69,12 @@ class ValueNumber extends Value {
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="num">
         this.methods.put(Kode.NUMBER, new KodeBuiltinFunction(Kode.NUMBER, null, interpreter) {
-            
+
             @Override
             public int arity() {
                 return 0;
             }
-            
+
             @Override
             public Object call(Object... arguments) {
                 Object This = closure.getAt(0, "this");
@@ -89,12 +89,12 @@ class ValueNumber extends Value {
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="bool">
         this.methods.put(Kode.BOOLEAN, new KodeBuiltinFunction(Kode.BOOLEAN, null, interpreter) {
-            
+
             @Override
             public int arity() {
                 return 0;
             }
-            
+
             @Override
             public Object call(Object... arguments) {
                 Object This = closure.getAt(0, "this");
@@ -110,12 +110,12 @@ class ValueNumber extends Value {
 
         //<editor-fold defaultstate="collapsed" desc="isInteger">
         this.methods.put("isInt", new KodeBuiltinFunction("isInt", null, interpreter) {
-            
+
             @Override
             public int arity() {
                 return 0;
             }
-            
+
             @Override
             public Object call(Object... arguments) {
                 Object This = closure.getAt(0, "this");
@@ -130,12 +130,12 @@ class ValueNumber extends Value {
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="asInt">
         this.methods.put("asInt", new KodeBuiltinFunction("asInt", null, interpreter) {
-            
+
             @Override
             public int arity() {
                 return 0;
             }
-            
+
             @Override
             public Object call(Object... arguments) {
                 Object This = closure.getAt(0, "this");
@@ -154,12 +154,12 @@ class ValueNumber extends Value {
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="asReal">
         this.methods.put("asReal", new KodeBuiltinFunction("asReal", null, interpreter) {
-            
+
             @Override
             public int arity() {
                 return 0;
             }
-            
+
             @Override
             public Object call(Object... arguments) {
                 Object This = closure.getAt(0, "this");
@@ -174,12 +174,12 @@ class ValueNumber extends Value {
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="asIndex">
         this.methods.put("asIndex", new KodeBuiltinFunction("asIndex", null, interpreter) {
-            
+
             @Override
             public int arity() {
                 return 0;
             }
-            
+
             @Override
             public Object call(Object... arguments) {
                 Object This = closure.getAt(0, "this");
@@ -197,32 +197,32 @@ class ValueNumber extends Value {
         });
 //</editor-fold>
     }
-    
-    static KodeNumber toNumber(Object x_) {
-        return ValueNumber.toNumber(x_, x_);
-    }
 
     //<editor-fold defaultstate="collapsed" desc="toNumber">
-    private static KodeNumber toNumber(Object x_, Object a) {
-        if (x_ instanceof KodeNumber) {
-            return (KodeNumber) x_;
-        } else if (x_ instanceof KodeInstance) {
-            if (((KodeInstance) x_).klass instanceof ValueNumber) {
-                return (KodeNumber) ((KodeInstance) x_).data;
-            } else {
-                try {
-                    if (((KodeInstance) x_).fields.containsKey(Kode.NUMBER)) {
-                        Object get = ((KodeInstance) x_).fields.get(Kode.NUMBER);
-                        if (get instanceof KodeFunction) {
-                            return toNumber(((KodeFunction) get).bind((KodeInstance) x_).call(), a);
+    static KodeNumber toNumber(Object x) {
+        Object a = x;
+        for (;;) {
+            if (x instanceof KodeNumber) {
+                return (KodeNumber) x;
+            } else if (x instanceof KodeInstance) {
+                if (((KodeInstance) x).klass instanceof ValueNumber) {
+                    return (KodeNumber) ((KodeInstance) x).data;
+                } else {
+                    try {
+                        if (((KodeInstance) x).fields.containsKey(Kode.NUMBER)) {
+                            Object get = ((KodeInstance) x).fields.get(Kode.NUMBER);
+                            if (get instanceof KodeFunction) {
+                                x = ((KodeFunction) get).bind((KodeInstance) x).call();
+                                continue;
+                            }
                         }
+                        x = ((KodeInstance) x).klass.findMethod(Kode.NUMBER).bind((KodeInstance) x).call();
+                        continue;
+                    } catch (NotImplemented e) {
+                        throw new RuntimeError("Object of type '" + Kode.type(a) + "' is not Numeric in Nature", null);
                     }
-                    return toNumber(((KodeInstance) x_).klass.findMethod(Kode.NUMBER).bind((KodeInstance) x_).call(), a);
-                } catch (NotImplemented e) {
-                    throw new RuntimeError("Object of type '" + Kode.type(a) + "' is not Numeric in Nature", null);
                 }
             }
-        } else {
             throw new RuntimeError("Object of type '" + Kode.type(a) + "' is not Numeric in Nature", null);
         }
     }
@@ -231,5 +231,5 @@ class ValueNumber extends Value {
     final static boolean isNumber(KodeInstance i) {
         return instanceOf(i.klass, ValueNumber.class);
     }
-    
+
 }

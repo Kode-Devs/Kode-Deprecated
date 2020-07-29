@@ -66,10 +66,14 @@ public class Pip4kode {
         updateClient.setIgnoreExternals(true);
     }
 
-    public void download(String desPath) throws Exception {
-        updateClient.doExport(repository.getLocation(), new File(desPath),
-                SVNRevision.create(latestRevision), SVNRevision.create(latestRevision),
-                null, true, SVNDepth.INFINITY);
+    public boolean download(String desPath) throws Exception {
+        if (new File(desPath).canWrite()) {
+            updateClient.doExport(repository.getLocation(), new File(desPath),
+                    SVNRevision.create(latestRevision), SVNRevision.create(latestRevision),
+                    null, true, SVNDepth.INFINITY);
+            return true;
+        }
+        return false;
     }
 
     private static String BytesToString(long byteCount) {

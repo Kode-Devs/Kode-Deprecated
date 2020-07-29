@@ -7,9 +7,9 @@
     <packaging>jar</packaging>
     <dependencies>
         <dependency>
-            <groupId>org.beryx</groupId>
-            <artifactId>text-io</artifactId>
-            <version>3.4.1</version>
+            <groupId>org.fusesource.jansi</groupId>
+            <artifactId>jansi</artifactId>
+            <version>1.18</version>
         </dependency>
         <dependency>
             <groupId>org.tmatesoft.svnkit</groupId>

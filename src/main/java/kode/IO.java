@@ -5,100 +5,61 @@
  */
 package kode;
 
-import java.awt.Color;
+import java.io.BufferedReader;
+import java.io.Console;
 import java.io.IOException;
-import java.nio.file.Paths;
+import java.io.InputStreamReader;
 import java.util.Date;
-import org.beryx.textio.TextIO;
-import org.beryx.textio.TextIoFactory;
+import org.fusesource.jansi.Ansi;
+import org.fusesource.jansi.AnsiConsole;
 
 /**
  *
  * @author dell
  */
-public class IO {
-
-    public static final TextIO TEXTIO;
-    private static final String CLC = "clc";
+public abstract class IO {
 
     static {
         System.err.println("\n-------- " + new Date() + " --------");
-        TEXTIO = TextIoFactory.getTextIO();
-        TEXTIO.getTextTerminal().getProperties().setPromptColor(Color.WHITE);
-        TEXTIO.getTextTerminal().getProperties().setInputColor(Color.CYAN);
-        TEXTIO.getTextTerminal().getProperties().setPromptBold(false);
-        TEXTIO.getTextTerminal().getProperties().setInputBold(false);
-        TEXTIO.getTextTerminal().getProperties().setPromptItalic(false);
-        TEXTIO.getTextTerminal().getProperties().setInputItalic(false);
-        TEXTIO.getTextTerminal().getProperties().put("pane.title", Kode.getVersion() + " - " + Paths.get("").toAbsolutePath());
-
-        TEXTIO.getTextTerminal().registerUserInterruptHandler((e) -> {
-//            throw new RuntimeError("Keyboard Interrupt Found.");
-            exit(0);
-        }, true);
-
-        // KeyBoard Interrupt
-//        if (TEXTIO.getTextTerminal().registerHandler(AbstractTextTerminal.DEFAULT_USER_INTERRUPT_KEY, t -> {
-//            throw new RuntimeError("Keyboard Interrupt Found.");
-//        }) == false) {
-//            JOptionPane.showMessageDialog(null, "Failed to Set KeyBoard Interrupt.", "Warning!!!", JOptionPane.WARNING_MESSAGE);
-//        }
-        TEXTIO.getTextTerminal().setBookmark(CLC);
     }
 
+    private static final boolean HAS_CONSOLE = System.console() == null;
+    private static final Console SYS_CONSOLE = System.console();
+    private static final BufferedReader ALT_CONSOLE = new BufferedReader(new InputStreamReader(System.in));
+
     public static void printf(Object obj) {
-        TEXTIO.getTextTerminal().print(obj.toString());
+        AnsiConsole.out.print(Ansi.ansi().fg(Ansi.Color.WHITE).a(String.valueOf(obj)).reset());
     }
 
     public final static void printfln(Object obj) {
-        printf(obj);
-        printf(System.lineSeparator());
+        AnsiConsole.out.println(Ansi.ansi().fg(Ansi.Color.WHITE).a(String.valueOf(obj)).reset());
     }
 
     public static void printf_err(Object obj) {
-        TEXTIO.getTextTerminal().executeWithPropertiesConfigurator(props -> props.setPromptColor(Color.YELLOW),
-                term -> term.print(obj.toString()));
+        AnsiConsole.out.print(Ansi.ansi().fg(Ansi.Color.YELLOW).a(String.valueOf(obj)).reset());
     }
 
     public final static void printfln_err(Object obj) {
-        printf_err(obj);
-        printf_err(System.lineSeparator());
+        AnsiConsole.out.println(Ansi.ansi().fg(Ansi.Color.YELLOW).a(String.valueOf(obj)).reset());
     }
 
-    public static String scanf() {
-        return TEXTIO.newStringInputReader()
-                .withMinLength(0)
-                .read();
+    public static String scanf() throws IOException {
+        return HAS_CONSOLE ? ALT_CONSOLE.readLine() : SYS_CONSOLE.readLine();
     }
 
-    public static String scanf_pwd() {
-        return TEXTIO.newStringInputReader()
-                .withInputMasking(true)
-                .withMinLength(0)
-                .read();
+    public static char[] scanf_pwd() throws IOException {
+        return HAS_CONSOLE ? ALT_CONSOLE.readLine().toCharArray() : SYS_CONSOLE.readPassword();
     }
 
-    public static boolean resetLine() {
-        return TEXTIO.getTextTerminal().resetLine();
+    public static void resetLine() {
+        AnsiConsole.out.print(Ansi.ansi().eraseLine(Ansi.Erase.ALL).cursorToColumn(0));
     }
 
     public static void clc() {
-        if (System.console() != null) {
-            try {
-                if (System.getProperty("os.name", "undefined").contains("Windows")) {
-                    new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
-                } else {
-                    Runtime.getRuntime().exec("clear");
-                }
-                return;
-            } catch (IOException | InterruptedException e) {
-            }
-        }
-        TEXTIO.getTextTerminal().resetToBookmark(CLC);
+        AnsiConsole.out.print(Ansi.ansi().eraseScreen(Ansi.Erase.ALL).cursor(0, 0));
     }
 
     public static final void exit(int status) {
-        TEXTIO.getTextTerminal().dispose();
         System.exit(status);
     }
 

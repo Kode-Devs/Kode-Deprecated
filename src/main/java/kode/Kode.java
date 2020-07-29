@@ -6,6 +6,7 @@
 package kode;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.net.URISyntaxException;
@@ -36,24 +37,20 @@ import utils.Pip4kode;
 class Kode {
 
     static final String NAME = "Kode";
-    static String VERSION = "debug";
+    static String VERSION;
     static final String EXTENSION = "kde";
     static final String AUTHOR = "Kode-Devs";
     static final String USAGE = "Usage: kode [script]";
-    private static Charset encoding = StandardCharsets.UTF_8;
-
-    static String getVersion() {
-        return NAME + " " + VERSION;
-    }
+    private final static Charset ENCODING = StandardCharsets.UTF_8;
 
     static String getIntro() {
-        String res = Kode.getVersion();
+        String res = NAME + " " + VERSION;
         try {
-            res += " ( " + AUTHOR + ", "
+            res += " ( " + AUTHOR + ", built-on "
                     + new Date(new File(Kode.class.getProtectionDomain().getCodeSource().getLocation().toURI()).lastModified()) + " ) ";
         } catch (URISyntaxException e) {
         }
-        res += "\non " + System.getProperty("os.name", "Unknown Operating System") + " (" + System.getProperty("user.name", "default") + ")";
+        res += "\nRunning on " + System.getProperty("os.name", "Unknown Operating System") + " (" + System.getProperty("user.name", "default") + ")";
         return res;
     }
 
@@ -65,12 +62,12 @@ class Kode {
                 VERSION = args[0];
                 //<editor-fold defaultstate="collapsed" desc="Shell">
                 IO.printfln(Kode.getIntro());
-                IO.printfln("Call exit() to quit shell.");
+                IO.printfln("Call exit() to quit the shell.");
                 Interpreter interpreter = new Interpreter();
                 interpreter.globals.define(Kode.__NAME__, interpreter.toKodeValue(Kode.__MAIN__));
                 for (;;) {
                     try {
-                        IO.printf(">>>");
+                        IO.printf(">>> ");
                         Pair run = run("<shell>", IO.scanf(), interpreter);
                         if (run.value != null) {
                             Object value = run.value;
@@ -189,7 +186,7 @@ class Kode {
     static void runFile(String path, Interpreter inter) throws Throwable {
         byte[] bytes = Files.readAllBytes(Paths.get(path));
         inter.globals.define(Kode.__NAME__, inter.toKodeValue(Kode.__MAIN__));
-        run(Paths.get(path).toFile().getName(), new String(bytes, encoding), inter);
+        run(Paths.get(path).toFile().getName(), new String(bytes, ENCODING), inter);
     }
 
     static String runLib(String name, Interpreter inter) throws Throwable {
@@ -199,7 +196,7 @@ class Kode {
             Path path = Paths.get("./", name + "." + Kode.EXTENSION).toAbsolutePath();
             if (path.toFile().exists()) {
                 byte[] bytes = Files.readAllBytes(path);
-                return run(path.toFile().getName(), new String(bytes, encoding), inter).key;
+                return run(path.toFile().getName(), new String(bytes, ENCODING), inter).key;
             }
 
             if (Pip4kode.checkUpdate(pkgname, p)) {
@@ -213,14 +210,14 @@ class Kode {
             path = Paths.get(p, name + "." + Kode.EXTENSION).toAbsolutePath();
             if (path.toFile().exists()) {
                 byte[] bytes = Files.readAllBytes(path);
-                return run(path.toFile().getName(), new String(bytes, encoding), inter).key;
+                return run(path.toFile().getName(), new String(bytes, ENCODING), inter).key;
             }
 
             byte[] bytes;
             InputStream file = Kode.class.getResourceAsStream("/" + name + "." + Kode.EXTENSION);
             if (file != null) {
                 bytes = file.readAllBytes();
-                return run(name + "." + Kode.EXTENSION, new String(bytes, encoding), inter).key;
+                return run(name + "." + Kode.EXTENSION, new String(bytes, ENCODING), inter).key;
             }
 
             IO.printfln_err("[Info]: Library file " + name + "." + Kode.EXTENSION + " not found in your device.");
@@ -447,12 +444,38 @@ class Kode {
             DEF_GLOBALS.put("input", new KodeBuiltinFunction("input", null, INTER) {
                 @Override
                 public int arity() {
+                    return -1;
+                }
+
+                @Override
+                public Object call(Object... arguments) {
+                    if (arguments.length != 0) {
+                        ((KodeCallable) DEF_GLOBALS.get("printf")).call(arguments);
+                    }
+                    try {
+                        return interpreter.toKodeValue(IO.scanf());
+                    } catch (IOException ex) {
+                        throw new RuntimeError(ex.getMessage());
+                    }
+                }
+
+            });
+            DEF_GLOBALS.put("inputPwd", new KodeBuiltinFunction("inputPwd", null, INTER) {
+                @Override
+                public int arity() {
                     return 0;
                 }
 
                 @Override
                 public Object call(Object... arguments) {
-                    return interpreter.toKodeValue(IO.scanf());
+                    if (arguments.length != 0) {
+                        ((KodeCallable) DEF_GLOBALS.get("printf")).call(arguments);
+                    }
+                    try {
+                        return interpreter.toKodeValue(IO.scanf_pwd());
+                    } catch (IOException ex) {
+                        throw new RuntimeError(ex.getMessage());
+                    }
                 }
 
             });

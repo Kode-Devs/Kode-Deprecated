@@ -33,14 +33,31 @@ class Environment {
         if (enclosing != null) {
             return enclosing.get(name);
         }
-        
-        if (Kode.INTER.globals.values.containsKey(name.lexeme)){
+
+        if (Kode.INTER.globals.values.containsKey(name.lexeme)) {
             return Kode.INTER.globals.get(name);
         }
 
         throw new RuntimeError(
                 "Undefined variable '" + name.lexeme + "'.",
                 name);
+    }
+
+    Object get(String name) {
+        if (values.containsKey(name)) {
+            return values.get(name);
+        }
+
+        if (enclosing != null) {
+            return enclosing.get(name);
+        }
+
+        if (Kode.INTER.globals.values.containsKey(name)) {
+            return Kode.INTER.globals.get(name);
+        }
+
+        throw new RuntimeError(
+                "Undefined variable '" + name + "'.");
     }
 
     void assign(Token name, Object value) {
@@ -53,8 +70,8 @@ class Environment {
             enclosing.assign(name, value);
             return;
         }
-        
-        if (Kode.INTER.globals.values.containsKey(name.lexeme)){
+
+        if (Kode.INTER.globals.values.containsKey(name.lexeme)) {
             Kode.INTER.globals.define(name.lexeme, value);
             return;
         }

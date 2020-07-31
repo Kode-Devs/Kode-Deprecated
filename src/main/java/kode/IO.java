@@ -9,6 +9,8 @@ import java.io.BufferedReader;
 import java.io.Console;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.Date;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.AnsiConsole;
@@ -20,6 +22,12 @@ import org.fusesource.jansi.AnsiConsole;
 public abstract class IO {
 
     static {
+        System.setErr(new PrintStream(new OutputStream() {
+            @Override
+            public void write(int b) throws IOException {
+
+            }
+        }));
         System.err.println("\n-------- " + new Date() + " --------");
     }
 
@@ -56,7 +64,15 @@ public abstract class IO {
     }
 
     public static void clc() {
-        AnsiConsole.out.print(Ansi.ansi().eraseScreen(Ansi.Erase.ALL).cursor(0, 0));
+        try {
+            new ProcessBuilder("cmd","/c","cls").inheritIO().start().waitFor();
+        } catch (Throwable e1) {
+            try {
+                Runtime.getRuntime().exec("clear");
+            } catch (Throwable e2) {
+                AnsiConsole.out.print(Ansi.ansi().eraseScreen(Ansi.Erase.ALL).cursor(0, 0));
+            }
+        }
     }
 
     public static final void exit(int status) {

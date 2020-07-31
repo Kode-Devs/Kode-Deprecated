@@ -27,20 +27,24 @@ class KodeModule extends KodeInstance {
 
     @Override
     Object get(Token name) {
-        try {
-            return inter.globals.get(name);
-        } catch (Exception e) {
-            throw new RuntimeError(
-                    "Undefined property '" + name.lexeme + "'.",
-                    name);
-        }
+        return inter.globals.get(name);
     }
-    
+
+    @Override
+    Object get(String name) {
+        return inter.globals.get(name);
+    }
+
+    @Override
+    void set(Token name, Object value) {
+        this.set(name.lexeme, value);
+    }
+
     @Override
     void set(String name, Object value) {
         inter.globals.define(name, value);
     }
-    
+
     @Override
     public String toString() {
         return "<module '" + this.name + "'>";

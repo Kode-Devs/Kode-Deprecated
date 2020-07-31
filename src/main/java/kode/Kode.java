@@ -226,14 +226,12 @@ class Kode {
             try {
                 Pip4kode pip = new Pip4kode(pkgname);
                 IO.printfln("Reading package metadata from repository ...");
-                pip.init();
-                IO.printf("Do you want to download the package '" + pip.pkg + "' (" + pip.sizeInWords + ") ? [y/n]");
+                pip.init(p);
+                IO.printf("Do you want to download the package '" + pip.pkg + "' (" + pip.sizeInWords + ") ? [y/n] ");
                 if (!IO.scanf().equalsIgnoreCase("y")) {
                     throw new Exception();
                 }
-                IO.printfln("Get: " + pip.repositoryRoot + " " + pip.pkg
-                        + " rev " + pip.latestRevision + " [" + pip.sizeInWords + "]");
-                if (pip.download(p)) {
+                if (pip.download()) {
                     IO.printfln("Download Finished");
                     return runLib(name, inter);
                 } else {

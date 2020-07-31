@@ -12,9 +12,9 @@
             <version>1.18</version>
         </dependency>
         <dependency>
-            <groupId>org.tmatesoft.svnkit</groupId>
-            <artifactId>svnkit</artifactId>
-            <version>1.10.1</version>
+            <groupId>org.eclipse.jgit</groupId>
+            <artifactId>org.eclipse.jgit</artifactId>
+            <version>5.8.1.202007141445-r</version>
         </dependency>
         <dependency>
             <groupId>org.kodeDevs</groupId>
@@ -55,6 +55,16 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <filters>
+                        <filter>
+                            <artifact>*:*</artifact>
+                            <excludes>
+                                <exclude>META-INF/*.SF</exclude>
+                                <exclude>META-INF/*.DSA</exclude>
+                                <exclude>META-INF/*.RSA</exclude>
+                            </excludes>
+                        </filter>
+                    </filters>
                     <shadedArtifactAttached>true</shadedArtifactAttached>
                 </configuration>
             </plugin>

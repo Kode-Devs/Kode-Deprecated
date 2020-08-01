@@ -447,7 +447,7 @@ class Kode {
 
                 @Override
                 public Object call(Object... arguments) {
-                    if (arguments.length != 0) {
+                    if (arguments.length > 0) {
                         ((KodeCallable) DEF_GLOBALS.get("printf")).call(arguments);
                     }
                     try {
@@ -466,7 +466,7 @@ class Kode {
 
                 @Override
                 public Object call(Object... arguments) {
-                    if (arguments.length != 0) {
+                    if (arguments.length > 0) {
                         ((KodeCallable) DEF_GLOBALS.get("printf")).call(arguments);
                     }
                     try {

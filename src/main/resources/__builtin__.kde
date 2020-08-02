@@ -1,9 +1,1 @@
 `Built-in Library functions r available here.`;
-
-//from warnings import warn, Warning;
-
-fun test(A,B,varargin){
-    print(A);
-    print(B);
-    print(varargin);
-}

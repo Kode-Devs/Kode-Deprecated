@@ -5,6 +5,7 @@
  */
 package kode;
 
+import utils.IO;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,7 +27,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import javax.swing.JOptionPane;
-import lib.warnings;
 import math.KodeNumber;
 import utils.Pip4kode;
 
@@ -252,7 +252,7 @@ class Kode {
     }
 
     static void warning(String message) {
-        warnings.print_warning("[Warning]: " + message);
+        IO.printfln_err("[Warning]: " + message);
     }
 
     static void runtimeError(RuntimeError error) {
@@ -461,7 +461,7 @@ class Kode {
             DEF_GLOBALS.put("inputPwd", new KodeBuiltinFunction("inputPwd", null, INTER) {
                 @Override
                 public int arity() {
-                    return 0;
+                    return -1;
                 }
 
                 @Override

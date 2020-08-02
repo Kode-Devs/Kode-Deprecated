@@ -11,7 +11,6 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URL;
-import static java.nio.charset.StandardCharsets.UTF_8;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -30,7 +29,6 @@ import org.fusesource.jansi.AnsiConsole;
  */
 public class Pip4kode {
 
-    public final long latestRevision = 0;
     public String sizeInWords;
     public final String pkg;
     private CloneCommand call;
@@ -50,7 +48,7 @@ public class Pip4kode {
         sizeInWords = calculateSize(pkg);
         File file = new File(desPath);
         if (file.canWrite()) {
-            for (;;) {
+            for (int i = 0; i < 5; i++) {
                 Files.walk(file.toPath()).sorted(Comparator.reverseOrder())
                         .map(Path::toFile)
                         .forEach(a -> a.delete());
@@ -58,13 +56,14 @@ public class Pip4kode {
                     break;
                 }
             }
+            throw new Exception(); // Can not clear the old version
         }
         call = Git.cloneRepository()
                 .setURI(url.toString())
                 .setDirectory(file)
                 .setBranch(Constants.HEAD)
                 .setCloneSubmodules(true)
-                .setProgressMonitor(new TextProgressMonitor(new PrintWriter(new OutputStreamWriter(AnsiConsole.out, UTF_8))));
+                .setProgressMonitor(new TextProgressMonitor(new PrintWriter(new OutputStreamWriter(AnsiConsole.out))));
     }
 
     public boolean download() {
@@ -79,7 +78,7 @@ public class Pip4kode {
         }
     }
 
-    private static String calculateSize(String pkg) {
+    private String calculateSize(String pkg) {
         try {
             HttpsURLConnection con = (HttpsURLConnection) (new URL("https://api.github.com/repos/Kode-Devs/package-" + pkg)).openConnection();
             con.setInstanceFollowRedirects(true);
@@ -91,7 +90,7 @@ public class Pip4kode {
         }
     }
 
-    private static String BytesToString(long byteCount) {
+    private String BytesToString(long byteCount) {
         String[] suf = new String[]{"KB", "MB", "GB", "TB", "PB", "EB"};
         Double len = Double.valueOf(byteCount);
         int order = 0;

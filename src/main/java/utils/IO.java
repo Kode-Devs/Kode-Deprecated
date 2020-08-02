@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package kode;
+package utils;
 
 import java.io.BufferedReader;
 import java.io.Console;
@@ -52,7 +52,10 @@ public abstract class IO {
     }
 
     public static String scanf() throws IOException {
-        return HAS_CONSOLE ? ALT_CONSOLE.readLine() : SYS_CONSOLE.readLine();
+        AnsiConsole.out.print(Ansi.ansi().fgCyan());
+        String res = HAS_CONSOLE ? ALT_CONSOLE.readLine() : SYS_CONSOLE.readLine();
+        AnsiConsole.out.print(Ansi.ansi().reset());
+        return res;
     }
 
     public static char[] scanf_pwd() throws IOException {

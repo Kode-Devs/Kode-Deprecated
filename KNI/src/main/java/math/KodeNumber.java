@@ -16,7 +16,7 @@ public class KodeNumber {
 
     private Double num;
     private BigInteger numInt;
-    private boolean isInt;
+    private final boolean isInt;
 
     public static KodeNumber valueOf(String num) {
         try {

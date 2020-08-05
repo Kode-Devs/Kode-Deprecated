@@ -11,7 +11,12 @@ package kode;
  */
 class NotImplemented extends RuntimeError {
 
-    NotImplemented() {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	NotImplemented() {
         super(ValueNotImplemented.create());
     }
     

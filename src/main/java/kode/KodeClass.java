@@ -32,7 +32,7 @@ class KodeClass implements KodeCallable {
     }
 
     Map<String, KodeFunction> specialMethods() {
-        Map<String, KodeFunction> sm = new HashMap();
+        Map<String, KodeFunction> sm = new HashMap<>();
         //<editor-fold defaultstate="collapsed" desc="init">
         sm.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, null, interpreter) {
             @Override
@@ -98,7 +98,7 @@ class KodeClass implements KodeCallable {
 
             @Override
             public Object call(Object... arguments) {
-                return interpreter.toKodeValue(interpreter.isTruthy(true));
+                return interpreter.toKodeValue(Interpreter.isTruthy(true));
             }
         });
         //</editor-fold>
@@ -267,7 +267,7 @@ class KodeClass implements KodeCallable {
                     if (ValueString.isString((KodeInstance) left) && ValueString.isString((KodeInstance) right)) {
                         return interpreter.toKodeValue(ValueString.toStr(left).concat(ValueString.toStr(right)));
                     } else if (ValueList.isList((KodeInstance) left) && ValueList.isList((KodeInstance) right)) {
-                        List ll = new ArrayList();
+                        List<Object> ll = new ArrayList<>();
                         ll.addAll(ValueList.toList(left));
                         ll.addAll(ValueList.toList(right));
                         return interpreter.toKodeValue(ll);
@@ -301,7 +301,7 @@ class KodeClass implements KodeCallable {
                     if (ValueString.isString((KodeInstance) left) && ValueString.isString((KodeInstance) right)) {
                         return interpreter.toKodeValue(ValueString.toStr(left).concat(ValueString.toStr(right)));
                     } else if (ValueList.isList((KodeInstance) left) && ValueList.isList((KodeInstance) right)) {
-                        List ll = new ArrayList();
+                        List<Object> ll = new ArrayList<>();
                         ll.addAll(ValueList.toList(left));
                         ll.addAll(ValueList.toList(right));
                         return interpreter.toKodeValue(ll);
@@ -418,7 +418,7 @@ class KodeClass implements KodeCallable {
                         return interpreter.toKodeValue(str);
                     }
                     if (ValueList.isList((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
-                        List ll = new ArrayList();
+                        List<Object> ll = new ArrayList<>();
                         try {
                             for (int i = 0; i < ValueNumber.toNumber(right).getAsIndex(); i++) {
                                 ll.addAll(ValueList.toList(left));
@@ -429,7 +429,7 @@ class KodeClass implements KodeCallable {
                         return interpreter.toKodeValue(ll);
                     }
                     if (ValueList.isList((KodeInstance) right) && ValueNumber.isNumber((KodeInstance) left)) {
-                        List ll = new ArrayList();
+                        List<Object> ll = new ArrayList<>();
                         try {
                             for (int i = 0; i < ValueNumber.toNumber(left).getAsIndex(); i++) {
                                 ll.addAll(ValueList.toList(right));
@@ -487,7 +487,7 @@ class KodeClass implements KodeCallable {
                         return interpreter.toKodeValue(str);
                     }
                     if (ValueList.isList((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
-                        List ll = new ArrayList();
+                        List<Object> ll = new ArrayList<>();
                         try {
                             for (int i = 0; i < ValueNumber.toNumber(right).getAsIndex(); i++) {
                                 ll.addAll(ValueList.toList(left));
@@ -498,7 +498,7 @@ class KodeClass implements KodeCallable {
                         return interpreter.toKodeValue(ll);
                     }
                     if (ValueList.isList((KodeInstance) right) && ValueNumber.isNumber((KodeInstance) left)) {
-                        List ll = new ArrayList();
+                        List<Object> ll = new ArrayList<>();
                         try {
                             for (int i = 0; i < ValueNumber.toNumber(left).getAsIndex(); i++) {
                                 ll.addAll(ValueList.toList(right));

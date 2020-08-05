@@ -13,6 +13,16 @@ import java.util.List;
  */
 abstract class Expr {
 
+    @Override
+    public int hashCode() {
+        return super.hashCode(); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return super.equals(obj); //To change body of generated methods, choose Tools | Templates.
+    }
+
     interface Visitor<R> {
 
         R visitAssignExpr(Assign expr);

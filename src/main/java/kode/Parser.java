@@ -63,7 +63,7 @@ class Parser {
     private Stmt tryCatch() {
         consume(LEFT_BRACE, "Expect '{' after 'try'.");
         List<Stmt> tryStmt = block();
-        List<Stmt.Catch> catches = new ArrayList();
+        List<Stmt.Catch> catches = new ArrayList<>();
         consume(CATCH, "'try' without 'except' is not possible");
         do {
             Expr.Variable ErrorType = null;
@@ -173,7 +173,7 @@ class Parser {
     }
 
     private Stmt requireStatement(Token imp) {
-        List<Token> value = new ArrayList();
+        List<Token> value = new ArrayList<>();
         do {
         value.add(consume(IDENTIFIER, "Module name Expected."));
         } while (match(DOT));
@@ -186,12 +186,12 @@ class Parser {
     }
 
     private Stmt requireStatementFrom(Token imp) {
-        List<Token> value = new ArrayList();
+        List<Token> value = new ArrayList<>();
         do {
         value.add(consume(IDENTIFIER, "Module name Expected."));
         } while (match(DOT));
         consume(IMPORT, "Expect import keyword.");
-        List<Token> field = new ArrayList();
+        List<Token> field = new ArrayList<>();
         do {
             field.add(consume(IDENTIFIER, "Field name Expected."));
         } while (match(COMMA));
@@ -226,8 +226,8 @@ class Parser {
     }
 
     private Stmt varDeclaration() {
-        List<Token> name_list = new ArrayList();
-        List<Expr> initializer_list = new ArrayList();
+        List<Token> name_list = new ArrayList<>();
+        List<Expr> initializer_list = new ArrayList<>();
         do {
             Token name = consume(IDENTIFIER, "Expect variable name.");
 
@@ -499,7 +499,7 @@ class Parser {
 
         if (match(NATIVE)) {
             Token nav = previous();
-            List<Token> path = new ArrayList();
+            List<Token> path = new ArrayList<>();
             do {
                 path.add(consume(IDENTIFIER, "Expect identifier after native."));
             } while (match(DOT));
@@ -515,7 +515,7 @@ class Parser {
         }
 
         if (match(LEFT_SQUARE)) {
-            List<Expr> array = new ArrayList();
+            List<Expr> array = new ArrayList<>();
 
             if (!check(RIGHT_SQUARE)) {
                 do {

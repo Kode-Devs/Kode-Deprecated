@@ -31,8 +31,8 @@ class Pair<K, V> {
         return this;
     }
     
-     Pair copy(){
-         return new Pair(key,value).setType(type);
+     Pair<K,V> copy(){
+         return new Pair<>(key,value).setType(type);
      }
     
 }

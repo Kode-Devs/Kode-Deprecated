@@ -14,7 +14,11 @@ import java.util.Stack;
 class RuntimeError extends Error
 {
 
-    Stack<Token> token = new Stack<>();
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	Stack<Token> token = new Stack<>();
     KodeInstance instance = null;
 
     RuntimeError(String message, Token token) {

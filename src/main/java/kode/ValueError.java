@@ -60,7 +60,7 @@ class ValueError extends Value {
                     }
                     if (get instanceof KodeInstance) {
                         if (ValueList.isList((KodeInstance) get)) {
-                            List toList = ValueList.toList(get);
+                            List<?> toList = ValueList.toList(get);
                             switch (toList.size()) {
                                 case 0:
                                     get = "<Missing Error Details>";

@@ -11,7 +11,12 @@ package kode;
  */
 class Continue extends RuntimeException {
 
-    Continue() {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	Continue() {
         super("Cannot continue from top-level code.", null, false, false);
     }
 }

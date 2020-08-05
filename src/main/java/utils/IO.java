@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.util.Date;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.AnsiConsole;
 
@@ -28,10 +27,9 @@ public abstract class IO {
 
             }
         }));
-        System.err.println("\n-------- " + new Date() + " --------");
     }
 
-    private static final boolean HAS_CONSOLE = System.console() == null;
+    private static final boolean CONSOLE_LESS = System.console() == null;
     private static final Console SYS_CONSOLE = System.console();
     private static final BufferedReader ALT_CONSOLE = new BufferedReader(new InputStreamReader(System.in));
 
@@ -53,13 +51,13 @@ public abstract class IO {
 
     public static String scanf() throws IOException {
         AnsiConsole.out.print(Ansi.ansi().fgCyan());
-        String res = HAS_CONSOLE ? ALT_CONSOLE.readLine() : SYS_CONSOLE.readLine();
+        String res = CONSOLE_LESS ? ALT_CONSOLE.readLine() : SYS_CONSOLE.readLine();
         AnsiConsole.out.print(Ansi.ansi().reset());
         return res;
     }
 
     public static char[] scanf_pwd() throws IOException {
-        return HAS_CONSOLE ? ALT_CONSOLE.readLine().toCharArray() : SYS_CONSOLE.readPassword();
+        return CONSOLE_LESS ? ALT_CONSOLE.readLine().toCharArray() : SYS_CONSOLE.readPassword();
     }
 
     public static void resetLine() {

@@ -15,7 +15,7 @@ class ValueList extends Value {
 
     static Value val = new ValueList(new Interpreter());
 
-    static KodeInstance create(List x) {
+    static KodeInstance create(List<Object> x) {
         KodeInstance instance = new KodeInstance(val);
         KodeFunction initializer = val.findMethod(Kode.INIT);
         initializer.bind(instance).call(x);
@@ -141,7 +141,7 @@ class ValueList extends Value {
     }
 
     //<editor-fold defaultstate="collapsed" desc="toList">
-    static List toList(Object x) {
+    static List<Object> toList(Object x) {
         Object a = x;
         for (;;) {
             if (x instanceof List) {

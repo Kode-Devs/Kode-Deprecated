@@ -76,7 +76,7 @@ class ValueString extends Value {
                 if (This instanceof KodeInstance) {
                     if (ValueString.isString((KodeInstance) This)) {
                         try {
-                            return interpreter.toKodeValue(toNumber.toNumber(ValueString.toStr(This)));
+                            return interpreter.toKodeValue(String2Num.toNumber(ValueString.toStr(This)));
                         } catch (Exception ex) {
                             throw new RuntimeError(ex.getMessage(), null);
                         }
@@ -167,7 +167,7 @@ class ValueString extends Value {
     }
 
     //<editor-fold defaultstate="collapsed" desc="toNumber">
-    private static class toNumber {
+    private static class String2Num {
 
         public static KodeNumber toNumber(String num) throws Exception {
             try {

@@ -39,9 +39,11 @@ class KodeNative implements KodeCallable {
     @Override
     public Object call(Object... arguments) {
         try {
-            Object newInstance = new URLClassLoader(
+            URLClassLoader urlClassLoader = new URLClassLoader(
                     addToList(this.pkg == null ? Paths.get("shared-lib") : Paths.get(Kode.LIBPATH, this.pkg, "shared-lib")).toArray(new URL[]{}),
-                    Kode.class.getClassLoader()).loadClass(this.className).newInstance();
+                    Kode.class.getClassLoader());
+			Object newInstance = urlClassLoader.loadClass(this.className).newInstance();
+			urlClassLoader.close();
             KodeObject[] args = new KodeObject[arguments.length];
             for (int i = 0; i < arguments.length; i++) {
                 Object get = arguments[i];
@@ -62,13 +64,12 @@ class KodeNative implements KodeCallable {
             }
             throw new Exception("The Class loaded does not implement Kode Native Interface (KNI).");
         } catch (Throwable e) {
-            e.printStackTrace();
             throw new RuntimeError(e.getMessage());
         }
     }
 
     private List<URL> addToList(Path path) {
-        List<URL> urls = new ArrayList();
+        List<URL> urls = new ArrayList<>();
         try {
             urls.add(path.toUri().toURL());
         } catch (Throwable e) {

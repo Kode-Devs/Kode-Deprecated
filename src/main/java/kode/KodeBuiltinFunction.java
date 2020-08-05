@@ -68,8 +68,8 @@ abstract class KodeBuiltinFunction extends KodeFunction {
                 res = Objects.equals(ValueString.toStr(left), ValueString.toStr(right));
             }
             if (ValueList.isList((KodeInstance) left) && ValueList.isList((KodeInstance) right)) {
-                List l = ValueList.toList(left);
-                List r = ValueList.toList(right);
+                List<?> l = ValueList.toList(left);
+                List<?> r = ValueList.toList(right);
                 if (l.size() == r.size()) {
                     res = true;
                     for (int i = 0; i < l.size(); i++) {
@@ -109,8 +109,8 @@ abstract class KodeBuiltinFunction extends KodeFunction {
                 res = !Objects.equals(ValueString.toStr(left), ValueString.toStr(right));
             }
             if (ValueList.isList((KodeInstance) left) && ValueList.isList((KodeInstance) right)) {
-                List l = ValueList.toList(left);
-                List r = ValueList.toList(right);
+                List<?> l = ValueList.toList(left);
+                List<?> r = ValueList.toList(right);
                 if (l.size() == r.size()) {
                     res = false;
                     for (int i = 0; i < l.size(); i++) {
@@ -229,7 +229,7 @@ abstract class KodeBuiltinFunction extends KodeFunction {
         return res;
     }
 
-    private int list_comparator(List l1, List l2) {
+    private int list_comparator(List<?> l1, List<?> l2) {
         int lim = Math.min(l1.size(), l2.size());
         for (int k = 0; k < lim; k++) {
             Object c1 = l1.get(k);

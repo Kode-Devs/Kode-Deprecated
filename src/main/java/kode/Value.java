@@ -18,7 +18,7 @@ abstract class Value extends KodeClass {
     }
 
     Value(String name, KodeClass superclass, Interpreter interpreter) {
-        super(name, superclass, new HashMap(), interpreter);
+        super(name, superclass, new HashMap<>(), interpreter);
         this.__doc__ = doc();
     }
     
@@ -26,7 +26,7 @@ abstract class Value extends KodeClass {
         return null; 
     }
 
-    final static boolean instanceOf(KodeClass i, Class c) {
+    final static boolean instanceOf(KodeClass i, Class<?> c) {
         if (i == null) {
             return false;
         }

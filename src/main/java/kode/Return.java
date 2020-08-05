@@ -11,7 +11,11 @@ package kode;
  */
 class Return extends RuntimeException {
 
-    final Object value;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	final Object value;
 
     Return(Object value) {
         super(null, null, false, false);

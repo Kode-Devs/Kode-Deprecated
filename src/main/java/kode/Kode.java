@@ -57,6 +57,9 @@ class Kode {
     static final String HELP = USAGE;
 
     public static void main(String... args) {
+        Thread.currentThread().setUncaughtExceptionHandler((Thread t, Throwable e) -> {
+            IO.exit(1);
+        });
         switch (args.length) {
             case 1:
                 VERSION = args[0];
@@ -68,7 +71,7 @@ class Kode {
                 for (;;) {
                     try {
                         IO.printf(">>> ");
-                        Pair run = run("<shell>", IO.scanf(), interpreter);
+                        Pair<String, Object> run = run("<shell>", IO.scanf(), interpreter);
                         if (run.value != null) {
                             Object value = run.value;
                             if (value instanceof KodeInstance) {
@@ -119,13 +122,12 @@ class Kode {
         if (e instanceof RuntimeError) {
             Kode.runtimeError((RuntimeError) e);
         } else {
-            e.printStackTrace();
             IO.printfln_err("Fatal Error : " + e);
         }
     }
 
     static String LIBPATH;
-    static Map<String, KodeModule> ModuleRegistry = new HashMap();
+    static Map<String, KodeModule> ModuleRegistry = new HashMap<>();  // Change it
 
     static final String INIT = "__init__";
     static final String INFINITY = "Infinity";
@@ -248,7 +250,7 @@ class Kode {
         Parser parser = new Parser(tokens);
         List<Stmt> statements = parser.parse();
         new Resolver(inter).resolve(statements);
-        return new Pair(parser.doc, inter.interpret(statements));
+        return new Pair<>(parser.doc, inter.interpret(statements));
     }
 
     static void warning(String message) {
@@ -315,7 +317,7 @@ class Kode {
 
         // List
         if (object instanceof List) {
-            List list = (List) object;
+            List<?> list = (List<?>) object;
             if (list.isEmpty()) {
                 return "[]";
             } else if (list.size() == 1) {
@@ -375,13 +377,13 @@ class Kode {
         return false;
     }
 
-    static final Interpreter INTER = new Interpreter();
+    static final Interpreter INTER = new Interpreter();  // change
 
     static {
         try {
             LIBPATH = Paths.get(Paths.get(Kode.class.getProtectionDomain().getCodeSource().getLocation().toURI())
                     .getParent().getParent().toFile().getAbsolutePath(), "libs").toAbsolutePath().toString(); // Get Parent added.
-            final Map<String, Object> DEF_GLOBALS = new HashMap();
+            final Map<String, Object> DEF_GLOBALS = new HashMap<>();
             DEF_GLOBALS.put("disp", new KodeBuiltinFunction("print", null, INTER) {
                 @Override
                 public int arity() {
@@ -403,7 +405,7 @@ class Kode {
 
                 @Override
                 public Object call(Object... arguments) {
-                    List ll = new ArrayList();
+                    List<Object> ll = new ArrayList<>();
                     for (int i = 1; i < arguments.length; i++) {
                         Object toJava = Interpreter.toJava(arguments[i]);
                         if (toJava instanceof KodeNumber) {
@@ -509,7 +511,7 @@ class Kode {
                 @Override
                 public Object call(Object... arguments) {
                     Object obj = arguments[0];
-                    Set<String> dir = new TreeSet();
+                    Set<String> dir = new TreeSet<>();
                     if (obj instanceof KodeInstance) {
                         dir.addAll(((KodeInstance) obj).fields.keySet());
                         if (obj instanceof KodeModule) {

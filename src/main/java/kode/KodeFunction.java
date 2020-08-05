@@ -53,7 +53,7 @@ class KodeFunction implements KodeCallable {
                 environment.define(declaration.params[i].lexeme, arguments[i]);
             }
             if (declaration.params[declaration.params.length - 1].lexeme.equals(Kode.VARARGIN)) {
-                List varargin = new ArrayList();
+                List<Object> varargin = new ArrayList<>();
                 for (int j = declaration.params.length - 1; j < arguments.length; j++) {
                     varargin.add(arguments[j]);
                 }

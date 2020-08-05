@@ -27,9 +27,11 @@ class Lexer {
     private int line = 1;
     private final String fn;
 
-    private static final Map<String, TokenType> KEYWORDS;
+    private final Map<String, TokenType> KEYWORDS;
 
-    static {
+    Lexer(String fn, String source) {
+        this.fn = fn;
+        this.source = source;
         KEYWORDS = new HashMap<>();
         KEYWORDS.put("and", AND);
         KEYWORDS.put("break", BREAK);
@@ -57,11 +59,6 @@ class Lexer {
         KEYWORDS.put("try", TRY);
         KEYWORDS.put("except", CATCH);
         KEYWORDS.put("raise", RAISE);
-    }
-
-    Lexer(String fn, String source) {
-        this.fn = fn;
-        this.source = source;
     }
 
     private String getLine(int line) {

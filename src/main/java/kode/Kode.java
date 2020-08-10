@@ -193,15 +193,15 @@ class Kode {
 
     static String runLib(String name, Interpreter inter) throws Throwable {
         String pkgname = Paths.get(name).getName(0).toString();
-        String p = Paths.get(Kode.LIBPATH, pkgname).toAbsolutePath().toString();
+        String initial_path = Paths.get(Kode.LIBPATH, pkgname).toAbsolutePath().toString();
         try {
             Path path = Paths.get("./", name + "." + Kode.EXTENSION).toAbsolutePath();
             if (path.toFile().exists()) {
                 byte[] bytes = Files.readAllBytes(path);
                 return run(path.toFile().getName(), new String(bytes, ENCODING), inter).key;
             }
-
-            if (Pip4kode.checkUpdate(pkgname, p)) {
+            
+            if (Pip4kode.checkUpdate(pkgname, initial_path)) {
                 IO.printf_err("[Info]: Package '" + pkgname + "' needs an update.\n"
                         + "Do you want to update the package '" + pkgname + "' ? [y/n]");
                 if (IO.scanf().equalsIgnoreCase("y")) {
@@ -209,7 +209,7 @@ class Kode {
                 }
             }
 
-            path = Paths.get(p, name + "." + Kode.EXTENSION).toAbsolutePath();
+            path = Paths.get(initial_path, name + "." + Kode.EXTENSION).toAbsolutePath();
             if (path.toFile().exists()) {
                 byte[] bytes = Files.readAllBytes(path);
                 return run(path.toFile().getName(), new String(bytes, ENCODING), inter).key;
@@ -228,7 +228,7 @@ class Kode {
             try {
                 Pip4kode pip = new Pip4kode(pkgname);
                 IO.printfln("Reading package metadata from repository ...");
-                pip.init(p);
+                pip.init(initial_path);
                 IO.printf("Do you want to download the package '" + pip.pkg + "' (" + pip.sizeInWords + ") ? [y/n] ");
                 if (!IO.scanf().equalsIgnoreCase("y")) {
                     throw new Exception();
@@ -377,14 +377,16 @@ class Kode {
         return false;
     }
 
-    static final Interpreter INTER = new Interpreter();  // change
+    static final KodeModule BUILTIN_MODULE = new KodeModule(Kode.BUILTIN_NAME, Kode.BUILTIN_NAME);
 
     static {
         try {
             LIBPATH = Paths.get(Paths.get(Kode.class.getProtectionDomain().getCodeSource().getLocation().toURI())
                     .getParent().getParent().toFile().getAbsolutePath(), "libs").toAbsolutePath().toString(); // Get Parent added.
-            final Map<String, Object> DEF_GLOBALS = new HashMap<>();
-            DEF_GLOBALS.put("disp", new KodeBuiltinFunction("print", null, INTER) {
+            Interpreter INTER = BUILTIN_MODULE.inter;
+            Map<String, Object> DEF_GLOBALS = INTER.globals.values;
+            
+            DEF_GLOBALS.put("disp", new KodeBuiltinFunction("print", INTER) {
                 @Override
                 public int arity() {
                     return 1;
@@ -397,7 +399,7 @@ class Kode {
                 }
 
             });
-            DEF_GLOBALS.put("sprintf", new KodeBuiltinFunction("printf", null, INTER) {
+            DEF_GLOBALS.put("sprintf", new KodeBuiltinFunction("printf", INTER) {
                 @Override
                 public int arity() {
                     return -2;
@@ -428,7 +430,7 @@ class Kode {
                 }
 
             });
-            DEF_GLOBALS.put("printf", new KodeBuiltinFunction("printf", null, INTER) {
+            DEF_GLOBALS.put("printf", new KodeBuiltinFunction("printf", INTER) {
                 @Override
                 public int arity() {
                     return -2;
@@ -441,7 +443,7 @@ class Kode {
                 }
 
             });
-            DEF_GLOBALS.put("input", new KodeBuiltinFunction("input", null, INTER) {
+            DEF_GLOBALS.put("input", new KodeBuiltinFunction("input", INTER) {
                 @Override
                 public int arity() {
                     return -1;
@@ -460,7 +462,7 @@ class Kode {
                 }
 
             });
-            DEF_GLOBALS.put("inputPwd", new KodeBuiltinFunction("inputPwd", null, INTER) {
+            DEF_GLOBALS.put("inputPwd", new KodeBuiltinFunction("inputPwd", INTER) {
                 @Override
                 public int arity() {
                     return -1;
@@ -479,7 +481,7 @@ class Kode {
                 }
 
             });
-            DEF_GLOBALS.put("len", new KodeBuiltinFunction("len", null, INTER) {
+            DEF_GLOBALS.put("len", new KodeBuiltinFunction("len", INTER) {
                 @Override
                 public int arity() {
                     return 1;
@@ -502,7 +504,7 @@ class Kode {
                 }
 
             });
-            DEF_GLOBALS.put("dir", new KodeBuiltinFunction("dir", null, INTER) {
+            DEF_GLOBALS.put("dir", new KodeBuiltinFunction("dir", INTER) {
                 @Override
                 public int arity() {
                     return 1;
@@ -533,7 +535,7 @@ class Kode {
                 }
 
             });
-            DEF_GLOBALS.put("id", new KodeBuiltinFunction("id", null, INTER) {
+            DEF_GLOBALS.put("id", new KodeBuiltinFunction("id", INTER) {
                 @Override
                 public int arity() {
                     return 1;
@@ -545,7 +547,7 @@ class Kode {
                 }
 
             });
-            DEF_GLOBALS.put("now", new KodeBuiltinFunction("now", null, INTER) {
+            DEF_GLOBALS.put("now", new KodeBuiltinFunction("now", INTER) {
                 @Override
                 public int arity() {
                     return 0;
@@ -557,7 +559,7 @@ class Kode {
                 }
 
             });
-            DEF_GLOBALS.put("free", new KodeBuiltinFunction("free", null, INTER) {
+            DEF_GLOBALS.put("free", new KodeBuiltinFunction("free", INTER) {
                 @Override
                 public int arity() {
                     return 0;
@@ -570,7 +572,7 @@ class Kode {
                 }
 
             });
-            DEF_GLOBALS.put("resetLine", new KodeBuiltinFunction("resetLine", null, INTER) {
+            DEF_GLOBALS.put("resetLine", new KodeBuiltinFunction("resetLine", INTER) {
                 @Override
                 public int arity() {
                     return 0;
@@ -583,7 +585,7 @@ class Kode {
                 }
 
             });
-            DEF_GLOBALS.put("clear", new KodeBuiltinFunction("clear", null, INTER) {
+            DEF_GLOBALS.put("clear", new KodeBuiltinFunction("clear", INTER) {
                 @Override
                 public int arity() {
                     return 0;
@@ -596,7 +598,7 @@ class Kode {
                 }
 
             });
-            DEF_GLOBALS.put("isinstance", new KodeBuiltinFunction("isinstance", null, INTER) {
+            DEF_GLOBALS.put("isinstance", new KodeBuiltinFunction("isinstance", INTER) {
                 @Override
                 public int arity() {
                     return 2;
@@ -616,7 +618,7 @@ class Kode {
                 }
 
             });
-            DEF_GLOBALS.put("issubclass", new KodeBuiltinFunction("issubclass", null, INTER) {
+            DEF_GLOBALS.put("issubclass", new KodeBuiltinFunction("issubclass", INTER) {
                 @Override
                 public int arity() {
                     return 2;
@@ -636,7 +638,7 @@ class Kode {
                 }
 
             });
-            DEF_GLOBALS.put("exit", new KodeBuiltinFunction("exit", null, INTER) {
+            DEF_GLOBALS.put("exit", new KodeBuiltinFunction("exit", INTER) {
                 @Override
                 public int arity() {
                     return 0;
@@ -649,7 +651,7 @@ class Kode {
                 }
 
             });
-            DEF_GLOBALS.put("help", new KodeBuiltinFunction("help", null, INTER) {
+            DEF_GLOBALS.put("help", new KodeBuiltinFunction("help", INTER) {
 
                 @Override
                 public int arity() {
@@ -677,7 +679,7 @@ class Kode {
                 }
 
             });
-            DEF_GLOBALS.put("hasattr", new KodeBuiltinFunction("hasattr", null, INTER) {
+            DEF_GLOBALS.put("hasattr", new KodeBuiltinFunction("hasattr", INTER) {
                 @Override
                 public int arity() {
                     return 2;
@@ -698,7 +700,7 @@ class Kode {
                 }
 
             });
-            DEF_GLOBALS.put("setattr", new KodeBuiltinFunction("setattr", null, INTER) {
+            DEF_GLOBALS.put("setattr", new KodeBuiltinFunction("setattr", INTER) {
                 @Override
                 public int arity() {
                     return 3;
@@ -715,7 +717,7 @@ class Kode {
                 }
 
             });
-            DEF_GLOBALS.put("getattr", new KodeBuiltinFunction("getattr", null, INTER) {
+            DEF_GLOBALS.put("getattr", new KodeBuiltinFunction("getattr", INTER) {
                 @Override
                 public int arity() {
                     return 2;
@@ -735,7 +737,7 @@ class Kode {
                 }
 
             });
-            DEF_GLOBALS.put("callable", new KodeBuiltinFunction("callable", null, INTER) {
+            DEF_GLOBALS.put("callable", new KodeBuiltinFunction("callable", INTER) {
                 @Override
                 public int arity() {
                     return 1;
@@ -747,7 +749,7 @@ class Kode {
                 }
 
             });
-            DEF_GLOBALS.put("eval", new KodeBuiltinFunction("eval", null, INTER) {
+            DEF_GLOBALS.put("eval", new KodeBuiltinFunction("eval", INTER) {
                 @Override
                 public int arity() {
                     return 1;
@@ -771,7 +773,7 @@ class Kode {
                 }
 
             });
-            DEF_GLOBALS.put("ord", new KodeBuiltinFunction("ord", null, INTER) {
+            DEF_GLOBALS.put("ord", new KodeBuiltinFunction("ord", INTER) {
 
                 @Override
                 String doc() {
@@ -813,7 +815,7 @@ class Kode {
                 }
 
             });
-            DEF_GLOBALS.put("chr", new KodeBuiltinFunction("chr", null, INTER) {
+            DEF_GLOBALS.put("chr", new KodeBuiltinFunction("chr", INTER) {
 
                 @Override
                 String doc() {
@@ -866,11 +868,10 @@ class Kode {
             DEF_GLOBALS.put(ValueError.val.class_name, ValueError.val);    //Error
             DEF_GLOBALS.put(ValueType.val.class_name, ValueType.val);    //Type
             DEF_GLOBALS.put(ValueNotImplemented.val.class_name, ValueNotImplemented.val); //NotImplemented Error
-            INTER.globals.values.putAll(DEF_GLOBALS);
-            KodeModule module = new KodeModule(Kode.BUILTIN_NAME, Kode.BUILTIN_NAME);
-            Kode.ModuleRegistry.put(Kode.BUILTIN_NAME, module);
-            module.inter = INTER;
-            module.run();
+            
+            Kode.ModuleRegistry.put(Kode.BUILTIN_NAME, BUILTIN_MODULE);
+            BUILTIN_MODULE.inter = INTER;
+            BUILTIN_MODULE.run();
         } catch (Throwable ex) {
             handleThrowable(ex);
             JOptionPane.showMessageDialog(null, "Failed to Initialize Interpreter\nReason : " + ex.toString());

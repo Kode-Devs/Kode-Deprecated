@@ -5,6 +5,10 @@
     <artifactId>kode</artifactId>
     <version>latest</version>
     <packaging>jar</packaging>
+    <organization>
+        <name>Kode Devs</name>
+        <url>https://github.com/Kode-Devs</url>
+    </organization>
     <dependencies>
         <dependency>
             <groupId>org.fusesource.jansi</groupId>

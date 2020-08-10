@@ -23,7 +23,7 @@ class ValueNotImplemented extends Value {
     private ValueNotImplemented(Interpreter interpreter) {
         super("NotImplemented", ValueError.val, interpreter);
         //<editor-fold defaultstate="collapsed" desc="init">
-        this.methods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, null, interpreter) {
+        this.methods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, interpreter) {
 
             @Override
             public int arity() {

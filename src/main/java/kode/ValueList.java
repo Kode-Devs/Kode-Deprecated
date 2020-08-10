@@ -25,7 +25,7 @@ class ValueList extends Value {
     private ValueList(Interpreter interpreter) {
         super("List", interpreter);
         //<editor-fold defaultstate="collapsed" desc="init">
-        this.methods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, null, interpreter) {
+        this.methods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, interpreter) {
 
             @Override
             public int arity() {
@@ -43,7 +43,7 @@ class ValueList extends Value {
         });
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="str">
-        this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, null, interpreter) {
+        this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, interpreter) {
 
             @Override
             public int arity() {
@@ -76,7 +76,7 @@ class ValueList extends Value {
         });
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="bool">
-        this.methods.put(Kode.BOOLEAN, new KodeBuiltinFunction(Kode.BOOLEAN, null, interpreter) {
+        this.methods.put(Kode.BOOLEAN, new KodeBuiltinFunction(Kode.BOOLEAN, interpreter) {
 
             @Override
             public int arity() {
@@ -96,7 +96,7 @@ class ValueList extends Value {
         });
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="list">
-        this.methods.put(Kode.LIST, new KodeBuiltinFunction(Kode.LIST, null, interpreter) {
+        this.methods.put(Kode.LIST, new KodeBuiltinFunction(Kode.LIST, interpreter) {
 
             @Override
             public int arity() {
@@ -117,7 +117,7 @@ class ValueList extends Value {
 //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="append">
-        this.methods.put("append", new KodeBuiltinFunction("append", null, interpreter) {
+        this.methods.put("append", new KodeBuiltinFunction("append", interpreter) {
 
             @Override
             public int arity() {
@@ -141,7 +141,8 @@ class ValueList extends Value {
     }
 
     //<editor-fold defaultstate="collapsed" desc="toList">
-    static List<Object> toList(Object x) {
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+	static List<Object> toList(Object x) {
         Object a = x;
         for (;;) {
             if (x instanceof List) {

@@ -16,7 +16,7 @@ import math.KodeNumber;
 public class log10 implements KNI {
 
     @Override
-    public KodeObject call(KodeObject[] args) throws Throwable {
+    public KodeObject call(KodeObject... args) throws Throwable {
         return new KodeObject(KodeNumber.valueOf(Math.log10(((KodeNumber)args[0].get()).getFloat())));
     }
     

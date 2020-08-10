@@ -25,7 +25,7 @@ class ValueString extends Value {
     private ValueString(Interpreter interpreter) {
         super("String", interpreter);
         //<editor-fold defaultstate="collapsed" desc="init">
-        this.methods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, null, interpreter) {
+        this.methods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, interpreter) {
 
             @Override
             public int arity() {
@@ -43,7 +43,7 @@ class ValueString extends Value {
         });
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="str">
-        this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, null, interpreter) {
+        this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, interpreter) {
 
             @Override
             public int arity() {
@@ -63,7 +63,7 @@ class ValueString extends Value {
         });
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="num">
-        this.methods.put(Kode.NUMBER, new KodeBuiltinFunction(Kode.NUMBER, null, interpreter) {
+        this.methods.put(Kode.NUMBER, new KodeBuiltinFunction(Kode.NUMBER, interpreter) {
 
             @Override
             public int arity() {
@@ -87,7 +87,7 @@ class ValueString extends Value {
         });
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="bool">
-        this.methods.put(Kode.BOOLEAN, new KodeBuiltinFunction(Kode.BOOLEAN, null, interpreter) {
+        this.methods.put(Kode.BOOLEAN, new KodeBuiltinFunction(Kode.BOOLEAN, interpreter) {
 
             @Override
             public int arity() {
@@ -107,7 +107,7 @@ class ValueString extends Value {
         });
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="list">
-        this.methods.put(Kode.LIST, new KodeBuiltinFunction(Kode.LIST, null, interpreter) {
+        this.methods.put(Kode.LIST, new KodeBuiltinFunction(Kode.LIST, interpreter) {
 
             @Override
             public int arity() {

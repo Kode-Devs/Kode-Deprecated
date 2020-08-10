@@ -17,8 +17,8 @@ abstract class KodeBuiltinFunction extends KodeFunction {
 
     final String fun_name;
 
-    KodeBuiltinFunction(String name, Environment closure, Interpreter inter) {
-        super(null, closure, inter, false);
+    KodeBuiltinFunction(String name, Interpreter inter) {
+        super(null, null, inter, false);
         this.fun_name = name;
         this.__doc__ = doc();
     }
@@ -29,9 +29,8 @@ abstract class KodeBuiltinFunction extends KodeFunction {
 
     @Override
     KodeFunction bind(KodeInstance instance) {
-        Environment environment = new Environment(closure);
-        environment.define("this", instance);
-        this.closure = environment;
+    	this.closure = new Environment();
+    	this.closure.define("this", instance);
         return this;
     }
 

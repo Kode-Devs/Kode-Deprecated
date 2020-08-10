@@ -572,7 +572,8 @@ class Parser {
         return tokens.get(current);
     }
 
-    private Token peekNext() {
+    @SuppressWarnings("unused")
+	private Token peekNext() {
         return tokens.get(current + 1);
     }
 

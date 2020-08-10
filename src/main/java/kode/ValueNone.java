@@ -23,7 +23,7 @@ class ValueNone extends Value {
     private ValueNone(Interpreter interpreter) {
         super("NoneType", interpreter);
         //<editor-fold defaultstate="collapsed" desc="str">
-        this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, null, interpreter) {
+        this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, interpreter) {
 
             @Override
             public int arity() {
@@ -41,7 +41,7 @@ class ValueNone extends Value {
         });
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="bool">
-        this.methods.put(Kode.BOOLEAN, new KodeBuiltinFunction(Kode.BOOLEAN, null, interpreter) {
+        this.methods.put(Kode.BOOLEAN, new KodeBuiltinFunction(Kode.BOOLEAN, interpreter) {
 
             @Override
             public int arity() {

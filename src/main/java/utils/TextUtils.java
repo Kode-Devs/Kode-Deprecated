@@ -49,6 +49,9 @@ public class TextUtils {
                     case 't':
                         ch = '\t';
                         break;
+                    case 'e':
+                        ch = 27;
+                        break;
                     case '\'':
                     case '\"':
                     case '\\':

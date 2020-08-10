@@ -34,8 +34,8 @@ class Environment {
             return enclosing.get(name);
         }
 
-        if (Kode.INTER.globals.values.containsKey(name.lexeme)) {
-            return Kode.INTER.globals.get(name);
+        if (Kode.BUILTIN_MODULE.inter.globals.values.containsKey(name.lexeme)) {
+            return Kode.BUILTIN_MODULE.inter.globals.get(name);
         }
 
         throw new RuntimeError(
@@ -52,8 +52,8 @@ class Environment {
             return enclosing.get(name);
         }
 
-        if (Kode.INTER.globals.values.containsKey(name)) {
-            return Kode.INTER.globals.get(name);
+        if (Kode.BUILTIN_MODULE.inter.globals.values.containsKey(name)) {
+            return Kode.BUILTIN_MODULE.inter.globals.get(name);
         }
 
         throw new RuntimeError(
@@ -71,8 +71,8 @@ class Environment {
             return;
         }
 
-        if (Kode.INTER.globals.values.containsKey(name.lexeme)) {
-            Kode.INTER.globals.define(name.lexeme, value);
+        if (Kode.BUILTIN_MODULE.inter.globals.values.containsKey(name.lexeme)) {
+            Kode.BUILTIN_MODULE.inter.globals.define(name.lexeme, value);
             return;
         }
 

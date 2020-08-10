@@ -25,7 +25,7 @@ class ValueError extends Value {
     private ValueError(Interpreter interpreter) {
         super("Error", interpreter);
         //<editor-fold defaultstate="collapsed" desc="init">
-        this.methods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, null, interpreter) {
+        this.methods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, interpreter) {
 
             @Override
             public int arity() {
@@ -43,7 +43,7 @@ class ValueError extends Value {
         });
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="str">
-        this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, null, interpreter) {
+        this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, interpreter) {
 
             @Override
             public int arity() {
@@ -80,7 +80,7 @@ class ValueError extends Value {
         });
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="skip">
-        this.methods.put("skip", new KodeBuiltinFunction("skip", null, interpreter) {
+        this.methods.put("skip", new KodeBuiltinFunction("skip", interpreter) {
 
             @Override
             public int arity() {

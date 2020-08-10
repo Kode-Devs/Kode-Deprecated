@@ -13,11 +13,6 @@ import math.KodeNumber;
  */
 class ValueNumber extends Value {
 
-    @Override
-    String doc() {
-        return "Number Class wrapping over Java Double data-type.";
-    }
-
     static Value val = new ValueNumber(new Interpreter());
 
     static KodeInstance create(KodeNumber x) {
@@ -30,7 +25,7 @@ class ValueNumber extends Value {
     private ValueNumber(Interpreter interpreter) {
         super("Number", interpreter);
         //<editor-fold defaultstate="collapsed" desc="init">
-        this.methods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, null, interpreter) {
+        this.methods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, interpreter) {
 
             @Override
             public int arity() {
@@ -48,7 +43,7 @@ class ValueNumber extends Value {
         });
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="str">
-        this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, null, interpreter) {
+        this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, interpreter) {
 
             @Override
             public int arity() {
@@ -68,7 +63,7 @@ class ValueNumber extends Value {
         });
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="num">
-        this.methods.put(Kode.NUMBER, new KodeBuiltinFunction(Kode.NUMBER, null, interpreter) {
+        this.methods.put(Kode.NUMBER, new KodeBuiltinFunction(Kode.NUMBER, interpreter) {
 
             @Override
             public int arity() {
@@ -88,7 +83,7 @@ class ValueNumber extends Value {
         });
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="bool">
-        this.methods.put(Kode.BOOLEAN, new KodeBuiltinFunction(Kode.BOOLEAN, null, interpreter) {
+        this.methods.put(Kode.BOOLEAN, new KodeBuiltinFunction(Kode.BOOLEAN, interpreter) {
 
             @Override
             public int arity() {
@@ -109,7 +104,7 @@ class ValueNumber extends Value {
 //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="isInteger">
-        this.methods.put("isInt", new KodeBuiltinFunction("isInt", null, interpreter) {
+        this.methods.put("isInt", new KodeBuiltinFunction("isInt", interpreter) {
 
             @Override
             public int arity() {
@@ -129,7 +124,7 @@ class ValueNumber extends Value {
         });
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="asInt">
-        this.methods.put("asInt", new KodeBuiltinFunction("asInt", null, interpreter) {
+        this.methods.put("asInt", new KodeBuiltinFunction("asInt", interpreter) {
 
             @Override
             public int arity() {
@@ -153,7 +148,7 @@ class ValueNumber extends Value {
         });
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="asReal">
-        this.methods.put("asReal", new KodeBuiltinFunction("asReal", null, interpreter) {
+        this.methods.put("asReal", new KodeBuiltinFunction("asReal", interpreter) {
 
             @Override
             public int arity() {
@@ -173,7 +168,7 @@ class ValueNumber extends Value {
         });
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="asIndex">
-        this.methods.put("asIndex", new KodeBuiltinFunction("asIndex", null, interpreter) {
+        this.methods.put("asIndex", new KodeBuiltinFunction("asIndex", interpreter) {
 
             @Override
             public int arity() {

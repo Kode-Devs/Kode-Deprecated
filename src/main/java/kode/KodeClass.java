@@ -34,7 +34,7 @@ class KodeClass implements KodeCallable {
     Map<String, KodeFunction> specialMethods() {
         Map<String, KodeFunction> sm = new HashMap<>();
         //<editor-fold defaultstate="collapsed" desc="init">
-        sm.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, null, interpreter) {
+        sm.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, interpreter) {
             @Override
             public int arity() {
                 return 0;
@@ -48,7 +48,7 @@ class KodeClass implements KodeCallable {
 //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="str">
-        sm.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, null, interpreter) {
+        sm.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, interpreter) {
             @Override
             public int arity() {
                 return 0;
@@ -61,7 +61,7 @@ class KodeClass implements KodeCallable {
         });
         //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="number">
-        sm.put(Kode.NUMBER, new KodeBuiltinFunction(Kode.NUMBER, null, interpreter) {
+        sm.put(Kode.NUMBER, new KodeBuiltinFunction(Kode.NUMBER, interpreter) {
 
             @Override
             public int arity() {
@@ -75,7 +75,7 @@ class KodeClass implements KodeCallable {
         });
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="list">
-        sm.put(Kode.LIST, new KodeBuiltinFunction(Kode.LIST, null, interpreter) {
+        sm.put(Kode.LIST, new KodeBuiltinFunction(Kode.LIST, interpreter) {
 
             @Override
             public int arity() {
@@ -89,7 +89,7 @@ class KodeClass implements KodeCallable {
         });
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="bool">
-        sm.put(Kode.BOOLEAN, new KodeBuiltinFunction(Kode.BOOLEAN, null, interpreter) {
+        sm.put(Kode.BOOLEAN, new KodeBuiltinFunction(Kode.BOOLEAN, interpreter) {
 
             @Override
             public int arity() {
@@ -104,7 +104,7 @@ class KodeClass implements KodeCallable {
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="neg">
-        sm.put(Kode.NEG, new KodeBuiltinFunction(Kode.NEG, null, interpreter) {
+        sm.put(Kode.NEG, new KodeBuiltinFunction(Kode.NEG, interpreter) {
 
             @Override
             public int arity() {
@@ -127,7 +127,7 @@ class KodeClass implements KodeCallable {
         });
         //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="pos">
-        sm.put(Kode.POS, new KodeBuiltinFunction(Kode.POS, null, interpreter) {
+        sm.put(Kode.POS, new KodeBuiltinFunction(Kode.POS, interpreter) {
 
             @Override
             public int arity() {
@@ -150,7 +150,7 @@ class KodeClass implements KodeCallable {
         });
         //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="getItem">
-        sm.put(Kode.GET_ITEM, new KodeBuiltinFunction(Kode.GET_ITEM, null, interpreter) {
+        sm.put(Kode.GET_ITEM, new KodeBuiltinFunction(Kode.GET_ITEM, interpreter) {
 
             @Override
             public int arity() {
@@ -192,7 +192,7 @@ class KodeClass implements KodeCallable {
         });
         //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="setItem">
-        sm.put(Kode.SET_ITEM, new KodeBuiltinFunction(Kode.SET_ITEM, null, interpreter) {
+        sm.put(Kode.SET_ITEM, new KodeBuiltinFunction(Kode.SET_ITEM, interpreter) {
 
             @Override
             public int arity() {
@@ -228,7 +228,7 @@ class KodeClass implements KodeCallable {
         });
         //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="len">
-        sm.put(Kode.LEN, new KodeBuiltinFunction(Kode.LEN, null, interpreter) {
+        sm.put(Kode.LEN, new KodeBuiltinFunction(Kode.LEN, interpreter) {
 
             @Override
             public int arity() {
@@ -252,7 +252,7 @@ class KodeClass implements KodeCallable {
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="add">
-        sm.put(Kode.ADD, new KodeBuiltinFunction(Kode.ADD, null, interpreter) {
+        sm.put(Kode.ADD, new KodeBuiltinFunction(Kode.ADD, interpreter) {
 
             @Override
             public int arity() {
@@ -286,7 +286,7 @@ class KodeClass implements KodeCallable {
                 throw new NotImplemented();
             }
         });
-        sm.put(Kode.RADD, new KodeBuiltinFunction(Kode.RADD, null, interpreter) {
+        sm.put(Kode.RADD, new KodeBuiltinFunction(Kode.RADD, interpreter) {
 
             @Override
             public int arity() {
@@ -322,7 +322,7 @@ class KodeClass implements KodeCallable {
         });
         //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="sub">
-        sm.put(Kode.SUB, new KodeBuiltinFunction(Kode.SUB, null, interpreter) {
+        sm.put(Kode.SUB, new KodeBuiltinFunction(Kode.SUB, interpreter) {
 
             @Override
             public int arity() {
@@ -347,7 +347,7 @@ class KodeClass implements KodeCallable {
                 throw new NotImplemented();
             }
         });
-        sm.put(Kode.RSUB, new KodeBuiltinFunction(Kode.RSUB, null, interpreter) {
+        sm.put(Kode.RSUB, new KodeBuiltinFunction(Kode.RSUB, interpreter) {
 
             @Override
             public int arity() {
@@ -374,7 +374,7 @@ class KodeClass implements KodeCallable {
         });
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="mul">
-        sm.put(Kode.MUL, new KodeBuiltinFunction(Kode.MUL, null, interpreter) {
+        sm.put(Kode.MUL, new KodeBuiltinFunction(Kode.MUL, interpreter) {
 
             @Override
             public int arity() {
@@ -443,7 +443,7 @@ class KodeClass implements KodeCallable {
                 throw new NotImplemented();
             }
         });
-        sm.put(Kode.RMUL, new KodeBuiltinFunction(Kode.RMUL, null, interpreter) {
+        sm.put(Kode.RMUL, new KodeBuiltinFunction(Kode.RMUL, interpreter) {
 
             @Override
             public int arity() {
@@ -514,7 +514,7 @@ class KodeClass implements KodeCallable {
         });
         //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="true_div">
-        sm.put(Kode.TRUE_DIV, new KodeBuiltinFunction(Kode.TRUE_DIV, null, interpreter) {
+        sm.put(Kode.TRUE_DIV, new KodeBuiltinFunction(Kode.TRUE_DIV, interpreter) {
 
             @Override
             public int arity() {
@@ -543,7 +543,7 @@ class KodeClass implements KodeCallable {
                 throw new NotImplemented();
             }
         });
-        sm.put(Kode.RTRUE_DIV, new KodeBuiltinFunction(Kode.RTRUE_DIV, null, interpreter) {
+        sm.put(Kode.RTRUE_DIV, new KodeBuiltinFunction(Kode.RTRUE_DIV, interpreter) {
 
             @Override
             public int arity() {
@@ -574,7 +574,7 @@ class KodeClass implements KodeCallable {
         });
         //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="floor_div">
-        sm.put(Kode.FLOOR_DIV, new KodeBuiltinFunction(Kode.FLOOR_DIV, null, interpreter) {
+        sm.put(Kode.FLOOR_DIV, new KodeBuiltinFunction(Kode.FLOOR_DIV, interpreter) {
 
             @Override
             public int arity() {
@@ -603,7 +603,7 @@ class KodeClass implements KodeCallable {
                 throw new NotImplemented();
             }
         });
-        sm.put(Kode.RFLOOR_DIV, new KodeBuiltinFunction(Kode.RFLOOR_DIV, null, interpreter) {
+        sm.put(Kode.RFLOOR_DIV, new KodeBuiltinFunction(Kode.RFLOOR_DIV, interpreter) {
 
             @Override
             public int arity() {
@@ -634,7 +634,7 @@ class KodeClass implements KodeCallable {
         });
         //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="mod">
-        sm.put(Kode.MOD, new KodeBuiltinFunction(Kode.MOD, null, interpreter) {
+        sm.put(Kode.MOD, new KodeBuiltinFunction(Kode.MOD, interpreter) {
 
             @Override
             public int arity() {
@@ -663,7 +663,7 @@ class KodeClass implements KodeCallable {
                 throw new NotImplemented();
             }
         });
-        sm.put(Kode.RMOD, new KodeBuiltinFunction(Kode.RMOD, null, interpreter) {
+        sm.put(Kode.RMOD, new KodeBuiltinFunction(Kode.RMOD, interpreter) {
 
             @Override
             public int arity() {
@@ -694,7 +694,7 @@ class KodeClass implements KodeCallable {
         });
         //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="pow">
-        sm.put(Kode.POWER, new KodeBuiltinFunction(Kode.POWER, null, interpreter) {
+        sm.put(Kode.POWER, new KodeBuiltinFunction(Kode.POWER, interpreter) {
 
             @Override
             public int arity() {
@@ -723,7 +723,7 @@ class KodeClass implements KodeCallable {
                 throw new NotImplemented();
             }
         });
-        sm.put(Kode.RPOWER, new KodeBuiltinFunction(Kode.RPOWER, null, interpreter) {
+        sm.put(Kode.RPOWER, new KodeBuiltinFunction(Kode.RPOWER, interpreter) {
 
             @Override
             public int arity() {
@@ -754,7 +754,7 @@ class KodeClass implements KodeCallable {
         });
         //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="lshift">
-        sm.put(Kode.LSHIFT, new KodeBuiltinFunction(Kode.LSHIFT, null, interpreter) {
+        sm.put(Kode.LSHIFT, new KodeBuiltinFunction(Kode.LSHIFT, interpreter) {
 
             @Override
             public int arity() {
@@ -783,7 +783,7 @@ class KodeClass implements KodeCallable {
                 throw new NotImplemented();
             }
         });
-        sm.put(Kode.RLSHIFT, new KodeBuiltinFunction(Kode.RLSHIFT, null, interpreter) {
+        sm.put(Kode.RLSHIFT, new KodeBuiltinFunction(Kode.RLSHIFT, interpreter) {
 
             @Override
             public int arity() {
@@ -814,7 +814,7 @@ class KodeClass implements KodeCallable {
         });
         //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="rshift">
-        sm.put(Kode.RSHIFT, new KodeBuiltinFunction(Kode.RSHIFT, null, interpreter) {
+        sm.put(Kode.RSHIFT, new KodeBuiltinFunction(Kode.RSHIFT, interpreter) {
 
             @Override
             public int arity() {
@@ -843,7 +843,7 @@ class KodeClass implements KodeCallable {
                 throw new NotImplemented();
             }
         });
-        sm.put(Kode.RRSHIFT, new KodeBuiltinFunction(Kode.RRSHIFT, null, interpreter) {
+        sm.put(Kode.RRSHIFT, new KodeBuiltinFunction(Kode.RRSHIFT, interpreter) {
 
             @Override
             public int arity() {
@@ -875,7 +875,7 @@ class KodeClass implements KodeCallable {
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="eq">
-        sm.put(Kode.EQ, new KodeBuiltinFunction(Kode.EQ, null, interpreter) {
+        sm.put(Kode.EQ, new KodeBuiltinFunction(Kode.EQ, interpreter) {
 
             @Override
             public int arity() {
@@ -889,7 +889,7 @@ class KodeClass implements KodeCallable {
         });
         //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="ne">
-        sm.put(Kode.NE, new KodeBuiltinFunction(Kode.NE, null, interpreter) {
+        sm.put(Kode.NE, new KodeBuiltinFunction(Kode.NE, interpreter) {
 
             @Override
             public int arity() {
@@ -903,7 +903,7 @@ class KodeClass implements KodeCallable {
         });
         //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="lt">
-        sm.put(Kode.LT, new KodeBuiltinFunction(Kode.LT, null, interpreter) {
+        sm.put(Kode.LT, new KodeBuiltinFunction(Kode.LT, interpreter) {
 
             @Override
             public int arity() {
@@ -917,7 +917,7 @@ class KodeClass implements KodeCallable {
         });
         //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="le">
-        sm.put(Kode.LE, new KodeBuiltinFunction(Kode.LE, null, interpreter) {
+        sm.put(Kode.LE, new KodeBuiltinFunction(Kode.LE, interpreter) {
 
             @Override
             public int arity() {
@@ -931,7 +931,7 @@ class KodeClass implements KodeCallable {
         });
         //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="gt">
-        sm.put(Kode.GT, new KodeBuiltinFunction(Kode.GT, null, interpreter) {
+        sm.put(Kode.GT, new KodeBuiltinFunction(Kode.GT, interpreter) {
 
             @Override
             public int arity() {
@@ -945,7 +945,7 @@ class KodeClass implements KodeCallable {
         });
         //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="ge">
-        sm.put(Kode.GE, new KodeBuiltinFunction(Kode.GE, null, interpreter) {
+        sm.put(Kode.GE, new KodeBuiltinFunction(Kode.GE, interpreter) {
 
             @Override
             public int arity() {

@@ -257,7 +257,8 @@ class Lexer {
         addToken(STRING, text);
     }
 
-    private void multilineString() {
+    @SuppressWarnings("removal")
+	private void multilineString() {
         String text = "";
 
         while (!isAtEnd()) {

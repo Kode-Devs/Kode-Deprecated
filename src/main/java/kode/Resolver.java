@@ -352,7 +352,6 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     public Void visitCatchStmt(Stmt.Catch stmt) {
         beginScope();
         if (stmt.alias != null) {
-            System.out.print(stmt.alias);
             declare(stmt.alias);
             define(stmt.alias);
         }

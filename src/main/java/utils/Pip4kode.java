@@ -122,6 +122,7 @@ public class Pip4kode {
             HttpsURLConnection con = (HttpsURLConnection) (new URL("https://raw.github.com/Kode-Devs/package-" + pkg + "/HEAD/version.json")).openConnection();
             con.setInstanceFollowRedirects(true);
             remoteVersion = new String(con.getInputStream().readAllBytes());
+            con.disconnect();
         } catch (Throwable e) {
             return false;
         }

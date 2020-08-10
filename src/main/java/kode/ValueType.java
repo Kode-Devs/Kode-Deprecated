@@ -18,7 +18,7 @@ class ValueType extends Value {
     private ValueType(Interpreter interpreter) {
         super("type", interpreter);
         //<editor-fold defaultstate="collapsed" desc="init">
-        this.methods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, null, interpreter) {
+        this.methods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, interpreter) {
 
             @Override
             public int arity() {
@@ -37,7 +37,7 @@ class ValueType extends Value {
 //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="str">
-        this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, null, interpreter) {
+        this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, interpreter) {
 
             @Override
             public int arity() {
@@ -58,7 +58,7 @@ class ValueType extends Value {
 //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="eq">
-        this.methods.put(Kode.EQ, new KodeBuiltinFunction(Kode.EQ, null, interpreter) {
+        this.methods.put(Kode.EQ, new KodeBuiltinFunction(Kode.EQ, interpreter) {
 
             @Override
             public int arity() {
@@ -79,7 +79,7 @@ class ValueType extends Value {
         });
         //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="ne">
-        this.methods.put(Kode.NE, new KodeBuiltinFunction(Kode.NE, null, interpreter) {
+        this.methods.put(Kode.NE, new KodeBuiltinFunction(Kode.NE, interpreter) {
 
             @Override
             public int arity() {

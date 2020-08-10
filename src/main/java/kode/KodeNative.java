@@ -42,6 +42,7 @@ class KodeNative implements KodeCallable {
             URLClassLoader urlClassLoader = new URLClassLoader(
                     addToList(this.pkg == null ? Paths.get("shared-lib") : Paths.get(Kode.LIBPATH, this.pkg, "shared-lib")).toArray(new URL[]{}),
                     Kode.class.getClassLoader());
+			@SuppressWarnings("deprecation")
 			Object newInstance = urlClassLoader.loadClass(this.className).newInstance();
 			urlClassLoader.close();
             KodeObject[] args = new KodeObject[arguments.length];

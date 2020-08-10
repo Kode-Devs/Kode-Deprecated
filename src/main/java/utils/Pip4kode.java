@@ -48,15 +48,16 @@ public class Pip4kode {
         sizeInWords = calculateSize(pkg);
         File file = new File(desPath);
         if (file.canWrite()) {
-            for (int i = 0; i < 5; i++) {
+            int i = 0;
+            while (file.exists()) {
                 Files.walk(file.toPath()).sorted(Comparator.reverseOrder())
                         .map(Path::toFile)
                         .forEach(a -> a.delete());
-                if (!file.exists()) {
-                    break;
+                i++;
+                if (i == 5) {
+                    throw new Exception(); // Can not clear the old version
                 }
             }
-            throw new Exception(); // Can not clear the old version
         }
         call = Git.cloneRepository()
                 .setURI(url.toString())

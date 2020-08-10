@@ -203,7 +203,7 @@ class Kode {
             
             if (Pip4kode.checkUpdate(pkgname, initial_path)) {
                 IO.printf_err("[Info]: Package '" + pkgname + "' needs an update.\n"
-                        + "Do you want to update the package '" + pkgname + "' ? [y/n]");
+                        + "Do you want to update the package '" + pkgname + "' ? [y/n] ");
                 if (IO.scanf().equalsIgnoreCase("y")) {
                     throw new Exception();
                 }

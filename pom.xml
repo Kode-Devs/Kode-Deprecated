@@ -40,8 +40,8 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <addClasspath>true</addClasspath>
-                            <mainClass>kode.Kode</mainClass>
+<!--                            <addClasspath>true</addClasspath>
+                            <mainClass>kode.Kode</mainClass>-->
                         </manifest>
                     </archive>
                 </configuration>

@@ -29,6 +29,7 @@ import java.util.TreeSet;
 import javax.swing.JOptionPane;
 import math.KodeNumber;
 import utils.Pip4kode;
+import utils.Pip4kode.PipError;
 
 /**
  *
@@ -200,7 +201,7 @@ class Kode {
                 byte[] bytes = Files.readAllBytes(path);
                 return run(path.toFile().getName(), new String(bytes, ENCODING), inter).key;
             }
-            
+
             if (Pip4kode.checkUpdate(pkgname, initial_path)) {
                 IO.printf_err("[Info]: Package '" + pkgname + "' needs an update.\n"
                         + "Do you want to update the package '" + pkgname + "' ? [y/n] ");
@@ -239,9 +240,11 @@ class Kode {
                 } else {
                     IO.printfln_err("Download Failed");
                 }
-            } catch (Exception ex) {
+            } catch (PipError ex) {
+                throw new RuntimeError(ex.getMessage());
+            } catch (Throwable ex) {
             }
-            throw new RuntimeError("Requirement " + name + " not satisfied.");
+            throw new RuntimeError("Requirement '" + name + "' not satisfied.");
         }
     }
 
@@ -385,7 +388,7 @@ class Kode {
                     .getParent().getParent().toFile().getAbsolutePath(), "libs").toAbsolutePath().toString(); // Get Parent added.
             Interpreter INTER = BUILTIN_MODULE.inter;
             Map<String, Object> DEF_GLOBALS = INTER.globals.values;
-            
+
             DEF_GLOBALS.put("disp", new KodeBuiltinFunction("print", INTER) {
                 @Override
                 public int arity() {
@@ -868,7 +871,7 @@ class Kode {
             DEF_GLOBALS.put(ValueError.val.class_name, ValueError.val);    //Error
             DEF_GLOBALS.put(ValueType.val.class_name, ValueType.val);    //Type
             DEF_GLOBALS.put(ValueNotImplemented.val.class_name, ValueNotImplemented.val); //NotImplemented Error
-            
+
             Kode.ModuleRegistry.put(Kode.BUILTIN_NAME, BUILTIN_MODULE);
             BUILTIN_MODULE.inter = INTER;
             BUILTIN_MODULE.run();

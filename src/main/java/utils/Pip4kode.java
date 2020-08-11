@@ -29,13 +29,22 @@ import org.fusesource.jansi.AnsiConsole;
  */
 public class Pip4kode {
 
+    public static class PipError extends Exception {
+
+		private static final long serialVersionUID = 1L;
+
+		public PipError(String message) {
+            super(message);
+        }
+    }
+
     public String sizeInWords;
     public final String pkg;
     private CloneCommand call;
 
     public Pip4kode(String pkg) throws Exception {
         if (((HttpsURLConnection) new URL("https://www.github.com").openConnection()).getResponseCode() != HttpsURLConnection.HTTP_OK) {
-            throw new Exception(); // Checks weather internet is accessible
+            throw new Exception("Connection Unavialable."); // Checks weather Internet is accessible
         }
         this.pkg = pkg;
     }
@@ -43,7 +52,7 @@ public class Pip4kode {
     public void init(String desPath) throws Exception {
         URL url = new URL("https://github.com/Kode-Devs/package-" + pkg);
         if (((HttpsURLConnection) url.openConnection()).getResponseCode() != HttpsURLConnection.HTTP_OK) {
-            throw new Exception(); // Checks validation of the package
+            throw new PipError("Package '" + this.pkg + "' not avialable in Repository."); // Checks validation of the package
         }
         sizeInWords = calculateSize(pkg);
         File file = new File(desPath);
@@ -55,7 +64,7 @@ public class Pip4kode {
                         .forEach(a -> a.delete());
                 i++;
                 if (i == 5) {
-                    throw new Exception(); // Can not clear the old version
+                    throw new PipError("Can not clear the old local copy. Try manually removing it from '" + file.getAbsolutePath() + "'"); // Can not clear the old version
                 }
             }
         }

@@ -44,7 +44,7 @@ public class Pip4kode {
 
     public Pip4kode(String pkg) throws Exception {
         if (((HttpsURLConnection) new URL("https://www.github.com").openConnection()).getResponseCode() != HttpsURLConnection.HTTP_OK) {
-            throw new Exception("Connection Unavialable."); // Checks weather Internet is accessible
+            throw new PipError("Internet Connection Unavialable."); // Checks weather Internet is accessible
         }
         this.pkg = pkg;
     }

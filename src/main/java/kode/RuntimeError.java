@@ -11,14 +11,10 @@ import java.util.Stack;
  *
  * @author dell
  */
-class RuntimeError extends Error
-{
+class RuntimeError extends Error {
 
-    /**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	Stack<Token> token = new Stack<>();
+    private static final long serialVersionUID = 1L;
+    Stack<Token> token = new Stack<>();
     KodeInstance instance = null;
 
     RuntimeError(String message, Token token) {

@@ -10,12 +10,13 @@ package kode;
  * @author dell
  */
 class Break extends RuntimeException {
-    /**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 
-	Break() {
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
+
+    Break() {
         super("Cannot break from top-level code.", null, false, false);
     }
 }

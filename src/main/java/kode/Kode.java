@@ -74,13 +74,7 @@ class Kode {
                         IO.printf(">>> ");
                         Pair<String, Object> run = run("<shell>", IO.scanf(), interpreter);
                         if (run.value != null) {
-                            Object value = run.value;
-                            if (value instanceof KodeInstance) {
-                                if (ValueString.isString((KodeInstance) value)) {
-                                    value = '\'' + value.toString() + '\'';
-                                }
-                            }
-                            IO.printfln(value);
+                            IO.printfln(Kode.repr(run.value));
                         }
                     } catch (Throwable e) {
                         handleThrowable(e);
@@ -242,6 +236,8 @@ class Kode {
                 }
             } catch (PipError ex) {
                 throw new RuntimeError(ex.getMessage());
+            } catch (RuntimeError ex) {
+                throw ex;
             } catch (Throwable ex) {
             }
             throw new RuntimeError("Requirement '" + name + "' not satisfied.");
@@ -324,11 +320,11 @@ class Kode {
             if (list.isEmpty()) {
                 return "[]";
             } else if (list.size() == 1) {
-                return "[" + stringify(list.get(0)) + "]";
+                return "[" + Kode.repr(list.get(0)) + "]";
             } else {
-                String text = "[" + stringify(list.get(0));
+                String text = "[" + Kode.repr(list.get(0));
                 for (int i = 1; i < list.size(); i++) {
-                    text += ", " + stringify(list.get(i));
+                    text += ", " + Kode.repr(list.get(i));
                 }
                 text += "]";
                 return text;
@@ -337,6 +333,15 @@ class Kode {
 
         // Object
         return object.toString();
+    }
+
+    private static String repr(Object value) {
+        if (value instanceof KodeInstance) {
+            if (ValueString.isString((KodeInstance) value)) {
+                return '\'' + Kode.stringify(value) + '\'';
+            }
+        }
+        return Kode.stringify(value);
     }
 
     static String type(Object object) {
@@ -389,7 +394,7 @@ class Kode {
             Interpreter INTER = BUILTIN_MODULE.inter;
             Map<String, Object> DEF_GLOBALS = INTER.globals.values;
 
-            DEF_GLOBALS.put("disp", new KodeBuiltinFunction("print", INTER) {
+            DEF_GLOBALS.put("disp", new KodeBuiltinFunction("disp", INTER) {
                 @Override
                 public int arity() {
                     return 1;

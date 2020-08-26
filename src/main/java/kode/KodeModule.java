@@ -9,14 +9,14 @@ package kode;
  *
  * @author dell
  */
-class KodeModule extends KodeInstance {
+class KodeModule {
 
     String name;
     Interpreter inter = new Interpreter();
     private final String path;
+    String __doc__;
 
     KodeModule(String name, String path) {
-        super(null);
         this.name = name;
         this.path = path;
     }
@@ -25,24 +25,20 @@ class KodeModule extends KodeInstance {
         this.__doc__ = Kode.runLib(path, inter);
     }
 
-    @Override
     Object get(Token name) {
-        return inter.globals.get(name);
+        try {
+            return inter.globals.get(name);
+        } catch (RuntimeError ex) {
+            throw new RuntimeError("Module '" + this.name + "' has no attribute '" + name.lexeme + "'.", name);
+        }
     }
 
-    @Override
-    Object get(String name) {
-        return inter.globals.get(name);
-    }
-
-    @Override
     void set(Token name, Object value) {
-        this.set(name.lexeme, value);
-    }
-
-    @Override
-    void set(String name, Object value) {
-        inter.globals.define(name, value);
+        try {
+            inter.globals.assign(name, value);
+        } catch (RuntimeError ex) {
+            throw new RuntimeError("Module '" + this.name + "' has no attribute '" + name.lexeme + "'.", name);
+        }
     }
 
     @Override

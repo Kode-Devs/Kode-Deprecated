@@ -1,6 +1,14 @@
-
-var name = native lib.os.getProperties("os.name");
+`Hi`;
 
 fun System(varargin){
     return native lib.os.system(varargin);
 }
+
+fun getProperty(name){
+    if(isinstance(name,String)) 
+        return native lib.os.getProperties(name);
+    else 
+        raise Error('Property name must be a String.');
+}
+
+var name = getProperty('os.name');

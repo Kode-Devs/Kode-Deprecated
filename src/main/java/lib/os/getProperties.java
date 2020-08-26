@@ -18,7 +18,7 @@ public class getProperties implements KNI {
     public KodeObject call(KodeObject... args) throws Throwable {
         try {
             return new KodeObject(System.getProperty(args[0].toString()));
-        } catch (Exception e) {
+        } catch (Throwable e) {
             return new KodeObject(null);
         }
     }

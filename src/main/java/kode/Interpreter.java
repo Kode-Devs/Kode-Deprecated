@@ -80,6 +80,12 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
             ((KodeInstance) object).set(expr.name, value);
             return value;
         }
+        
+        if (object instanceof KodeModule) {
+            Object value = evaluate(expr.value);
+            ((KodeModule) object).set(expr.name, value);
+            return value;
+        }
 
         throw new RuntimeError("Only instances have fields.", expr.name);
     }
@@ -480,8 +486,11 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
         if (object instanceof KodeInstance) {
             return ((KodeInstance) object).get(expr.name);
         }
+        if (object instanceof KodeModule) {
+            return ((KodeModule) object).get(expr.name);
+        }
 
-        throw new RuntimeError("Only instances have properties.", expr.name);
+        throw new RuntimeError("Only instances and modules have properties.", expr.name);
     }
 
     @Override

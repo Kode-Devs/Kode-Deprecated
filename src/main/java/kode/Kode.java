@@ -360,10 +360,10 @@ class Kode {
             return "native.function." + ((KodeNative) object).className;
         }
         if (object instanceof KodeInstance) {
-            if (object instanceof KodeModule) {
-                return "module." + ((KodeModule) object).name;
-            }
             return ((KodeInstance) object).klass.class_name;
+        }
+        if (object instanceof KodeModule) {
+            return "module." + ((KodeModule) object).name;
         }
         return "unknown";
     }
@@ -524,9 +524,7 @@ class Kode {
                     Set<String> dir = new TreeSet<>();
                     if (obj instanceof KodeInstance) {
                         dir.addAll(((KodeInstance) obj).fields.keySet());
-                        if (obj instanceof KodeModule) {
-                            dir.addAll(((KodeModule) obj).inter.globals.values.keySet());
-                        } else if (((KodeInstance) obj).klass != null) {
+                        if (((KodeInstance) obj).klass != null) {
                             KodeClass kls = ((KodeInstance) obj).klass;
                             for (;;) {
                                 if (kls != null) {
@@ -538,6 +536,9 @@ class Kode {
                                 kls = kls.superclass;
                             }
                         }
+                    }
+                    if (obj instanceof KodeModule) {
+                        dir.addAll(((KodeModule) obj).inter.globals.values.keySet());
                     }
                     return interpreter.toKodeValue(Arrays.asList(dir.toArray()));
                 }
@@ -678,6 +679,9 @@ class Kode {
                     }
                     if (get instanceof KodeInstance) {
                         doc = ((KodeInstance) get).__doc__;
+                    }
+                    if (get instanceof KodeModule) {
+                        doc = ((KodeModule) get).__doc__;
                     }
                     if (doc == null) {
                         doc = "No Documentation Avialable for element of type '" + Kode.type(get) + "'.";

@@ -118,6 +118,7 @@ class Kode {
             Kode.runtimeError((RuntimeError) e);
         } else {
             IO.printfln_err("Fatal Error : " + e);
+            e.printStackTrace(System.out);
         }
     }
 

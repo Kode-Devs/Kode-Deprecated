@@ -17,8 +17,9 @@ class ValueString extends Value {
 
     static KodeInstance create(String x) {
         KodeInstance instance = new KodeInstance(val);
-        KodeFunction initializer = val.findMethod(Kode.INIT);
-        initializer.bind(instance).call(x);
+        KodeFunction initializer = val.findMethod(Kode.INIT).bind(instance);
+        System.out.println(initializer.closure);
+        initializer.call(x);
         return instance;
     }
 
@@ -34,6 +35,7 @@ class ValueString extends Value {
 
             @Override
             public Object call(Object... arguments) {
+                System.out.println(closure);
                 Object This = closure.getAt(0, "this");
                 if (This instanceof KodeInstance) {
                     ((KodeInstance) This).data = ValueString.toStr(arguments[0]);
@@ -139,7 +141,7 @@ class ValueString extends Value {
             if (x instanceof String) {
                 return (String) x;
             } else if (x instanceof KodeInstance) {
-                if (((KodeInstance) x).klass instanceof ValueString) {
+                if (ValueString.isString((KodeInstance) x)) {
                     return (String) ((KodeInstance) x).data;
                 } else {
                     try {

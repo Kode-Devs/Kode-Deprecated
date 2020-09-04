@@ -34,9 +34,12 @@ class ValueNumber extends Value {
 
             @Override
             public Object call(Object... arguments) {
-                Object This = closure.getAt(0, "this");
+                Object This = this.closure.getAt(0, "this");
+                System.out.println("DEBUG6: " + ((KodeInstance)(this.closure.getAt(0, "this"))).hashCode());
                 if (This instanceof KodeInstance) {
                     ((KodeInstance) This).data = ValueNumber.toNumber(arguments[0]);
+                    
+                    System.out.println("DEBUG3: " + ((KodeInstance) This).klass+((KodeInstance) This).data.getClass());
                 }
                 return This;
             }
@@ -200,8 +203,9 @@ class ValueNumber extends Value {
             if (x instanceof KodeNumber) {
                 return (KodeNumber) x;
             } else if (x instanceof KodeInstance) {
-                if (((KodeInstance) x).klass instanceof ValueNumber) {
-                    return (KodeNumber) ((KodeInstance) x).data;
+                if (ValueNumber.isNumber((KodeInstance) x)) {
+                    Object data = ((KodeInstance) x).data;
+                    return data == null ? KodeNumber.valueOf(0) : (KodeNumber) data;
                 } else {
                     try {
                         if (((KodeInstance) x).fields.containsKey(Kode.NUMBER)) {

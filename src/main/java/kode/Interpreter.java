@@ -103,8 +103,11 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
         if (method == null) {
             throw new RuntimeError("Undefined property '" + expr.method.lexeme + "'.", expr.method);
         }
-
-        return method.bind(object);
+        
+        System.out.println("DEBUG4: " + object.klass+object.data+Kode.type(method));
+        KodeFunction bind = method.bind(object);
+        System.out.println("DEBUG5: " + ((KodeInstance)(bind.closure.getAt(0, "this"))).hashCode());
+        return bind;
     }
 
     @Override

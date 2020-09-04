@@ -29,9 +29,23 @@ abstract class KodeBuiltinFunction extends KodeFunction {
 
     @Override
     KodeFunction bind(KodeInstance instance) {
-    	this.closure = new Environment();
-    	this.closure.define("this", instance);
-        return this;
+        Callable<Integer> arity = (a) -> this.arity();
+        Callable<Object> call = this::call;
+
+        KodeFunction bind = new KodeBuiltinFunction(this.fun_name, this.interpreter) {
+            @Override
+            public int arity() {
+                return arity.callit();
+            }
+
+            @Override
+            public Object call(Object... arguments) {
+                return call.callit(arguments);
+            }
+        };
+        bind.closure = new Environment();
+        bind.closure.define("this", instance);
+        return bind;
     }
 
     @Override
@@ -247,4 +261,7 @@ abstract class KodeBuiltinFunction extends KodeFunction {
     }
 //</editor-fold>
 
+    private interface Callable<V> {
+        V callit(Object... arguments);
+    }
 }

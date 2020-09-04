@@ -70,4 +70,9 @@ public class KodeNumber {
     public boolean isInteger() {
         return this.isInt;
     }
+
+    @Override
+    public String toString() {
+        return "" + (this.isInt ? this.numInt : this.num);
+    }
 }

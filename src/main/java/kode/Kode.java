@@ -59,6 +59,7 @@ class Kode {
 
     public static void main(String... args) {
         Thread.currentThread().setUncaughtExceptionHandler((Thread t, Throwable e) -> {
+            e.printStackTrace(System.out);
             IO.exit(1);
         });
         switch (args.length) {
@@ -395,27 +396,11 @@ class Kode {
             Interpreter INTER = BUILTIN_MODULE.inter;
             Map<String, Object> DEF_GLOBALS = INTER.globals.values;
 
-            DEF_GLOBALS.put("disp", new KodeBuiltinFunction("disp", INTER) {
-                @Override
-                public int arity() {
-                    return 1;
-                }
-
-                @Override
-                public Object call(Object... arguments) {
-                    IO.printf(arguments[0] + "\n");
-                    return null;
-                }
-
-            });
-            DEF_GLOBALS.put("sprintf", new KodeBuiltinFunction("printf", INTER) {
-                @Override
-                public int arity() {
-                    return -2;
-                }
-
-                @Override
-                public Object call(Object... arguments) {
+            DEF_GLOBALS.put("disp", new KodeBuiltinFunction("disp", INTER, null, 1, (Object... arguments) -> {
+                IO.printf(arguments[0] + "\n");
+                return null;
+            }));
+            DEF_GLOBALS.put("sprintf", new KodeBuiltinFunction("printf", INTER, null, -2, (Object... arguments) -> {
                     List<Object> ll = new ArrayList<>();
                     for (int i = 1; i < arguments.length; i++) {
                         Object toJava = Interpreter.toJava(arguments[i]);
@@ -429,7 +414,7 @@ class Kode {
                     if (temp instanceof KodeInstance) {
                         if (ValueString.isString((KodeInstance) temp)) {
                             try {
-                                return this.interpreter.toKodeValue(String.format(ValueString.toStr(temp), ll.toArray()));
+                                return INTER.toKodeValue(String.format(ValueString.toStr(temp), ll.toArray()));
                             } catch (IllegalFormatException e) {
                                 throw new RuntimeError("Format error -> " + e);
                             }
@@ -438,442 +423,442 @@ class Kode {
                     throw new NotImplemented();
                 }
 
-            });
-            DEF_GLOBALS.put("printf", new KodeBuiltinFunction("printf", INTER) {
-                @Override
-                public int arity() {
-                    return -2;
-                }
-
-                @Override
-                public Object call(Object... arguments) {
-                    IO.printf(((KodeCallable) DEF_GLOBALS.get("sprintf")).call(arguments));
-                    return null;
-                }
-
-            });
-            DEF_GLOBALS.put("input", new KodeBuiltinFunction("input", INTER) {
-                @Override
-                public int arity() {
-                    return -1;
-                }
-
-                @Override
-                public Object call(Object... arguments) {
-                    if (arguments.length > 0) {
-                        ((KodeCallable) DEF_GLOBALS.get("printf")).call(arguments);
-                    }
-                    try {
-                        return interpreter.toKodeValue(IO.scanf());
-                    } catch (IOException ex) {
-                        throw new RuntimeError(ex.getMessage());
-                    }
-                }
-
-            });
-            DEF_GLOBALS.put("inputPwd", new KodeBuiltinFunction("inputPwd", INTER) {
-                @Override
-                public int arity() {
-                    return -1;
-                }
-
-                @Override
-                public Object call(Object... arguments) {
-                    if (arguments.length > 0) {
-                        ((KodeCallable) DEF_GLOBALS.get("printf")).call(arguments);
-                    }
-                    try {
-                        return interpreter.toKodeValue(IO.scanf_pwd());
-                    } catch (IOException ex) {
-                        throw new RuntimeError(ex.getMessage());
-                    }
-                }
-
-            });
-            DEF_GLOBALS.put("len", new KodeBuiltinFunction("len", INTER) {
-                @Override
-                public int arity() {
-                    return 1;
-                }
-
-                @Override
-                public Object call(Object... arguments) {
-                    Object obj = arguments[0];
-                    try {
-                        if (obj instanceof KodeInstance) {
-                            Object fun = ((KodeInstance) obj).get(Kode.LEN);
-                            if (fun instanceof KodeFunction) {
-                                return ((KodeFunction) fun).call();
-                            }
-                        }
-                        throw new NotImplemented();
-                    } catch (NotImplemented e) {
-                        throw new RuntimeError("Element of type '" + Kode.type(obj) + "' has no length.");
-                    }
-                }
-
-            });
-            DEF_GLOBALS.put("dir", new KodeBuiltinFunction("dir", INTER) {
-                @Override
-                public int arity() {
-                    return 1;
-                }
-
-                @Override
-                public Object call(Object... arguments) {
-                    Object obj = arguments[0];
-                    Set<String> dir = new TreeSet<>();
-                    if (obj instanceof KodeInstance) {
-                        dir.addAll(((KodeInstance) obj).fields.keySet());
-                        if (((KodeInstance) obj).klass != null) {
-                            KodeClass kls = ((KodeInstance) obj).klass;
-                            for (;;) {
-                                if (kls != null) {
-                                    dir.addAll(kls.methods.keySet());
-                                    dir.addAll(kls.specialMethods().keySet());
-                                } else {
-                                    break;
-                                }
-                                kls = kls.superclass;
-                            }
-                        }
-                    }
-                    if (obj instanceof KodeModule) {
-                        dir.addAll(((KodeModule) obj).inter.globals.values.keySet());
-                    }
-                    return interpreter.toKodeValue(Arrays.asList(dir.toArray()));
-                }
-
-            });
-            DEF_GLOBALS.put("id", new KodeBuiltinFunction("id", INTER) {
-                @Override
-                public int arity() {
-                    return 1;
-                }
-
-                @Override
-                public Object call(Object... arguments) {
-                    return interpreter.toKodeValue(arguments[0].hashCode());
-                }
-
-            });
-            DEF_GLOBALS.put("now", new KodeBuiltinFunction("now", INTER) {
-                @Override
-                public int arity() {
-                    return 0;
-                }
-
-                @Override
-                public Object call(Object... arguments) {
-                    return interpreter.toKodeValue(System.currentTimeMillis());
-                }
-
-            });
-            DEF_GLOBALS.put("free", new KodeBuiltinFunction("free", INTER) {
-                @Override
-                public int arity() {
-                    return 0;
-                }
-
-                @Override
-                public Object call(Object... arguments) {
-                    System.gc();
-                    return null;
-                }
-
-            });
-            DEF_GLOBALS.put("resetLine", new KodeBuiltinFunction("resetLine", INTER) {
-                @Override
-                public int arity() {
-                    return 0;
-                }
-
-                @Override
-                public Object call(Object... arguments) {
-                    IO.resetLine();
-                    return null;
-                }
-
-            });
-            DEF_GLOBALS.put("clear", new KodeBuiltinFunction("clear", INTER) {
-                @Override
-                public int arity() {
-                    return 0;
-                }
-
-                @Override
-                public Object call(Object... arguments) {
-                    IO.clc();
-                    return null;
-                }
-
-            });
-            DEF_GLOBALS.put("isinstance", new KodeBuiltinFunction("isinstance", INTER) {
-                @Override
-                public int arity() {
-                    return 2;
-                }
-
-                @Override
-                public Object call(Object... arguments) {
-                    Object object = arguments[0];
-                    Object type = arguments[1];
-                    if (!(object instanceof KodeInstance)) {
-                        throw new RuntimeError("Value passed for argument 'object' is not an instance of a class.");
-                    }
-                    if (!(type instanceof KodeClass)) {
-                        throw new RuntimeError("Value passed for argument 'type' is not a class.");
-                    }
-                    return this.interpreter.toKodeValue(Kode.instanceOf((KodeInstance) object, (KodeClass) type));
-                }
-
-            });
-            DEF_GLOBALS.put("issubclass", new KodeBuiltinFunction("issubclass", INTER) {
-                @Override
-                public int arity() {
-                    return 2;
-                }
-
-                @Override
-                public Object call(Object... arguments) {
-                    Object object = arguments[0];
-                    Object type = arguments[1];
-                    if (!(object instanceof KodeClass)) {
-                        throw new RuntimeError("Value passed for argument 'object' is not a class.");
-                    }
-                    if (!(type instanceof KodeClass)) {
-                        throw new RuntimeError("Value passed for argument 'type' is not a class.");
-                    }
-                    return this.interpreter.toKodeValue(Kode.instanceOf((KodeClass) object, (KodeClass) type));
-                }
-
-            });
-            DEF_GLOBALS.put("exit", new KodeBuiltinFunction("exit", INTER) {
-                @Override
-                public int arity() {
-                    return 0;
-                }
-
-                @Override
-                public Object call(Object... arguments) {
-                    IO.exit(0);
-                    return null;
-                }
-
-            });
-            DEF_GLOBALS.put("help", new KodeBuiltinFunction("help", INTER) {
-
-                @Override
-                public int arity() {
-                    return 1;
-                }
-
-                @Override
-                public Object call(Object... arguments) {
-                    Object get = arguments[0];
-                    String doc = null;
-                    if (get instanceof KodeFunction) {
-                        doc = ((KodeFunction) get).__doc__;
-                    }
-                    if (get instanceof KodeClass) {
-                        doc = ((KodeClass) get).__doc__;
-                    }
-                    if (get instanceof KodeInstance) {
-                        doc = ((KodeInstance) get).__doc__;
-                    }
-                    if (get instanceof KodeModule) {
-                        doc = ((KodeModule) get).__doc__;
-                    }
-                    if (doc == null) {
-                        doc = "No Documentation Avialable for element of type '" + Kode.type(get) + "'.";
-                    }
-                    IO.printfln(doc);
-                    return null;
-                }
-
-            });
-            DEF_GLOBALS.put("hasattr", new KodeBuiltinFunction("hasattr", INTER) {
-                @Override
-                public int arity() {
-                    return 2;
-                }
-
-                @Override
-                public Object call(Object... arguments) {
-                    Object object = arguments[0];
-                    if (object instanceof KodeInstance) {
-                        try {
-                            ((KodeInstance) object).get(arguments[1].toString());
-                            return this.interpreter.toKodeValue(true);
-                        } catch (RuntimeError e) {
-                            return this.interpreter.toKodeValue(false);
-                        }
-                    }
-                    throw new RuntimeError("Value passed for argument 'object' is not an instance of a class.");
-                }
-
-            });
-            DEF_GLOBALS.put("setattr", new KodeBuiltinFunction("setattr", INTER) {
-                @Override
-                public int arity() {
-                    return 3;
-                }
-
-                @Override
-                public Object call(Object... arguments) {
-                    Object object = arguments[0];
-                    if (object instanceof KodeInstance) {
-                        ((KodeInstance) object).set(arguments[1].toString(), arguments[2]);
-                        return null;
-                    }
-                    throw new RuntimeError("Value passed for argument 'object' is not an instance of a class.");
-                }
-
-            });
-            DEF_GLOBALS.put("getattr", new KodeBuiltinFunction("getattr", INTER) {
-                @Override
-                public int arity() {
-                    return 2;
-                }
-
-                @Override
-                public Object call(Object... arguments) {
-                    Object object = arguments[0];
-                    if (object instanceof KodeInstance) {
-                        try {
-                            return this.interpreter.toKodeValue(((KodeInstance) object).get(arguments[1].toString()));
-                        } catch (RuntimeError e) {
-                            throw e;
-                        }
-                    }
-                    throw new RuntimeError("Value passed for argument 'object' is not an instance of a class.");
-                }
-
-            });
-            DEF_GLOBALS.put("callable", new KodeBuiltinFunction("callable", INTER) {
-                @Override
-                public int arity() {
-                    return 1;
-                }
-
-                @Override
-                public Object call(Object... arguments) {
-                    return this.interpreter.toKodeValue(arguments[0] instanceof KodeCallable);
-                }
-
-            });
-            DEF_GLOBALS.put("eval", new KodeBuiltinFunction("eval", INTER) {
-                @Override
-                public int arity() {
-                    return 1;
-                }
-
-                @Override
-                public Object call(Object... arguments) {
-                    Object src = arguments[0];
-                    if (src instanceof KodeInstance) {
-                        if (ValueString.isString((KodeInstance) src)) {
-                            try {
-                                return run("<eval>", ValueString.toStr(src), new Interpreter()).value;
-                            } catch (RuntimeError ex) {
-                                throw ex;
-                            } catch (Throwable ex) {
-                                throw new RuntimeError("Fatal Error Occured in eval(): " + ex);
-                            }
-                        }
-                    }
-                    throw new NotImplemented();
-                }
-
-            });
-            DEF_GLOBALS.put("ord", new KodeBuiltinFunction("ord", INTER) {
-
-                @Override
-                String doc() {
-                    return "\nBuiltin Function ord(ch)"
-                            + "\n------------------------------"
-                            + "\nIt returns the Integer Number value representation of any character."
-                            + "\n"
-                            + "\nparameters"
-                            + "\n----------"
-                            + "\nch : Character whose Integer Number value is needed."
-                            + "\n"
-                            + "\nreturns"
-                            + "\n-------"
-                            + "\nReturns the corresponding Integer Number value of the argument ch."
-                            + "\n"
-                            + "\nthrows"
-                            + "\n------"
-                            + "\nThrows Error if a String of length 1 is not passed as ch.\n";
-                }
-
-                @Override
-                public int arity() {
-                    return 1;
-                }
-
-                @Override
-                public Object call(Object... arguments) {
-                    Object temp = arguments[0];
-                    if (temp instanceof KodeInstance) {
-                        if (ValueString.isString((KodeInstance) temp)) {
-                            String ch = ValueString.toStr(temp);
-                            if (ch.length() != 1) {
-                                throw new RuntimeError("ord() expected a Character, but " + Kode.type(temp) + " of length " + ch.length() + " found");
-                            }
-                            return this.interpreter.toKodeValue((long) ch.charAt(0));
-                        }
-                    }
-                    throw new RuntimeError("ord() expected String of length 1, but " + Kode.type(temp) + " found");
-                }
-
-            });
-            DEF_GLOBALS.put("chr", new KodeBuiltinFunction("chr", INTER) {
-
-                @Override
-                String doc() {
-                    return "\nBuiltin Function chr(n)"
-                            + "\n------------------------------"
-                            + "\nIt returns the character representation associated with the Integer Number."
-                            + "\n"
-                            + "\nparameters"
-                            + "\n----------"
-                            + "\nn : Integer Number whose corresponding Character value is needed."
-                            + "\n"
-                            + "\nreturns"
-                            + "\n-------"
-                            + "\nReturns the corresponding Character value of the argument n."
-                            + "\n"
-                            + "\nthrows"
-                            + "\n------"
-                            + "\nThrows Error if a Integer Number within " + Long.MIN_VALUE + " to " + Long.MAX_VALUE + " is not passed.\n";
-                }
-
-                @Override
-                public int arity() {
-                    return 1;
-                }
-
-                @Override
-                public Object call(Object... arguments) {
-                    Object temp = arguments[0];
-                    if (temp instanceof KodeInstance) {
-                        if (ValueNumber.isNumber((KodeInstance) temp)) {
-                            KodeNumber asIndex = ValueNumber.toNumber(temp);
-                            if (asIndex.isInteger()) {
-                                try {
-                                    return this.interpreter.toKodeValue((char) asIndex.getInteger().longValueExact());
-                                } catch (ArithmeticException e) {
-                                    throw new RuntimeError("Integer Number Out Of Range.");
-                                }
-                            }
-                            throw new RuntimeError("Integer Number expected, got Decimal Number");
-                        }
-                    }
-                    throw new RuntimeError("Integer Number expected, got " + Kode.type(temp));
-                }
-
-            });
+            ));
+//            DEF_GLOBALS.put("printf", new KodeBuiltinFunction("printf", INTER) {
+//                @Override
+//                public int arity() {
+//                    return -2;
+//                }
+//
+//                @Override
+//                public Object call(Object... arguments) {
+//                    IO.printf(((KodeCallable) DEF_GLOBALS.get("sprintf")).call(arguments));
+//                    return null;
+//                }
+//
+//            });
+//            DEF_GLOBALS.put("input", new KodeBuiltinFunction("input", INTER) {
+//                @Override
+//                public int arity() {
+//                    return -1;
+//                }
+//
+//                @Override
+//                public Object call(Object... arguments) {
+//                    if (arguments.length > 0) {
+//                        ((KodeCallable) DEF_GLOBALS.get("printf")).call(arguments);
+//                    }
+//                    try {
+//                        return interpreter.toKodeValue(IO.scanf());
+//                    } catch (IOException ex) {
+//                        throw new RuntimeError(ex.getMessage());
+//                    }
+//                }
+//
+//            });
+//            DEF_GLOBALS.put("inputPwd", new KodeBuiltinFunction("inputPwd", INTER) {
+//                @Override
+//                public int arity() {
+//                    return -1;
+//                }
+//
+//                @Override
+//                public Object call(Object... arguments) {
+//                    if (arguments.length > 0) {
+//                        ((KodeCallable) DEF_GLOBALS.get("printf")).call(arguments);
+//                    }
+//                    try {
+//                        return interpreter.toKodeValue(IO.scanf_pwd());
+//                    } catch (IOException ex) {
+//                        throw new RuntimeError(ex.getMessage());
+//                    }
+//                }
+//
+//            });
+//            DEF_GLOBALS.put("len", new KodeBuiltinFunction("len", INTER) {
+//                @Override
+//                public int arity() {
+//                    return 1;
+//                }
+//
+//                @Override
+//                public Object call(Object... arguments) {
+//                    Object obj = arguments[0];
+//                    try {
+//                        if (obj instanceof KodeInstance) {
+//                            Object fun = ((KodeInstance) obj).get(Kode.LEN);
+//                            if (fun instanceof KodeFunction) {
+//                                return ((KodeFunction) fun).call();
+//                            }
+//                        }
+//                        throw new NotImplemented();
+//                    } catch (NotImplemented e) {
+//                        throw new RuntimeError("Element of type '" + Kode.type(obj) + "' has no length.");
+//                    }
+//                }
+//
+//            });
+//            DEF_GLOBALS.put("dir", new KodeBuiltinFunction("dir", INTER) {
+//                @Override
+//                public int arity() {
+//                    return 1;
+//                }
+//
+//                @Override
+//                public Object call(Object... arguments) {
+//                    Object obj = arguments[0];
+//                    Set<String> dir = new TreeSet<>();
+//                    if (obj instanceof KodeInstance) {
+//                        dir.addAll(((KodeInstance) obj).fields.keySet());
+//                        if (((KodeInstance) obj).klass != null) {
+//                            KodeClass kls = ((KodeInstance) obj).klass;
+//                            for (;;) {
+//                                if (kls != null) {
+//                                    dir.addAll(kls.methods.keySet());
+//                                    dir.addAll(kls.specialMethods().keySet());
+//                                } else {
+//                                    break;
+//                                }
+//                                kls = kls.superclass;
+//                            }
+//                        }
+//                    }
+//                    if (obj instanceof KodeModule) {
+//                        dir.addAll(((KodeModule) obj).inter.globals.values.keySet());
+//                    }
+//                    return interpreter.toKodeValue(Arrays.asList(dir.toArray()));
+//                }
+//
+//            });
+//            DEF_GLOBALS.put("id", new KodeBuiltinFunction("id", INTER) {
+//                @Override
+//                public int arity() {
+//                    return 1;
+//                }
+//
+//                @Override
+//                public Object call(Object... arguments) {
+//                    return interpreter.toKodeValue(arguments[0].hashCode());
+//                }
+//
+//            });
+//            DEF_GLOBALS.put("now", new KodeBuiltinFunction("now", INTER) {
+//                @Override
+//                public int arity() {
+//                    return 0;
+//                }
+//
+//                @Override
+//                public Object call(Object... arguments) {
+//                    return interpreter.toKodeValue(System.currentTimeMillis());
+//                }
+//
+//            });
+//            DEF_GLOBALS.put("free", new KodeBuiltinFunction("free", INTER) {
+//                @Override
+//                public int arity() {
+//                    return 0;
+//                }
+//
+//                @Override
+//                public Object call(Object... arguments) {
+//                    System.gc();
+//                    return null;
+//                }
+//
+//            });
+//            DEF_GLOBALS.put("resetLine", new KodeBuiltinFunction("resetLine", INTER) {
+//                @Override
+//                public int arity() {
+//                    return 0;
+//                }
+//
+//                @Override
+//                public Object call(Object... arguments) {
+//                    IO.resetLine();
+//                    return null;
+//                }
+//
+//            });
+//            DEF_GLOBALS.put("clear", new KodeBuiltinFunction("clear", INTER) {
+//                @Override
+//                public int arity() {
+//                    return 0;
+//                }
+//
+//                @Override
+//                public Object call(Object... arguments) {
+//                    IO.clc();
+//                    return null;
+//                }
+//
+//            });
+//            DEF_GLOBALS.put("isinstance", new KodeBuiltinFunction("isinstance", INTER) {
+//                @Override
+//                public int arity() {
+//                    return 2;
+//                }
+//
+//                @Override
+//                public Object call(Object... arguments) {
+//                    Object object = arguments[0];
+//                    Object type = arguments[1];
+//                    if (!(object instanceof KodeInstance)) {
+//                        throw new RuntimeError("Value passed for argument 'object' is not an instance of a class.");
+//                    }
+//                    if (!(type instanceof KodeClass)) {
+//                        throw new RuntimeError("Value passed for argument 'type' is not a class.");
+//                    }
+//                    return this.interpreter.toKodeValue(Kode.instanceOf((KodeInstance) object, (KodeClass) type));
+//                }
+//
+//            });
+//            DEF_GLOBALS.put("issubclass", new KodeBuiltinFunction("issubclass", INTER) {
+//                @Override
+//                public int arity() {
+//                    return 2;
+//                }
+//
+//                @Override
+//                public Object call(Object... arguments) {
+//                    Object object = arguments[0];
+//                    Object type = arguments[1];
+//                    if (!(object instanceof KodeClass)) {
+//                        throw new RuntimeError("Value passed for argument 'object' is not a class.");
+//                    }
+//                    if (!(type instanceof KodeClass)) {
+//                        throw new RuntimeError("Value passed for argument 'type' is not a class.");
+//                    }
+//                    return this.interpreter.toKodeValue(Kode.instanceOf((KodeClass) object, (KodeClass) type));
+//                }
+//
+//            });
+//            DEF_GLOBALS.put("exit", new KodeBuiltinFunction("exit", INTER) {
+//                @Override
+//                public int arity() {
+//                    return 0;
+//                }
+//
+//                @Override
+//                public Object call(Object... arguments) {
+//                    IO.exit(0);
+//                    return null;
+//                }
+//
+//            });
+//            DEF_GLOBALS.put("help", new KodeBuiltinFunction("help", INTER) {
+//
+//                @Override
+//                public int arity() {
+//                    return 1;
+//                }
+//
+//                @Override
+//                public Object call(Object... arguments) {
+//                    Object get = arguments[0];
+//                    String doc = null;
+//                    if (get instanceof KodeFunction) {
+//                        doc = ((KodeFunction) get).__doc__;
+//                    }
+//                    if (get instanceof KodeClass) {
+//                        doc = ((KodeClass) get).__doc__;
+//                    }
+//                    if (get instanceof KodeInstance) {
+//                        doc = ((KodeInstance) get).__doc__;
+//                    }
+//                    if (get instanceof KodeModule) {
+//                        doc = ((KodeModule) get).__doc__;
+//                    }
+//                    if (doc == null) {
+//                        doc = "No Documentation Avialable for element of type '" + Kode.type(get) + "'.";
+//                    }
+//                    IO.printfln(doc);
+//                    return null;
+//                }
+//
+//            });
+//            DEF_GLOBALS.put("hasattr", new KodeBuiltinFunction("hasattr", INTER) {
+//                @Override
+//                public int arity() {
+//                    return 2;
+//                }
+//
+//                @Override
+//                public Object call(Object... arguments) {
+//                    Object object = arguments[0];
+//                    if (object instanceof KodeInstance) {
+//                        try {
+//                            ((KodeInstance) object).get(arguments[1].toString());
+//                            return this.interpreter.toKodeValue(true);
+//                        } catch (RuntimeError e) {
+//                            return this.interpreter.toKodeValue(false);
+//                        }
+//                    }
+//                    throw new RuntimeError("Value passed for argument 'object' is not an instance of a class.");
+//                }
+//
+//            });
+//            DEF_GLOBALS.put("setattr", new KodeBuiltinFunction("setattr", INTER) {
+//                @Override
+//                public int arity() {
+//                    return 3;
+//                }
+//
+//                @Override
+//                public Object call(Object... arguments) {
+//                    Object object = arguments[0];
+//                    if (object instanceof KodeInstance) {
+//                        ((KodeInstance) object).set(arguments[1].toString(), arguments[2]);
+//                        return null;
+//                    }
+//                    throw new RuntimeError("Value passed for argument 'object' is not an instance of a class.");
+//                }
+//
+//            });
+//            DEF_GLOBALS.put("getattr", new KodeBuiltinFunction("getattr", INTER) {
+//                @Override
+//                public int arity() {
+//                    return 2;
+//                }
+//
+//                @Override
+//                public Object call(Object... arguments) {
+//                    Object object = arguments[0];
+//                    if (object instanceof KodeInstance) {
+//                        try {
+//                            return this.interpreter.toKodeValue(((KodeInstance) object).get(arguments[1].toString()));
+//                        } catch (RuntimeError e) {
+//                            throw e;
+//                        }
+//                    }
+//                    throw new RuntimeError("Value passed for argument 'object' is not an instance of a class.");
+//                }
+//
+//            });
+//            DEF_GLOBALS.put("callable", new KodeBuiltinFunction("callable", INTER) {
+//                @Override
+//                public int arity() {
+//                    return 1;
+//                }
+//
+//                @Override
+//                public Object call(Object... arguments) {
+//                    return this.interpreter.toKodeValue(arguments[0] instanceof KodeCallable);
+//                }
+//
+//            });
+//            DEF_GLOBALS.put("eval", new KodeBuiltinFunction("eval", INTER) {
+//                @Override
+//                public int arity() {
+//                    return 1;
+//                }
+//
+//                @Override
+//                public Object call(Object... arguments) {
+//                    Object src = arguments[0];
+//                    if (src instanceof KodeInstance) {
+//                        if (ValueString.isString((KodeInstance) src)) {
+//                            try {
+//                                return run("<eval>", ValueString.toStr(src), new Interpreter()).value;
+//                            } catch (RuntimeError ex) {
+//                                throw ex;
+//                            } catch (Throwable ex) {
+//                                throw new RuntimeError("Fatal Error Occured in eval(): " + ex);
+//                            }
+//                        }
+//                    }
+//                    throw new NotImplemented();
+//                }
+//
+//            });
+//            DEF_GLOBALS.put("ord", new KodeBuiltinFunction("ord", INTER) {
+//
+//                @Override
+//                String doc() {
+//                    return "\nBuiltin Function ord(ch)"
+//                            + "\n------------------------------"
+//                            + "\nIt returns the Integer Number value representation of any character."
+//                            + "\n"
+//                            + "\nparameters"
+//                            + "\n----------"
+//                            + "\nch : Character whose Integer Number value is needed."
+//                            + "\n"
+//                            + "\nreturns"
+//                            + "\n-------"
+//                            + "\nReturns the corresponding Integer Number value of the argument ch."
+//                            + "\n"
+//                            + "\nthrows"
+//                            + "\n------"
+//                            + "\nThrows Error if a String of length 1 is not passed as ch.\n";
+//                }
+//
+//                @Override
+//                public int arity() {
+//                    return 1;
+//                }
+//
+//                @Override
+//                public Object call(Object... arguments) {
+//                    Object temp = arguments[0];
+//                    if (temp instanceof KodeInstance) {
+//                        if (ValueString.isString((KodeInstance) temp)) {
+//                            String ch = ValueString.toStr(temp);
+//                            if (ch.length() != 1) {
+//                                throw new RuntimeError("ord() expected a Character, but " + Kode.type(temp) + " of length " + ch.length() + " found");
+//                            }
+//                            return this.interpreter.toKodeValue((long) ch.charAt(0));
+//                        }
+//                    }
+//                    throw new RuntimeError("ord() expected String of length 1, but " + Kode.type(temp) + " found");
+//                }
+//
+//            });
+//            DEF_GLOBALS.put("chr", new KodeBuiltinFunction("chr", INTER) {
+//
+//                @Override
+//                String doc() {
+//                    return "\nBuiltin Function chr(n)"
+//                            + "\n------------------------------"
+//                            + "\nIt returns the character representation associated with the Integer Number."
+//                            + "\n"
+//                            + "\nparameters"
+//                            + "\n----------"
+//                            + "\nn : Integer Number whose corresponding Character value is needed."
+//                            + "\n"
+//                            + "\nreturns"
+//                            + "\n-------"
+//                            + "\nReturns the corresponding Character value of the argument n."
+//                            + "\n"
+//                            + "\nthrows"
+//                            + "\n------"
+//                            + "\nThrows Error if a Integer Number within " + Long.MIN_VALUE + " to " + Long.MAX_VALUE + " is not passed.\n";
+//                }
+//
+//                @Override
+//                public int arity() {
+//                    return 1;
+//                }
+//
+//                @Override
+//                public Object call(Object... arguments) {
+//                    Object temp = arguments[0];
+//                    if (temp instanceof KodeInstance) {
+//                        if (ValueNumber.isNumber((KodeInstance) temp)) {
+//                            KodeNumber asIndex = ValueNumber.toNumber(temp);
+//                            if (asIndex.isInteger()) {
+//                                try {
+//                                    return this.interpreter.toKodeValue((char) asIndex.getInteger().longValueExact());
+//                                } catch (ArithmeticException e) {
+//                                    throw new RuntimeError("Integer Number Out Of Range.");
+//                                }
+//                            }
+//                            throw new RuntimeError("Integer Number expected, got Decimal Number");
+//                        }
+//                    }
+//                    throw new RuntimeError("Integer Number expected, got " + Kode.type(temp));
+//                }
+//
+//            });
             DEF_GLOBALS.put(ValueNumber.val.class_name, ValueNumber.val);   //Number
             DEF_GLOBALS.put(ValueString.val.class_name, ValueString.val);   //String
             DEF_GLOBALS.put(ValueBool.val.class_name, ValueBool.val);   //Bool

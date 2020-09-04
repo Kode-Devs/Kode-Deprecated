@@ -31,9 +31,9 @@ public class Pip4kode {
 
     public static class PipError extends Exception {
 
-		private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = 1L;
 
-		public PipError(String message) {
+        public PipError(String message) {
             super(message);
         }
     }

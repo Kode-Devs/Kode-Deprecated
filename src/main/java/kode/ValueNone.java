@@ -23,40 +23,26 @@ class ValueNone extends Value {
     private ValueNone(Interpreter interpreter) {
         super("NoneType", interpreter);
         //<editor-fold defaultstate="collapsed" desc="str">
-        this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, interpreter) {
-
-            @Override
-            public int arity() {
-                return 0;
-            }
-
-            @Override
-            public Object call(Object... arguments) {
-                Object This = closure.getAt(0, "this");
-                if (This instanceof KodeInstance) {
+        this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, interpreter, null, 1, args -> {
+            Object This = args[0];
+            if (This instanceof KodeInstance) {
+                if (ValueNone.isNone((KodeInstance) This)) {
                     return interpreter.toKodeValue(Kode.stringify(null));
                 }
-                throw new NotImplemented();
             }
-        });
+            throw new NotImplemented();
+        }));
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="bool">
-        this.methods.put(Kode.BOOLEAN, new KodeBuiltinFunction(Kode.BOOLEAN, interpreter) {
-
-            @Override
-            public int arity() {
-                return 0;
-            }
-
-            @Override
-            public Object call(Object... arguments) {
-                Object This = closure.getAt(0, "this");
-                if (This instanceof KodeInstance) {
+        this.methods.put(Kode.BOOLEAN, new KodeBuiltinFunction(Kode.BOOLEAN, interpreter, null, 1, args -> {
+            Object This = args[0];
+            if (This instanceof KodeInstance) {
+                if (ValueNone.isNone((KodeInstance) This)) {
                     return interpreter.toKodeValue(false);
                 }
-                throw new NotImplemented();
             }
-        });
+            throw new NotImplemented();
+        }));
 //</editor-fold>
     }
 

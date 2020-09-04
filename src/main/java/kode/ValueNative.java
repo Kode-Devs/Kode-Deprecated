@@ -22,36 +22,18 @@ class ValueNative extends Value {
     private ValueNative(Interpreter interpreter) {
         super("Native", interpreter);
         //<editor-fold defaultstate="collapsed" desc="init">
-        this.methods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, interpreter) {
-
-            @Override
-            public int arity() {
-                return 0;
-            }
-
-            @Override
-            public Object call(Object... arguments) {
-                throw new NotImplemented();
-            }
-        });
+        this.methods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, interpreter, null, 1, args -> {
+            throw new NotImplemented();
+        }));
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="str">
-        this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, interpreter) {
-
-            @Override
-            public int arity() {
-                return 0;
-            }
-
-            @Override
-            public Object call(Object... arguments) {
-                Object This = closure.getAt(0, "this");
+        this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, interpreter, null, 1, args -> {
+                Object This = args[0];
                 if (This instanceof KodeInstance) {
                     return interpreter.toKodeValue("<native object '" + ((KodeInstance) This).data == null ? "null" : ((KodeInstance) This).data + "'>");
                 }
                 throw new NotImplemented();
-            }
-        });
+            }));
 //</editor-fold>
     }
 

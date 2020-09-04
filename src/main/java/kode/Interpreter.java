@@ -80,7 +80,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
             ((KodeInstance) object).set(expr.name, value);
             return value;
         }
-        
+
         if (object instanceof KodeModule) {
             Object value = evaluate(expr.value);
             ((KodeModule) object).set(expr.name, value);
@@ -96,18 +96,14 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
         KodeClass superclass = (KodeClass) environment.getAt(distance, "super");
 
         // "this" is always one level nearer than "super"'s environment.
-        KodeInstance object = (KodeInstance) environment.getAt(distance - 1, "this");
+//        KodeInstance object = (KodeInstance) environment.getAt(distance - 1, "this");
 
         KodeFunction method = superclass.findMethod(expr.method.lexeme);
 
         if (method == null) {
             throw new RuntimeError("Undefined property '" + expr.method.lexeme + "'.", expr.method);
         }
-        
-        System.out.println("DEBUG4: " + object.klass+object.data+Kode.type(method));
-        KodeFunction bind = method.bind(object);
-        System.out.println("DEBUG5: " + ((KodeInstance)(bind.closure.getAt(0, "this"))).hashCode());
-        return bind;
+        return method;
     }
 
     @Override
@@ -431,12 +427,18 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
 
         KodeCallable function = (KodeCallable) callee;
 
-        if (function.arity() < 0 && arguments.length < -function.arity() - 1) {
+        int len = arguments.length;
+        int arity = function.arity();
+        if (function.isBind()) {
+            len++;
+        }
+
+        if (arity < 0 && len < -arity - 1) {
             throw new RuntimeError(
-                    "Expected minimum " + (-function.arity() - 1) + " arguments but got " + arguments.length + ".",
+                    "Expected minimum " + (-arity - 1) + " arguments but got " + len + ".",
                     expr.paren);
-        } else if (function.arity() >= 0 && arguments.length != function.arity()) {
-            throw new RuntimeError("Expected " + function.arity() + " arguments but got " + arguments.length + ".",
+        } else if (arity >= 0 && len != arity) {
+            throw new RuntimeError("Expected " + arity + " arguments but got " + len+  ".",
                     expr.paren);
         }
         try {

@@ -32,6 +32,11 @@ class KodeNative implements KodeCallable {
     }
 
     @Override
+    public boolean isBind() {
+        return false;
+    }
+
+    @Override
     public int arity() {
         return -1;
     }

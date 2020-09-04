@@ -11,6 +11,8 @@ package kode;
  */
 interface KodeCallable {
     
+    boolean isBind();
+    
     int arity();
 
     Object call(Object... arguments);

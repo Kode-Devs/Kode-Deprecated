@@ -67,94 +67,58 @@ class ValueNumber extends Value {
         }));
 //</editor-fold>
 
-//        //<editor-fold defaultstate="collapsed" desc="isInteger">
-//        this.methods.put("isInt", new KodeBuiltinFunction("isInt", interpreter) {
-//
-//            @Override
-//            public int arity() {
-//                return 0;
-//            }
-//
-//            @Override
-//            public Object call(Object... arguments) {
-//                Object This = closure.getAt(0, "this");
-//                if (This instanceof KodeInstance) {
-//                    if (ValueNumber.isNumber((KodeInstance) This)) {
-//                        return interpreter.toKodeValue(ValueNumber.toNumber(This).isInteger());
-//                    }
-//                }
-//                throw new NotImplemented();
-//            }
-//        });
-////</editor-fold>
-//        //<editor-fold defaultstate="collapsed" desc="asInt">
-//        this.methods.put("asInt", new KodeBuiltinFunction("asInt", interpreter) {
-//
-//            @Override
-//            public int arity() {
-//                return 0;
-//            }
-//
-//            @Override
-//            public Object call(Object... arguments) {
-//                Object This = closure.getAt(0, "this");
-//                if (This instanceof KodeInstance) {
-//                    if (ValueNumber.isNumber((KodeInstance) This)) {
-//                        try {
-//                            return interpreter.toKodeValue(ValueNumber.toNumber(This).getInteger());
-//                        } catch (ArithmeticException e) {
-//                            throw new RuntimeError("Has fractional part.");
-//                        }
-//                    }
-//                }
-//                throw new NotImplemented();
-//            }
-//        });
-////</editor-fold>
-//        //<editor-fold defaultstate="collapsed" desc="asReal">
-//        this.methods.put("asReal", new KodeBuiltinFunction("asReal", interpreter) {
-//
-//            @Override
-//            public int arity() {
-//                return 0;
-//            }
-//
-//            @Override
-//            public Object call(Object... arguments) {
-//                Object This = closure.getAt(0, "this");
-//                if (This instanceof KodeInstance) {
-//                    if (ValueNumber.isNumber((KodeInstance) This)) {
-//                        return interpreter.toKodeValue(ValueNumber.toNumber(This).getFloat());
-//                    }
-//                }
-//                throw new NotImplemented();
-//            }
-//        });
-////</editor-fold>
-//        //<editor-fold defaultstate="collapsed" desc="asIndex">
-//        this.methods.put("asIndex", new KodeBuiltinFunction("asIndex", interpreter) {
-//
-//            @Override
-//            public int arity() {
-//                return 0;
-//            }
-//
-//            @Override
-//            public Object call(Object... arguments) {
-//                Object This = closure.getAt(0, "this");
-//                if (This instanceof KodeInstance) {
-//                    if (ValueNumber.isNumber((KodeInstance) This)) {
-//                        try {
-//                            return interpreter.toKodeValue(ValueNumber.toNumber(This).getAsIndex());
-//                        } catch (ArithmeticException ex) {
-//                            throw new RuntimeError("Its value falls beyond range of Indexing.");
-//                        }
-//                    }
-//                }
-//                throw new NotImplemented();
-//            }
-//        });
-////</editor-fold>
+        //<editor-fold defaultstate="collapsed" desc="isInteger">
+        this.methods.put("isInt", new KodeBuiltinFunction("isInt", interpreter, null, 1, args -> {
+            Object This = args[0];
+            if (This instanceof KodeInstance) {
+                if (ValueNumber.isNumber((KodeInstance) This)) {
+                    return interpreter.toKodeValue(ValueNumber.toNumber(This).isInteger());
+                }
+            }
+            throw new NotImplemented();
+        }));
+//</editor-fold>
+        //<editor-fold defaultstate="collapsed" desc="asInt">
+        this.methods.put("asInt", new KodeBuiltinFunction("asInt", interpreter, null, 1, args -> {
+            Object This = args[0];
+            if (This instanceof KodeInstance) {
+                if (ValueNumber.isNumber((KodeInstance) This)) {
+                    try {
+                        return interpreter.toKodeValue(ValueNumber.toNumber(This).getInteger());
+                    } catch (ArithmeticException e) {
+                        throw new RuntimeError("Has fractional part.");
+                    }
+                }
+            }
+            throw new NotImplemented();
+        }));
+//</editor-fold>
+        //<editor-fold defaultstate="collapsed" desc="asReal">
+        this.methods.put("asReal", new KodeBuiltinFunction("asReal", interpreter, null, 1, args -> {
+            Object This = args[0];
+            if (This instanceof KodeInstance) {
+                if (ValueNumber.isNumber((KodeInstance) This)) {
+                    return interpreter.toKodeValue(ValueNumber.toNumber(This).getFloat());
+                }
+            }
+            throw new NotImplemented();
+        }));
+//</editor-fold>
+        //<editor-fold defaultstate="collapsed" desc="asIndex">
+        this.methods.put("asIndex", new KodeBuiltinFunction("asIndex", interpreter, null, 1, args -> {
+            Object This = args[0];
+            if (This instanceof KodeInstance) {
+                if (ValueNumber.isNumber((KodeInstance) This)) {
+                    try {
+                        return interpreter.toKodeValue(ValueNumber.toNumber(This).getAsIndex());
+                    } catch (ArithmeticException ex) {
+                        throw new RuntimeError("Its value falls beyond range of Indexing.");
+                    }
+                }
+            }
+            throw new NotImplemented();
+        }));
+//</editor-fold>
     }
 
     //<editor-fold defaultstate="collapsed" desc="toNumber">

@@ -33,102 +33,66 @@ class ValueList extends Value {
             return This;
         }));
 //</editor-fold>
-//        //<editor-fold defaultstate="collapsed" desc="str">
-//        this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, interpreter) {
-//
-//            @Override
-//            public int arity() {
-//                return 0;
-//            }
-//
-//            @Override
-//            public Object call(Object... arguments) {
-//                Object This = closure.getAt(0, "this");
-//                if (This instanceof KodeInstance) {
-//                    if (ValueList.isList((KodeInstance) This)) {
-//                        try {
-//                            Object i;
-//                            if (!((KodeInstance) This).reccured) {
-//                                ((KodeInstance) This).reccured = true;
-//                                i = interpreter.toKodeValue(Kode.stringify(ValueList.toList(This)));
-//                            } else {
-//                                i = interpreter.toKodeValue(Kode.stringify("[...]"));
-//                            }
-//                            ((KodeInstance) This).reccured = false;
-//                            return i;
-//                        } catch (Throwable e) {
-//                            ((KodeInstance) This).reccured = false;
-//                            throw e;
-//                        }
-//                    }
-//                }
-//                throw new NotImplemented();
-//            }
-//        });
-////</editor-fold>
-//        //<editor-fold defaultstate="collapsed" desc="bool">
-//        this.methods.put(Kode.BOOLEAN, new KodeBuiltinFunction(Kode.BOOLEAN, interpreter) {
-//
-//            @Override
-//            public int arity() {
-//                return 0;
-//            }
-//
-//            @Override
-//            public Object call(Object... arguments) {
-//                Object This = closure.getAt(0, "this");
-//                if (This instanceof KodeInstance) {
-//                    if (ValueList.isList((KodeInstance) This)) {
-//                        return interpreter.toKodeValue(Interpreter.isTruthy(ValueList.toList(This)));
-//                    }
-//                }
-//                throw new NotImplemented();
-//            }
-//        });
-////</editor-fold>
-//        //<editor-fold defaultstate="collapsed" desc="list">
-//        this.methods.put(Kode.LIST, new KodeBuiltinFunction(Kode.LIST, interpreter) {
-//
-//            @Override
-//            public int arity() {
-//                return 0;
-//            }
-//
-//            @Override
-//            public Object call(Object... arguments) {
-//                Object This = closure.getAt(0, "this");
-//                if (This instanceof KodeInstance) {
-//                    if (ValueList.isList((KodeInstance) This)) {
-//                        return This;
-//                    }
-//                }
-//                throw new NotImplemented();
-//            }
-//        });
-////</editor-fold>
-//
-//        //<editor-fold defaultstate="collapsed" desc="append">
-//        this.methods.put("append", new KodeBuiltinFunction("append", interpreter) {
-//
-//            @Override
-//            public int arity() {
-//                return 1;
-//            }
-//
-//            @Override
-//            public Object call(Object... arguments) {
-//                Object This = closure.getAt(0, "this");
-//                Object obj = arguments[0];
-//                if (This instanceof KodeInstance) {
-//                    if (ValueList.isList((KodeInstance) This)) {
-//                        ValueList.toList(This).add(interpreter.toKodeValue(obj));
-//                        return null;
-//                    }
-//                }
-//                throw new NotImplemented();
-//            }
-//        });
-////</editor-fold>
+        //<editor-fold defaultstate="collapsed" desc="str">
+        this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, interpreter, null, 1, args -> {
+            Object This = args[0];
+            if (This instanceof KodeInstance) {
+                if (ValueList.isList((KodeInstance) This)) {
+                    try {
+                        Object i;
+                        if (!((KodeInstance) This).reccured) {
+                            ((KodeInstance) This).reccured = true;
+                            i = interpreter.toKodeValue(Kode.stringify(ValueList.toList(This)));
+                        } else {
+                            i = interpreter.toKodeValue(Kode.stringify("[...]"));
+                        }
+                        ((KodeInstance) This).reccured = false;
+                        return i;
+                    } catch (Throwable e) {
+                        ((KodeInstance) This).reccured = false;
+                        throw e;
+                    }
+                }
+            }
+            throw new NotImplemented();
+        }));
+//</editor-fold>
+        //<editor-fold defaultstate="collapsed" desc="bool">
+        this.methods.put(Kode.BOOLEAN, new KodeBuiltinFunction(Kode.BOOLEAN, interpreter, null, 1, args -> {
+            Object This = args[0];
+            if (This instanceof KodeInstance) {
+                if (ValueList.isList((KodeInstance) This)) {
+                    return interpreter.toKodeValue(Interpreter.isTruthy(ValueList.toList(This)));
+                }
+            }
+            throw new NotImplemented();
+        }));
+//</editor-fold>
+        //<editor-fold defaultstate="collapsed" desc="list">
+        this.methods.put(Kode.LIST, new KodeBuiltinFunction(Kode.LIST, interpreter, null, 1, args -> {
+            Object This = args[0];
+            if (This instanceof KodeInstance) {
+                if (ValueList.isList((KodeInstance) This)) {
+                    return This;
+                }
+            }
+            throw new NotImplemented();
+        }));
+//</editor-fold>
+
+        //<editor-fold defaultstate="collapsed" desc="append">
+        this.methods.put("append", new KodeBuiltinFunction("append", interpreter, null, 2, args -> {
+            Object This = args[0];
+            Object obj = args[1];
+            if (This instanceof KodeInstance) {
+                if (ValueList.isList((KodeInstance) This)) {
+                    ValueList.toList(This).add(interpreter.toKodeValue(obj));
+                    return null;
+                }
+            }
+            throw new NotImplemented();
+        }));
+//</editor-fold>
     }
 
     //<editor-fold defaultstate="collapsed" desc="toList">

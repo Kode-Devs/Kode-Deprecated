@@ -17,7 +17,7 @@ fun setProperty(name, value){
         raise Error('Property name and value must be a String.');
 }
 
-//var name = getProperty('os.name');
+var name = getProperty('os.name');
 
 fun getPwd(){
     return getProperty('user.dir');

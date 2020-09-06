@@ -43,6 +43,7 @@ class Kode {
     static final String AUTHOR = "Kode-Devs";
     static final String USAGE = "Usage: kode [script]";
     private final static Charset ENCODING = StandardCharsets.UTF_8;
+    static Long curr_time = null;
 
     static String getIntro() {
         String res = NAME + " " + VERSION;
@@ -447,6 +448,17 @@ class Kode {
                 } catch (IOException ex) {
                     throw new RuntimeError(ex.getMessage());
                 }
+            }));
+            DEF_GLOBALS.put("tic", new KodeBuiltinFunction("tic", INTER, null, 0, args -> {
+                Kode.curr_time = System.currentTimeMillis();
+                return null;
+            }));
+            DEF_GLOBALS.put("toc", new KodeBuiltinFunction("toc", INTER, null, 0, args -> {
+                if (Kode.curr_time == null) {
+                    throw new RuntimeError("toc() before tic() is not allowed.");
+                }
+                IO.printfln(String.format("Elapsed time is %g seconds.", (System.currentTimeMillis()-Kode.curr_time)/1000.0));
+                return null;
             }));
             DEF_GLOBALS.put("len", new KodeBuiltinFunction("len", INTER, null, 1, args -> {
                 Object obj = args[0];

@@ -32,6 +32,11 @@ class KodeNative implements KodeCallable {
     }
 
     @Override
+    public boolean isBind() {
+        return false;
+    }
+
+    @Override
     public int arity() {
         return -1;
     }
@@ -42,9 +47,9 @@ class KodeNative implements KodeCallable {
             URLClassLoader urlClassLoader = new URLClassLoader(
                     addToList(this.pkg == null ? Paths.get("shared-lib") : Paths.get(Kode.LIBPATH, this.pkg, "shared-lib")).toArray(new URL[]{}),
                     Kode.class.getClassLoader());
-			@SuppressWarnings("deprecation")
-			Object newInstance = urlClassLoader.loadClass(this.className).newInstance();
-			urlClassLoader.close();
+            @SuppressWarnings("deprecation")
+            Object newInstance = urlClassLoader.loadClass(this.className).newInstance();
+            urlClassLoader.close();
             KodeObject[] args = new KodeObject[arguments.length];
             for (int i = 0; i < arguments.length; i++) {
                 Object get = arguments[i];
@@ -57,11 +62,11 @@ class KodeNative implements KodeCallable {
                 args[i] = new KodeObject(Interpreter.toJava(get));
             }
             if (newInstance instanceof KNI) {
-                KodeObject call = ((KNI) newInstance).call(args);
-                if (call == null) {
+                KodeObject result = ((KNI) newInstance).call(args);
+                if (result == null) {
                     return null;
                 }
-                return call.isNative() ? ValueNative.create(call.get()) : this.inter.toKodeValue(call.get());
+                return result.isNative() ? ValueNative.create(result.get()) : this.inter.toKodeValue(result.get());
             }
             throw new Exception("The Class loaded does not implement Kode Native Interface (KNI).");
         } catch (Throwable e) {

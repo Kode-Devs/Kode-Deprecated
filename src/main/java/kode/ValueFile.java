@@ -21,18 +21,9 @@ class ValueFile extends Value {
     private ValueFile(Interpreter interpreter) {
         super("File", interpreter);
         //<editor-fold defaultstate="collapsed" desc="init">
-        this.methods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, interpreter) {
-
-            @Override
-            public int arity() {
-                return 0;
-            }
-
-            @Override
-            public Object call(Object... arguments) {
-                throw new RuntimeError("Unsupported Operation. Use built-in function open() instead.");
-            }
-        });
+        this.methods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, interpreter, null, 1, args -> {
+            throw new RuntimeError("Unsupported Operation. Use built-in function open() instead.");
+        }));
 //</editor-fold>
     }
 

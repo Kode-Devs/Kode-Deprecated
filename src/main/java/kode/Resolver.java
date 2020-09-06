@@ -292,19 +292,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
             error(expr.keyword,
                     "Cannot use 'super' in a class with no superclass.");
         }
-
-        resolveLocal(expr, expr.keyword);
-        return null;
-    }
-
-    @Override
-    public Void visitThisExpr(Expr.This expr) {
-        if (currentClass == ClassType.NONE) {
-            error(expr.keyword,
-                    "Cannot use 'this' outside of a class.");
-            return null;
-        }
-
+        
         resolveLocal(expr, expr.keyword);
         return null;
     }

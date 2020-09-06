@@ -52,7 +52,6 @@ class Lexer {
         KEYWORDS.put("as", AS);
         KEYWORDS.put("return", RETURN);
         KEYWORDS.put("super", SUPER);
-        KEYWORDS.put("this", THIS);
         KEYWORDS.put("True", TRUE);
         KEYWORDS.put("var", VAR);
         KEYWORDS.put("while", WHILE);
@@ -133,7 +132,7 @@ class Lexer {
                 addToken(match('=') ? EQUAL_EQUAL : EQUAL);
                 break;
             case '<':
-                addToken(match('=') ? LESS_EQUAL: (match('<') ? LSHIFT : LESS));
+                addToken(match('=') ? LESS_EQUAL : (match('<') ? LSHIFT : LESS));
                 break;
             case '>':
                 addToken(match('=') ? GREATER_EQUAL : (match('>') ? RSHIFT : GREATER));
@@ -258,7 +257,7 @@ class Lexer {
     }
 
     @SuppressWarnings("removal")
-	private void multilineString() {
+    private void multilineString() {
         String text = "";
 
         while (!isAtEnd()) {

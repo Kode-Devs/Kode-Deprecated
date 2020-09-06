@@ -18,86 +18,57 @@ class ValueType extends Value {
     private ValueType(Interpreter interpreter) {
         super("type", interpreter);
         //<editor-fold defaultstate="collapsed" desc="init">
-        this.methods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, interpreter) {
-
-            @Override
-            public int arity() {
-                return 1;
+        this.methods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, interpreter, null, 2, args -> {
+            Object This = args[0];
+            if (This instanceof KodeInstance) {
+                ((KodeInstance) This).data = args[1];
             }
-
-            @Override
-            public Object call(Object... arguments) {
-                Object This = closure.getAt(0, "this");
-                if (This instanceof KodeInstance) {
-                    ((KodeInstance) This).data = arguments[0];
-                }
-                return This;
-            }
-        });
+            return This;
+        }));
+//</editor-fold>
+        //<editor-fold defaultstate="collapsed" desc="init subclass">
+        this.methods.put(Kode.INIT_SUBCLASS, new KodeBuiltinFunction(Kode.INIT_SUBCLASS, interpreter, null, -3, args -> {
+            throw new RuntimeError("Class " + ValueType.val.class_name + " can not be used as superclass.");
+        }));
 //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="str">
-        this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, interpreter) {
-
-            @Override
-            public int arity() {
-                return 0;
-            }
-
-            @Override
-            public Object call(Object... arguments) {
-                Object This = closure.getAt(0, "this");
-                if (This instanceof KodeInstance) {
-                    if (((KodeInstance) This).data != null) {
-                        return interpreter.toKodeValue("<type '" + Kode.type(((KodeInstance) This).data) + "'>");
-                    }
+        this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, interpreter, null, 1, args -> {
+            Object This = args[0];
+            if (This instanceof KodeInstance) {
+                if (((KodeInstance) This).data != null) {
+                    return interpreter.toKodeValue("<type '" + Kode.type(((KodeInstance) This).data) + "'>");
                 }
-                throw new NotImplemented();
             }
-        });
+            throw new NotImplemented();
+        }));
 //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="eq">
-        this.methods.put(Kode.EQ, new KodeBuiltinFunction(Kode.EQ, interpreter) {
-
-            @Override
-            public int arity() {
-                return 1;
-            }
-
-            @Override
-            public Object call(Object... arguments) {
-                Object This = closure.getAt(0, "this");
-                if (This instanceof KodeInstance) {
-                    if (arguments[0] instanceof KodeClass && ((KodeInstance) This).data instanceof KodeInstance) {
-                        return interpreter.toKodeValue(
-                                Objects.equals(((KodeInstance) ((KodeInstance) This).data).klass, (KodeClass) arguments[0]));
-                    }
+        this.methods.put(Kode.EQ, new KodeBuiltinFunction(Kode.EQ, interpreter, null, 2, args -> {
+            Object This = args[0];
+            Object klass = args[1];
+            if (This instanceof KodeInstance) {
+                if (klass instanceof KodeClass && ((KodeInstance) This).data instanceof KodeInstance) {
+                    return interpreter.toKodeValue(
+                            Objects.equals(((KodeInstance) ((KodeInstance) This).data).klass, (KodeClass) klass));
                 }
-                return interpreter.toKodeValue(eq(This, arguments[0]));
             }
-        });
+            return interpreter.toKodeValue(Comparator.eq(This, klass, interpreter));
+        }));
         //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="ne">
-        this.methods.put(Kode.NE, new KodeBuiltinFunction(Kode.NE, interpreter) {
-
-            @Override
-            public int arity() {
-                return 1;
-            }
-
-            @Override
-            public Object call(Object... arguments) {
-                Object This = closure.getAt(0, "this");
-                if (This instanceof KodeInstance) {
-                    if (arguments[0] instanceof KodeClass && ((KodeInstance) This).data instanceof KodeInstance) {
-                        return interpreter.toKodeValue(
-                                !Objects.equals(((KodeInstance) ((KodeInstance) This).data).klass, (KodeClass) arguments[0]));
-                    }
+        this.methods.put(Kode.NE, new KodeBuiltinFunction(Kode.NE, interpreter, null, 2, args -> {
+            Object This = args[0];
+            Object klass = args[1];
+            if (This instanceof KodeInstance) {
+                if (klass instanceof KodeClass && ((KodeInstance) This).data instanceof KodeInstance) {
+                    return interpreter.toKodeValue(
+                            !Objects.equals(((KodeInstance) ((KodeInstance) This).data).klass, (KodeClass) klass));
                 }
-                return interpreter.toKodeValue(eq(This, arguments[0]));
             }
-        });
+            return interpreter.toKodeValue(Comparator.ne(This, klass, interpreter));
+        }));
         //</editor-fold>
     }
 

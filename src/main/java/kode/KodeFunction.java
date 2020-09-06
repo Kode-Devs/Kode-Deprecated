@@ -6,6 +6,7 @@
 package kode;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -20,18 +21,25 @@ class KodeFunction implements KodeCallable {
     Environment closure;
     final boolean isInitializer;
     Interpreter interpreter;
+    KodeInstance instance;
 
     KodeFunction(Stmt.Function declaration, Environment closure, Interpreter inter, boolean isInitializer) {
+        this.instance = null;
         this.isInitializer = isInitializer;
         this.closure = closure;
         this.declaration = declaration;
         this.interpreter = inter;
     }
 
+    @Override
+    public boolean isBind() {
+        return this.instance != null;
+    }
+
     KodeFunction bind(KodeInstance instance) {
-        Environment environment = new Environment(closure);
-        environment.define("this", instance);
-        return new KodeFunction(declaration, environment, interpreter, isInitializer);
+        KodeFunction bind = new KodeFunction(declaration, new Environment(closure), interpreter, isInitializer);
+        bind.instance = instance;
+        return bind;
     }
 
     @Override
@@ -47,6 +55,13 @@ class KodeFunction implements KodeCallable {
 
     @Override
     public Object call(Object... arguments) {
+        KodeInstance This = this.instance;
+        if (This != null) {
+            ArrayList asList = new ArrayList(Arrays.asList(arguments));
+            asList.add(0, This);
+            arguments = asList.toArray();
+        }
+
         Environment environment = new Environment(closure);
         if (declaration.params.length != 0) {
             for (int i = 0; i < declaration.params.length - 1; i++) {
@@ -67,14 +82,14 @@ class KodeFunction implements KodeCallable {
             interpreter.executeBlock(declaration.body, environment);
         } catch (Return returnValue) {
             if (isInitializer) {
-                return closure.getAt(0, "this");
+                return arguments[0];
             }
 
             return returnValue.value;
         }
 
         if (isInitializer) {
-            return closure.getAt(0, "this");
+            return arguments[0];
         }
         return null;
     }

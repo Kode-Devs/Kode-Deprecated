@@ -127,6 +127,7 @@ class Kode {
     static Map<String, KodeModule> ModuleRegistry = new HashMap<>();  // Change it
 
     static final String INIT = "__init__";
+    static final String INIT_SUBCLASS = "__init_subclass__";
     static final String INFINITY = "Infinity";
     static final String NAN = "NaN";
     static final String VARARGIN = "varargin";

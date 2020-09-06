@@ -1,1 +1,26 @@
 `Built-in Library functions r available here.`;
+
+class Complex{
+    __init__(self,x,y){
+        if(isinstance(x,Number) and isinstance(y,Number)){
+            self.real = x;
+            self.imag = y;
+        }
+        else raise Error('Invalid arguments type found.').skip(1);
+    }
+
+    __add__(left,right){
+        if(isinstance(left,Complex) and isinstance(right,Complex)) return Complex(left.real+right.real, left.imag+right.imag);
+        if(isinstance(left,Complex) and isinstance(right,Number)) return Complex(left.real+right, left.imag);
+        if(isinstance(left,Number) and isinstance(right,Complex)) return Complex(left+right.real, right.imag);
+        raise NotImplemented();
+    }
+
+    __str__(self){
+        return '('+String(self.real)+'+'+String(self.imag)+'j)';
+    }
+
+    __bool__(self){
+        return Bool(self.real) or Bool(self.imag);
+    }
+}

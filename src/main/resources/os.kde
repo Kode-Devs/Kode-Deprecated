@@ -26,11 +26,3 @@ fun getPwd(){
 fun getHome(){
     return getProperty('user.home');
 }
-
-class c < Number {
-    __init__(self){
-        super.__init__(self,5);
-    }
-}
-
-var b = c();

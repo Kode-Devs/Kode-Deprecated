@@ -292,7 +292,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
             error(expr.keyword,
                     "Cannot use 'super' in a class with no superclass.");
         }
-
+        
         resolveLocal(expr, expr.keyword);
         return null;
     }

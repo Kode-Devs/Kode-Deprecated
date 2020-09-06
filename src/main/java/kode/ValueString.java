@@ -32,6 +32,15 @@ class ValueString extends Value {
             return This;
         }));
 //</editor-fold>
+        //<editor-fold defaultstate="collapsed" desc="init subclass">
+        this.methods.put(Kode.INIT_SUBCLASS, new KodeBuiltinFunction(Kode.INIT_SUBCLASS, interpreter, null, -3, args -> {
+            Object This = args[1];
+            if (This instanceof KodeInstance) {
+                ((KodeInstance) This).data = "";
+            }
+            return null;
+        }));
+//</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="str">
         this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, interpreter, null, 1, args -> {
             Object This = args[0];

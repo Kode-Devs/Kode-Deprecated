@@ -26,6 +26,11 @@ class ValueType extends Value {
             return This;
         }));
 //</editor-fold>
+        //<editor-fold defaultstate="collapsed" desc="init subclass">
+        this.methods.put(Kode.INIT_SUBCLASS, new KodeBuiltinFunction(Kode.INIT_SUBCLASS, interpreter, null, -3, args -> {
+            throw new RuntimeError("Class " + ValueType.val.class_name + " can not be used as superclass.");
+        }));
+//</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="str">
         this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, interpreter, null, 1, args -> {

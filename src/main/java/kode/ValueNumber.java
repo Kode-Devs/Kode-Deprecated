@@ -33,6 +33,15 @@ class ValueNumber extends Value {
             return This;
         }));
 //</editor-fold>
+        //<editor-fold defaultstate="collapsed" desc="init subclass">
+        this.methods.put(Kode.INIT_SUBCLASS, new KodeBuiltinFunction(Kode.INIT_SUBCLASS, interpreter, null, -3, args -> {
+            Object This = args[1];
+            if (This instanceof KodeInstance) {
+                ((KodeInstance) This).data = KodeNumber.valueOf("0");
+            }
+            return null;
+        }));
+//</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="str">
         this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, interpreter, null, 1, args -> {
             Object This = args[0];
@@ -129,8 +138,7 @@ class ValueNumber extends Value {
                 return (KodeNumber) x;
             } else if (x instanceof KodeInstance) {
                 if (ValueNumber.isNumber((KodeInstance) x)) {
-                    Object data = ((KodeInstance) x).data;
-                    return data == null ? KodeNumber.valueOf(0) : (KodeNumber) data;
+                    return (KodeNumber) ((KodeInstance) x).data;
                 } else {
                     try {
                         if (((KodeInstance) x).fields.containsKey(Kode.NUMBER)) {

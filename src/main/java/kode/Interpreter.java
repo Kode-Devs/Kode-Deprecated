@@ -94,12 +94,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     public Object visitSuperExpr(Expr.Super expr) {
         int distance = locals.get(expr);
         KodeClass superclass = (KodeClass) environment.getAt(distance, "super");
-
-        // "this" is always one level nearer than "super"'s environment.
-//        KodeInstance object = (KodeInstance) environment.getAt(distance - 1, "this");
-
         KodeFunction method = superclass.findMethod(expr.method.lexeme);
-
         if (method == null) {
             throw new RuntimeError("Undefined property '" + expr.method.lexeme + "'.", expr.method);
         }

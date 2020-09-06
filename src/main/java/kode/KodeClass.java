@@ -6,6 +6,7 @@
 package kode;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -195,7 +196,7 @@ class KodeClass implements KodeCallable {
             throw new NotImplemented();
         }));
         sm.put(Kode.RADD, new KodeBuiltinFunction(Kode.RADD, interpreter, null, 2, args -> {
-            return sm.get(Kode.ADD).call(args[1], args[0]);
+            return sm.get(Kode.ADD).call(args[1], args[0]); //TODO not work Complex Number
         }));
         //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="sub">
@@ -617,6 +618,16 @@ class KodeClass implements KodeCallable {
     @Override
     public Object call(Object... arguments) {
         KodeInstance instance = new KodeInstance(this);
+        KodeClass klass = this.superclass;
+        ArrayList asList = new ArrayList(Arrays.asList(arguments));
+        asList.add(0, this);
+        asList.add(1, instance);
+        while (klass != null) {
+            if (klass.methods.containsKey(Kode.INIT_SUBCLASS)) {
+                klass.methods.get(Kode.INIT_SUBCLASS).call(asList.toArray());
+            }
+            klass = klass.superclass;
+        }
         this.findMethod(Kode.INIT).bind(instance).call(arguments);
         return instance;
     }

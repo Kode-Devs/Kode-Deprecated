@@ -31,6 +31,11 @@ class ValueNotImplemented extends Value {
                 return This;
             }));
 //</editor-fold>
+        //<editor-fold defaultstate="collapsed" desc="init subclass">
+        this.methods.put(Kode.INIT_SUBCLASS, new KodeBuiltinFunction(Kode.INIT_SUBCLASS, interpreter, null, -3, args -> {
+            throw new RuntimeError("Class " + ValueNotImplemented.val.class_name + " can not be used as superclass.");
+        }));
+//</editor-fold>
     }
 
     final static boolean isNotImplemented(KodeInstance i) {

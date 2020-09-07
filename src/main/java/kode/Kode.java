@@ -60,7 +60,6 @@ class Kode {
 
     public static void main(String... args) {
         Thread.currentThread().setUncaughtExceptionHandler((Thread t, Throwable e) -> {
-            e.printStackTrace(System.out);
             IO.exit(1);
         });
         switch (args.length) {
@@ -120,7 +119,6 @@ class Kode {
             Kode.runtimeError((RuntimeError) e);
         } else {
             IO.printfln_err("Fatal Error : " + e);
-            e.printStackTrace(System.out);
         }
     }
 
@@ -484,7 +482,7 @@ class Kode {
                         for (;;) {
                             if (kls != null) {
                                 dir.addAll(kls.methods.keySet());
-                                dir.addAll(kls.specialMethods().keySet());
+                                dir.addAll(kls.specialMethods.keySet());
                             } else {
                                 break;
                             }

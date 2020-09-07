@@ -37,7 +37,7 @@ class KodeClass implements KodeCallable {
         return true;
     }
 
-    Map<String, KodeFunction> specialMethods() {
+    private Map<String, KodeFunction> specialMethods() {
         Map<String, KodeFunction> sm = new HashMap<>();
         //<editor-fold defaultstate="collapsed" desc="init">
         sm.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, interpreter, null, 1, arg -> {
@@ -196,7 +196,7 @@ class KodeClass implements KodeCallable {
             throw new NotImplemented();
         }));
         sm.put(Kode.RADD, new KodeBuiltinFunction(Kode.RADD, interpreter, null, 2, args -> {
-            return sm.get(Kode.ADD).call(args[1], args[0]); //TODO not work Complex Number
+            return findMethod(Kode.ADD).call(args[1], args[0]);
         }));
         //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="sub">
@@ -217,7 +217,7 @@ class KodeClass implements KodeCallable {
             throw new NotImplemented();
         }));
         sm.put(Kode.RSUB, new KodeBuiltinFunction(Kode.RSUB, interpreter, null, 2, args -> {
-            return sm.get(Kode.SUB).call(args[1], args[0]);
+            return findMethod(Kode.SUB).call(args[1], args[0]);
         }));
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="mul">
@@ -282,7 +282,7 @@ class KodeClass implements KodeCallable {
             throw new NotImplemented();
         }));
         sm.put(Kode.RMUL, new KodeBuiltinFunction(Kode.RMUL, interpreter, null, 2, args -> {
-            return sm.get(Kode.MUL).call(args[1], args[0]);
+            return findMethod(Kode.MUL).call(args[1], args[0]);
         }));
         //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="true_div">
@@ -307,7 +307,7 @@ class KodeClass implements KodeCallable {
             throw new NotImplemented();
         }));
         sm.put(Kode.RTRUE_DIV, new KodeBuiltinFunction(Kode.RTRUE_DIV, interpreter, null, 2, args -> {
-            return sm.get(Kode.TRUE_DIV).call(args[1], args[0]);
+            return findMethod(Kode.TRUE_DIV).call(args[1], args[0]);
         }));
         //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="floor_div">
@@ -332,7 +332,7 @@ class KodeClass implements KodeCallable {
             throw new NotImplemented();
         }));
         sm.put(Kode.RFLOOR_DIV, new KodeBuiltinFunction(Kode.RFLOOR_DIV, interpreter, null, 2, args -> {
-            return sm.get(Kode.FLOOR_DIV).call(args[1], args[0]);
+            return findMethod(Kode.FLOOR_DIV).call(args[1], args[0]);
         }));
         //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="mod">
@@ -357,7 +357,7 @@ class KodeClass implements KodeCallable {
             throw new NotImplemented();
         }));
         sm.put(Kode.RMOD, new KodeBuiltinFunction(Kode.RMOD, interpreter, null, 2, args -> {
-            return sm.get(Kode.MOD).call(args[1], args[0]);
+            return findMethod(Kode.MOD).call(args[1], args[0]);
         }));
         //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="pow">
@@ -382,216 +382,94 @@ class KodeClass implements KodeCallable {
             throw new NotImplemented();
         }));
         sm.put(Kode.RPOWER, new KodeBuiltinFunction(Kode.RPOWER, interpreter, null, 2, args -> {
-            return sm.get(Kode.POWER).call(args[1], args[0]);
+            return findMethod(Kode.POWER).call(args[1], args[0]);
         }));
         //</editor-fold>
-//        //<editor-fold defaultstate="collapsed" desc="lshift">
-//        sm.put(Kode.LSHIFT, new KodeBuiltinFunction(Kode.LSHIFT, interpreter) {
-//
-//            @Override
-//            public int arity() {
-//                return 1;
-//            }
-//
-//            @Override
-//            public Object call(Object... arguments) {
-//                Object left = closure.getAt(0, "this");
-//                Object right = arguments[0];
-//                if (left instanceof KodeInstance && right instanceof KodeInstance) {
-//                    if (ValueBool.isBool((KodeInstance) left)) {
-//                        left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
-//                    }
-//                    if (ValueBool.isBool((KodeInstance) right)) {
-//                        right = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0);
-//                    }
-//                    if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
-//                        try {
-//                            return interpreter.toKodeValue(KodeMath.lshift(ValueNumber.toNumber(left), ValueNumber.toNumber(right)));
-//                        } catch (ArithmeticException ex) {
-//                            throw new RuntimeError("TODO");
-//                        }
-//                    }
-//                }
-//                throw new NotImplemented();
-//            }
-//        });
-//        sm.put(Kode.RLSHIFT, new KodeBuiltinFunction(Kode.RLSHIFT, interpreter) {
-//
-//            @Override
-//            public int arity() {
-//                return 1;
-//            }
-//
-//            @Override
-//            public Object call(Object... arguments) {
-//                Object right = closure.getAt(0, "this");
-//                Object left = arguments[0];
-//                if (left instanceof KodeInstance && right instanceof KodeInstance) {
-//                    if (ValueBool.isBool((KodeInstance) left)) {
-//                        left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
-//                    }
-//                    if (ValueBool.isBool((KodeInstance) right)) {
-//                        right = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0);
-//                    }
-//                    if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
-//                        try {
-//                            return interpreter.toKodeValue(KodeMath.lshift(ValueNumber.toNumber(left), ValueNumber.toNumber(right)));
-//                        } catch (ArithmeticException ex) {
-//                            throw new RuntimeError("TODO");
-//                        }
-//                    }
-//                }
-//                throw new NotImplemented();
-//            }
-//        });
-//        //</editor-fold>
-//        //<editor-fold defaultstate="collapsed" desc="rshift">
-//        sm.put(Kode.RSHIFT, new KodeBuiltinFunction(Kode.RSHIFT, interpreter) {
-//
-//            @Override
-//            public int arity() {
-//                return 1;
-//            }
-//
-//            @Override
-//            public Object call(Object... arguments) {
-//                Object left = closure.getAt(0, "this");
-//                Object right = arguments[0];
-//                if (left instanceof KodeInstance && right instanceof KodeInstance) {
-//                    if (ValueBool.isBool((KodeInstance) left)) {
-//                        left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
-//                    }
-//                    if (ValueBool.isBool((KodeInstance) right)) {
-//                        right = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0);
-//                    }
-//                    if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
-//                        try {
-//                            return interpreter.toKodeValue(KodeMath.rshift(ValueNumber.toNumber(left), ValueNumber.toNumber(right)));
-//                        } catch (ArithmeticException ex) {
-//                            throw new RuntimeError("TODO");
-//                        }
-//                    }
-//                }
-//                throw new NotImplemented();
-//            }
-//        });
-//        sm.put(Kode.RRSHIFT, new KodeBuiltinFunction(Kode.RRSHIFT, interpreter) {
-//
-//            @Override
-//            public int arity() {
-//                return 1;
-//            }
-//
-//            @Override
-//            public Object call(Object... arguments) {
-//                Object right = closure.getAt(0, "this");
-//                Object left = arguments[0];
-//                if (left instanceof KodeInstance && right instanceof KodeInstance) {
-//                    if (ValueBool.isBool((KodeInstance) left)) {
-//                        left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
-//                    }
-//                    if (ValueBool.isBool((KodeInstance) right)) {
-//                        right = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0);
-//                    }
-//                    if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
-//                        try {
-//                            return interpreter.toKodeValue(KodeMath.rshift(ValueNumber.toNumber(left), ValueNumber.toNumber(right)));
-//                        } catch (ArithmeticException ex) {
-//                            throw new RuntimeError("TODO");
-//                        }
-//                    }
-//                }
-//                throw new NotImplemented();
-//            }
-//        });
-//        //</editor-fold>
-//
-//        //<editor-fold defaultstate="collapsed" desc="eq">
-//        sm.put(Kode.EQ, new KodeBuiltinFunction(Kode.EQ, interpreter) {
-//
-//            @Override
-//            public int arity() {
-//                return 1;
-//            }
-//
-//            @Override
-//            public Object call(Object... arguments) {
-//                return interpreter.toKodeValue(eq(closure.getAt(0, "this"), arguments[0]));
-//            }
-//        });
-//        //</editor-fold>
-//        //<editor-fold defaultstate="collapsed" desc="ne">
-//        sm.put(Kode.NE, new KodeBuiltinFunction(Kode.NE, interpreter) {
-//
-//            @Override
-//            public int arity() {
-//                return 1;
-//            }
-//
-//            @Override
-//            public Object call(Object... arguments) {
-//                return interpreter.toKodeValue(ne(closure.getAt(0, "this"), arguments[0]));
-//            }
-//        });
-//        //</editor-fold>
-//        //<editor-fold defaultstate="collapsed" desc="lt">
-//        sm.put(Kode.LT, new KodeBuiltinFunction(Kode.LT, interpreter) {
-//
-//            @Override
-//            public int arity() {
-//                return 1;
-//            }
-//
-//            @Override
-//            public Object call(Object... arguments) {
-//                return interpreter.toKodeValue(lt(closure.getAt(0, "this"), arguments[0]));
-//            }
-//        });
-//        //</editor-fold>
-//        //<editor-fold defaultstate="collapsed" desc="le">
-//        sm.put(Kode.LE, new KodeBuiltinFunction(Kode.LE, interpreter) {
-//
-//            @Override
-//            public int arity() {
-//                return 1;
-//            }
-//
-//            @Override
-//            public Object call(Object... arguments) {
-//                return interpreter.toKodeValue(le(closure.getAt(0, "this"), arguments[0]));
-//            }
-//        });
-//        //</editor-fold>
-//        //<editor-fold defaultstate="collapsed" desc="gt">
-//        sm.put(Kode.GT, new KodeBuiltinFunction(Kode.GT, interpreter) {
-//
-//            @Override
-//            public int arity() {
-//                return 1;
-//            }
-//
-//            @Override
-//            public Object call(Object... arguments) {
-//                return interpreter.toKodeValue(gt(closure.getAt(0, "this"), arguments[0]));
-//            }
-//        });
-//        //</editor-fold>
-//        //<editor-fold defaultstate="collapsed" desc="ge">
-//        sm.put(Kode.GE, new KodeBuiltinFunction(Kode.GE, interpreter) {
-//
-//            @Override
-//            public int arity() {
-//                return 1;
-//            }
-//
-//            @Override
-//            public Object call(Object... arguments) {
-//                return interpreter.toKodeValue(ge(closure.getAt(0, "this"), arguments[0]));
-//            }
-//        });
-//        //</editor-fold>
+        //<editor-fold defaultstate="collapsed" desc="lshift">
+        sm.put(Kode.LSHIFT, new KodeBuiltinFunction(Kode.LSHIFT, interpreter, null, 2, args -> {
+            Object left = args[0];
+            Object right = args[1];
+            if (left instanceof KodeInstance && right instanceof KodeInstance) {
+                if (ValueBool.isBool((KodeInstance) left)) {
+                    left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
+                }
+                if (ValueBool.isBool((KodeInstance) right)) {
+                    right = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0);
+                }
+                if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
+                    try {
+                        return interpreter.toKodeValue(KodeMath.lshift(ValueNumber.toNumber(left), ValueNumber.toNumber(right)));
+                    } catch (ArithmeticException ex) {
+                        throw new RuntimeError("TODO");
+                    }
+                }
+            }
+            throw new NotImplemented();
+        }));
+        sm.put(Kode.RLSHIFT, new KodeBuiltinFunction(Kode.RLSHIFT, interpreter, null, 2, args -> {
+            return findMethod(Kode.LSHIFT).call(args[1], args[0]);
+        }));
+        //</editor-fold>
+        //<editor-fold defaultstate="collapsed" desc="rshift">
+        sm.put(Kode.RSHIFT, new KodeBuiltinFunction(Kode.RSHIFT, interpreter, null, 2, args -> {
+            Object left = args[0];
+            Object right = args[1];
+            if (left instanceof KodeInstance && right instanceof KodeInstance) {
+                if (ValueBool.isBool((KodeInstance) left)) {
+                    left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
+                }
+                if (ValueBool.isBool((KodeInstance) right)) {
+                    right = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0);
+                }
+                if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
+                    try {
+                        return interpreter.toKodeValue(KodeMath.rshift(ValueNumber.toNumber(left), ValueNumber.toNumber(right)));
+                    } catch (ArithmeticException ex) {
+                        throw new RuntimeError("TODO");
+                    }
+                }
+            }
+            throw new NotImplemented();
+        }));
+        sm.put(Kode.RRSHIFT, new KodeBuiltinFunction(Kode.RRSHIFT, interpreter, null, 2, args -> {
+            return findMethod(Kode.RSHIFT).call(args[1], args[0]);
+        }));
+        //</editor-fold>
+
+        //<editor-fold defaultstate="collapsed" desc="eq">
+        sm.put(Kode.EQ, new KodeBuiltinFunction(Kode.EQ, interpreter, null, 2, args -> {
+            return interpreter.toKodeValue(Comparator.eq(args[0], args[1], interpreter));
+        }));
+        //</editor-fold>
+        //<editor-fold defaultstate="collapsed" desc="ne">
+        sm.put(Kode.NE, new KodeBuiltinFunction(Kode.NE, interpreter, null, 2, args -> {
+            return interpreter.toKodeValue(Comparator.ne(args[0], args[1], interpreter));
+        }));
+        //</editor-fold>
+        //<editor-fold defaultstate="collapsed" desc="lt">
+        sm.put(Kode.LT, new KodeBuiltinFunction(Kode.LT, interpreter, null, 2, args -> {
+            return interpreter.toKodeValue(Comparator.lt(args[0], args[1], interpreter));
+        }));
+        //</editor-fold>
+        //<editor-fold defaultstate="collapsed" desc="le">
+        sm.put(Kode.LE, new KodeBuiltinFunction(Kode.LE, interpreter, null, 2, args -> {
+            return interpreter.toKodeValue(Comparator.le(args[0], args[1], interpreter));
+        }));
+        //</editor-fold>
+        //<editor-fold defaultstate="collapsed" desc="gt">
+        sm.put(Kode.GT, new KodeBuiltinFunction(Kode.GT, interpreter, null, 2, args -> {
+            return interpreter.toKodeValue(Comparator.gt(args[0], args[1], interpreter));
+        }));
+        //</editor-fold>
+        //<editor-fold defaultstate="collapsed" desc="ge">
+        sm.put(Kode.GE, new KodeBuiltinFunction(Kode.GE, interpreter, null, 2, args -> {
+            return interpreter.toKodeValue(Comparator.ge(args[0], args[1], interpreter));
+        }));
+        //</editor-fold>
         return sm;
     }
+
+    Map<String, KodeFunction> specialMethods = specialMethods();
 
     KodeFunction findMethod(String name) {
         if (methods.containsKey(name)) {
@@ -602,7 +480,6 @@ class KodeClass implements KodeCallable {
             return superclass.findMethod(name);
         }
 
-        Map<String, KodeFunction> specialMethods = specialMethods();
         if (specialMethods.containsKey(name)) {
             return specialMethods.get(name);
         }

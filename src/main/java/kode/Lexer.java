@@ -41,7 +41,7 @@ class Lexer {
         KEYWORDS.put("False", FALSE);
         KEYWORDS.put("for", FOR);
         KEYWORDS.put("from", FROM);
-        KEYWORDS.put("fun", FUN);
+        KEYWORDS.put("function", FUN);
         KEYWORDS.put("if", IF);
         KEYWORDS.put("None", NONE);
         KEYWORDS.put(Kode.INFINITY, INFINITY);

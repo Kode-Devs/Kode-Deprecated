@@ -73,7 +73,6 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         }
 
         beginScope();
-        scopes.peek().put("this", true);
 
         stmt.methods.forEach((method) -> {
             FunctionType declaration = FunctionType.METHOD;
@@ -292,7 +291,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
             error(expr.keyword,
                     "Cannot use 'super' in a class with no superclass.");
         }
-        
+
         resolveLocal(expr, expr.keyword);
         return null;
     }
@@ -386,6 +385,13 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
     private void declare(Token name) {
         if (scopes.isEmpty()) {
+            // Added to check already defined variable in global scope
+            try {
+                interpreter.globals.get(name);
+                error(name,
+                        "Variable with this name already declared in the this scope.");
+            } catch (RuntimeError e) {
+            }
             return;
         }
 
@@ -416,7 +422,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         // Not found. Assume it is global.                   
     }
 
-    void error(Token token, String message) {
+    private void error(Token token, String message) {
         throw new RuntimeError(message, token);
     }
 

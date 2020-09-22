@@ -379,7 +379,6 @@ abstract class Kode {
      * Very useful utility function to convert any {@link Object} to
      * {@link String}.
      *
-     * @param object The object which needs to be converted.
      * @return Printable string format of the object.
      * @see toString
      * @see repr
@@ -447,12 +446,12 @@ abstract class Kode {
     }
 
     /**
-     * Very useful utility function similar to {@link stringify}.
-     * The only difference is that it acts differently for certain cases,
-     * and is used for displaying text as auto output of the last result in the Shell.
+     * Very useful utility function similar to {@link stringify} but is used for
+     * representation of objects. The only difference is that it acts
+     * differently for certain cases, and is used for displaying text as auto
+     * output of the last result in the Shell.
      *
-     * @param object The object which needs to be converted.
-     * @return Printable string format of the object.
+     * @return Representable string format of the object.
      * @see toString
      * @see stringify
      */
@@ -465,9 +464,10 @@ abstract class Kode {
         return Kode.stringify(value);
     }
 
+    /**
+     * Utility function to detect the predefined type label for any object.
+     */
     static String type(Object object) {
-
-        // Function
         if (object instanceof KodeClass) {
             return "class." + ((KodeClass) object).class_name;
         }
@@ -489,25 +489,35 @@ abstract class Kode {
         return "unknown";
     }
 
+    /**
+     * Returns weather an object/instance belongs to an class or not.
+     */
     static boolean instanceOf(KodeInstance i, KodeClass c) {
-        return instanceOf(i.klass, c);
+        return equal_or_sub_class_of(i.klass, c);
     }
 
-    static boolean instanceOf(KodeClass i, KodeClass c) {
+    /**
+     * Returns weather an class is equal to or subclass of another class or not.
+     */
+    static boolean equal_or_sub_class_of(KodeClass i, KodeClass c) {
         if (i == null) {
             return false;
-        }
-        if (i.equals(c)) {
+        } else if (i.equals(c)) {
             return true;
         }
-        if (i.superclass != null) {
-            return instanceOf(i.superclass, c);
-        }
-        return false;
+        return equal_or_sub_class_of(i.superclass, c);
     }
 
+    /**
+     * Instance of the module containing the built-in methods and variables.
+     */
     static final KodeModule BUILTIN_MODULE = new KodeModule(Kode.BUILTIN_NAME, Kode.BUILTIN_NAME);
 
+    /**
+     * This part contains code snippets needed to initialize the interpreted
+     * including definitions of built-in elements. If it fails during this part,
+     * the interpreter shows an Error dialog and finally exits its execution.
+     */
     static {
         try {
             LIBPATH = Paths.get(Paths.get(Kode.class.getProtectionDomain().getCodeSource().getLocation().toURI())
@@ -652,7 +662,7 @@ abstract class Kode {
                 if (!(type instanceof KodeClass)) {
                     throw new RuntimeError("Value passed for argument 'type' is not a class.");
                 }
-                return INTER.toKodeValue(Kode.instanceOf((KodeClass) object, (KodeClass) type));
+                return INTER.toKodeValue(Kode.equal_or_sub_class_of((KodeClass) object, (KodeClass) type));
             }));
             DEF_GLOBALS.put("exit", new KodeBuiltinFunction("exit", INTER, null, 0, args -> {
                 IO.exit(0);

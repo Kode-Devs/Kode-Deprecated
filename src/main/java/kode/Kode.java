@@ -1,7 +1,18 @@
 /* 
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright (C) 2020 Kode Devs
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package kode;
 
@@ -32,19 +43,31 @@ import utils.Pip4kode;
 import utils.Pip4kode.PipError;
 
 /**
- *
- * @author dell
+ * Abstract class containing the driver method for KODE interpreter.
  */
-class Kode {
+abstract class Kode {
 
     static final String NAME = "Kode";
     static String VERSION;
     static final String EXTENSION = "kde";
-    static final String AUTHOR = "Kode-Devs";
+    static final String AUTHOR = "Kode Devs";
     static final String USAGE = "Usage: kode [script]";
+    static final String HELP = USAGE;
+
+    /**
+     * Default file encoding for source files.
+     */
     private final static Charset ENCODING = StandardCharsets.UTF_8;
+
+    /**
+     * Use to store the currentTimeMillis value whenever tic() is called. Also
+     * the initial value of null denotes that tic() isn't called before.
+     */
     static Long curr_time = null;
 
+    /**
+     * To generate the introduction to be displayed before the shell.
+     */
     static String getIntro() {
         String res = NAME + " " + VERSION;
         try {
@@ -56,16 +79,20 @@ class Kode {
         return res;
     }
 
-    static final String HELP = USAGE;
-
+    /**
+     * Driver function for KODE.
+     *
+     * @param args Array of arguments from the command shell. First arguments
+     * contains the KODE version number.
+     */
     public static void main(String... args) {
         Thread.currentThread().setUncaughtExceptionHandler((Thread t, Throwable e) -> {
-            IO.exit(1);
+            IO.exit(1); // Panic State
         });
         switch (args.length) {
             case 1:
                 VERSION = args[0];
-                //<editor-fold defaultstate="collapsed" desc="Shell">
+                //<editor-fold defaultstate="collapsed" desc="Code for Shell">
                 IO.printfln(Kode.getIntro());
                 IO.printfln("Call exit() to quit the shell.");
                 Interpreter interpreter = new Interpreter();
@@ -81,19 +108,20 @@ class Kode {
                         handleThrowable(e);
                     }
                 }
-            //</editor-fold>
+            //</editor-fold> // Executed in case of no-arg in cmd i.e., starts the shell.
             case 2:
                 VERSION = args[0];
                 switch (args[1]) {
                     case "-v":
                     case "--version":
-                        IO.printfln(Kode.getIntro());
+                        IO.printfln(Kode.getIntro()); // Prints version info.
                         break;
                     case "-h":
                     case "--help":
-                        IO.printfln(Kode.HELP);
+                        IO.printfln(Kode.HELP); // Prints help text.
                         break;
-                    default://<editor-fold defaultstate="collapsed" desc="File">
+                    default:
+                        //<editor-fold defaultstate="collapsed" desc="Code for Script">
                         Path path = Paths.get(args[1]);
                         if (path.getFileName().toString().endsWith("." + Kode.EXTENSION)) {
                             try {
@@ -105,15 +133,22 @@ class Kode {
                             IO.printfln_err("Not a " + Kode.NAME + " runnable file");
                             IO.exit(64);
                         }
-                    //</editor-fold>
+                    //</editor-fold> // Executed in case of run as script file in cmd i.e., reads the script file and executes it.
                 }
                 break;
             default:
-                IO.printfln_err(USAGE);
+                IO.printfln_err(USAGE); // Prints usage message.
         }
         IO.exit(0);
     }
 
+    /**
+     * Whenever the interpreter detects an unhandled {@link Throwable}, it
+     * passes the error instance to this function. This function prints the
+     * stack-trace for KODE run-time errors else prints fatal error.
+     *
+     * @see runtimeError
+     */
     static void handleThrowable(Throwable e) {
         if (e instanceof RuntimeError) {
             Kode.runtimeError((RuntimeError) e);
@@ -122,9 +157,21 @@ class Kode {
         }
     }
 
+    /**
+     * Base location for packages.
+     */
     static String LIBPATH;
+
+    /**
+     * The imported modules gets stored in this {@link Hashmap} so that it can
+     * be re-imported when necessary.
+     */
     static Map<String, KodeModule> ModuleRegistry = new HashMap<>();  // Change it
 
+    //
+    // The names of commoly used importent entities are soft coded here,
+    // so that they can be easily modified.
+    //
     static final String INIT = "__init__";
     static final String INIT_SUBCLASS = "__init_subclass__";
     static final String INFINITY = "Infinity";
@@ -182,22 +229,50 @@ class Kode {
     static final String RSHIFT = "__rshift__";
     static final String RRSHIFT = "__rrshift__";
 
+    /**
+     * Utility function to read the script file from the path provided and hence
+     * execute it.
+     *
+     * @param path Path to the script file.
+     * @param inter Associated interpreter.
+     * @see run
+     */
     static void runFile(String path, Interpreter inter) throws Throwable {
         byte[] bytes = Files.readAllBytes(Paths.get(path));
         inter.globals.define(Kode.__NAME__, inter.toKodeValue(Kode.__MAIN__));
         run(Paths.get(path).toFile().getName(), new String(bytes, ENCODING), inter);
     }
 
+    /**
+     * Utility function to import any file from the package library. It first
+     * scans for the file relative to the working directory, then to the package
+     * directory and finally in the builtin directory. It also checks for the
+     * availability of the package and its update, and hence downloads using
+     * {@link Pip4kode} if necessary.
+     *
+     * @implSpec The interpreter must have permissions to write or modify files
+     * in its installation location for its proper working. Else the
+     * download/update feature will not work.
+     *
+     * @param name Relative file path as per the import statement.
+     * @param inter Associated interpreter.
+     * @return The help text associated with the script file which is being
+     * imported.
+     * @throws Throwable
+     * @see run
+     */
     static String runLib(String name, Interpreter inter) throws Throwable {
         String pkgname = Paths.get(name).getName(0).toString();
         String initial_path = Paths.get(Kode.LIBPATH, pkgname).toAbsolutePath().toString();
         try {
+            // Check w.r.t working directory.
             Path path = Paths.get("./", name + "." + Kode.EXTENSION).toAbsolutePath();
             if (path.toFile().exists()) {
                 byte[] bytes = Files.readAllBytes(path);
                 return run(path.toFile().getName(), new String(bytes, ENCODING), inter).key;
             }
 
+            // Check for avialibility of update for the package.
             if (Pip4kode.checkUpdate(pkgname, initial_path)) {
                 IO.printf_err("[Info]: Package '" + pkgname + "' needs an update.\n"
                         + "Do you want to update the package '" + pkgname + "' ? [y/n] ");
@@ -206,12 +281,14 @@ class Kode {
                 }
             }
 
+            // Check w.r.t package directory.
             path = Paths.get(initial_path, name + "." + Kode.EXTENSION).toAbsolutePath();
             if (path.toFile().exists()) {
                 byte[] bytes = Files.readAllBytes(path);
                 return run(path.toFile().getName(), new String(bytes, ENCODING), inter).key;
             }
 
+            // Check w.r.t built-in directory.
             byte[] bytes;
             InputStream file = Kode.class.getResourceAsStream("/" + name + "." + Kode.EXTENSION);
             if (file != null) {
@@ -219,9 +296,11 @@ class Kode {
                 return run(name + "." + Kode.EXTENSION, new String(bytes, ENCODING), inter).key;
             }
 
+            // Not Found.
             IO.printfln_err("[Info]: Library file " + name + "." + Kode.EXTENSION + " not found in your device.");
             throw new Exception();
         } catch (Exception e) {
+            // Download from online reposerity to local system.
             try {
                 Pip4kode pip = new Pip4kode(pkgname);
                 IO.printfln("Reading package metadata from repository ...");
@@ -246,18 +325,38 @@ class Kode {
         }
     }
 
+    /**
+     * This function performs the actual execution of the source code.
+     *
+     * @param fn Source file name.
+     * @param source Actual source code.
+     * @param inter Associated interpreter.
+     * @return A Pair instance whose key is the help text and value is the last
+     * output value generated.
+     * @throws Throwable
+     */
     static Pair<String, Object> run(String fn, String source, Interpreter inter) throws Throwable {
-        List<Token> tokens = new Lexer(fn, source).scanTokens();
+        List<Token> tokens = new Lexer(fn, source).scanTokens(); // Lexical Analysis.
         Parser parser = new Parser(tokens);
-        List<Stmt> statements = parser.parse();
-        new Resolver(inter).resolve(statements);
-        return new Pair<>(parser.doc, inter.interpret(statements));
+        List<Stmt> statements = parser.parse(); // Syntax Analysis.
+        new Resolver(inter).resolve(statements); // Sentimental Analysis.
+        return new Pair<>(parser.doc, inter.interpret(statements)); // Interpretation.
     }
 
+    /**
+     * Utility function to print warning message.
+     *
+     * @param message Message to be printed.
+     */
     static void warning(String message) {
         IO.printfln_err("[Warning]: " + message);
     }
 
+    /**
+     * Utility function to print stack-trace for any error instance.
+     *
+     * @see handleThrowable
+     */
     static void runtimeError(RuntimeError error) {
         error.token.removeIf(a -> a == null);
         Collections.reverse(error.token);
@@ -276,9 +375,18 @@ class Kode {
         IO.printfln_err(error.getMessage());
     }
 
+    /**
+     * Very useful utility function to convert any {@link Object} to
+     * {@link String}.
+     *
+     * @param object The object which needs to be converted.
+     * @return Printable string format of the object.
+     * @see toString
+     * @see repr
+     */
     static String stringify(Object object) {
 
-        // Nil
+        // None
         if (object == null) {
             return "None";
         }
@@ -292,7 +400,6 @@ class Kode {
         }
 
         // Number
-        // Hack. Work around Java adding ".0" to integer-valued doubles.
         if (object instanceof KodeNumber) {
             if (((KodeNumber) object).isInteger()) {
                 return ((KodeNumber) object).getInteger().toString();
@@ -307,12 +414,14 @@ class Kode {
                 if (num.isNaN()) {
                     return Kode.NAN;
                 }
+                return num.toString();
+
+//            -- Not required now --
 //            String format = String.format(Locale.US, "%.10G", num);
 //            format = format
 //                    .replaceFirst("\\.0+(e|$)", "$1")
 //                    .replaceFirst("(\\.[0-9]*[1-9])(0+)(e|$)", "$1$3");
 //            return format;
-                return num.toString();
             }
         }
 
@@ -337,6 +446,16 @@ class Kode {
         return object.toString();
     }
 
+    /**
+     * Very useful utility function similar to {@link stringify}.
+     * The only difference is that it acts differently for certain cases,
+     * and is used for displaying text as auto output of the last result in the Shell.
+     *
+     * @param object The object which needs to be converted.
+     * @return Printable string format of the object.
+     * @see toString
+     * @see stringify
+     */
     private static String repr(Object value) {
         if (value instanceof KodeInstance) {
             if (ValueString.isString((KodeInstance) value)) {
@@ -455,7 +574,7 @@ class Kode {
                 if (Kode.curr_time == null) {
                     throw new RuntimeError("toc() before tic() is not allowed.");
                 }
-                IO.printfln(String.format("Elapsed time is %g seconds.", (System.currentTimeMillis()-Kode.curr_time)/1000.0));
+                IO.printfln(String.format("Elapsed time is %g seconds.", (System.currentTimeMillis() - Kode.curr_time) / 1000.0));
                 return null;
             }));
             DEF_GLOBALS.put("len", new KodeBuiltinFunction("len", INTER, null, 1, args -> {

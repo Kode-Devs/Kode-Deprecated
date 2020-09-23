@@ -26,11 +26,33 @@ import math.KodeNumber;
 import utils.TextUtils;
 
 /**
+ * <B>--- Lexical Analyzer for KODE interpreter ---</B><br>
+ * Lexical Analyzer or in-short Lexer is an algorithm/process which breaks down
+ * high level source code into small parts known as Tokens.
  *
- * @author dell
+ * The default syntax to perform Lexical Analysis is
+ * <code>new Lexer(&lt;fn>&gt;, &lt;scr&gt;).scanTokens()</code> where,
+ * {@literal fn} is the associated file name and {@literal scr} is the source
+ * code snippet.
+ *
+ * @author Arpan Mahanty < edumate696@gmail.com >
+ * @see scanTokens()
+ * @see Lexer(String fn, String scr)
  */
 class Lexer {
 
+    /*
+     *                      --- PROJECT NOTE ---
+     *
+     * AIM -> To build a lexical analyzer for the interpreter, which breaks down
+     * the source code into list of tokens such that each tokens contains fields
+     * denoting its token type, value, corresponding file name and position.
+     *
+     * Note - The structure of this lexer has been derived from jLox
+     * interpreter.
+     *
+     * Author -> Arpan Mahanty < edumate696@gmail.com >
+     */
     private final String source;
     private final List<Token> tokens = new ArrayList<>();
     private int start = 0;
@@ -38,11 +60,9 @@ class Lexer {
     private int line = 1;
     private final String fn;
 
-    private final Map<String, TokenType> KEYWORDS;
+    private static final Map<String, TokenType> KEYWORDS;
 
-    Lexer(String fn, String source) {
-        this.fn = fn;
-        this.source = source;
+    static {
         KEYWORDS = new HashMap<>();
         KEYWORDS.put("and", AND);
         KEYWORDS.put("break", BREAK);
@@ -69,6 +89,19 @@ class Lexer {
         KEYWORDS.put("try", TRY);
         KEYWORDS.put("except", CATCH);
         KEYWORDS.put("raise", RAISE);
+    }
+
+    /**
+     * Creates an instance of the Lexical Analyzer for a specific snippet of
+     * source code.
+     *
+     * @param fn Associated File name.
+     * @param source The snippet of the source code to be converted into
+     * {@link Tokens}.
+     */
+    Lexer(String fn, String source) {
+        this.fn = fn;
+        this.source = source;
     }
 
     private String getLine(int line) {

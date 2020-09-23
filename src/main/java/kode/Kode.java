@@ -44,6 +44,11 @@ import utils.Pip4kode.PipError;
 
 /**
  * Abstract class containing the driver method for KODE interpreter.
+ *
+ * @apiNote This class contains only {@link static} fields and should not be
+ * inherited to a new {@link class}.
+ *
+ * @author Arpan Mahanty < edumate696@gmail.com >
  */
 abstract class Kode {
 
@@ -244,7 +249,7 @@ abstract class Kode {
     }
 
     /**
-     * Utility function to import any file from the package library. It first
+     * Utility function to search and execute any file from the system. It first
      * scans for the file relative to the working directory, then to the package
      * directory and finally in the builtin directory. It also checks for the
      * availability of the package and its update, and hence downloads using
@@ -254,7 +259,9 @@ abstract class Kode {
      * in its installation location for its proper working. Else the
      * download/update feature will not work.
      *
-     * @param name Relative file path as per the import statement.
+     * @param name Relative file path as per the import statement without file
+     * extension. For an example, to search file ./path/to/file.kde from the
+     * system, pass "path/to/file" as {@literal name}.
      * @param inter Associated interpreter.
      * @return The help text associated with the script file which is being
      * imported.
@@ -262,6 +269,17 @@ abstract class Kode {
      * @see run
      */
     static String runLib(String name, Interpreter inter) throws Throwable {
+        /*
+         *                  --- PROJECT NOTE ---
+         *
+         * AIM -> To design a system for searching a specific file from the
+         * system in a layered manner and finally execute it. Also check for
+         * versioning and availability of that file and hence take proper
+         * actions if needed.
+         *
+         * Author -> Arpan Mahanty < edumate696@gmail.com >
+         */
+
         String pkgname = Paths.get(name).getName(0).toString();
         String initial_path = Paths.get(Kode.LIBPATH, pkgname).toAbsolutePath().toString();
         try {
@@ -277,7 +295,7 @@ abstract class Kode {
                 IO.printf_err("[Info]: Package '" + pkgname + "' needs an update.\n"
                         + "Do you want to update the package '" + pkgname + "' ? [y/n] ");
                 if (IO.scanf().equalsIgnoreCase("y")) {
-                    throw new Exception();
+                    throw new Exception(); // Accepted for update
                 }
             }
 
@@ -353,9 +371,12 @@ abstract class Kode {
     }
 
     /**
-     * Utility function to print stack-trace for any error instance.
+     * Utility function to print stack-trace for any Java {@link RuntimeError}
+     * instance.
      *
+     * @param error Instance of Java {@link RuntimeError} class.
      * @see handleThrowable
+     * @see RuntimeError
      */
     static void runtimeError(RuntimeError error) {
         error.token.removeIf(a -> a == null);
@@ -511,7 +532,7 @@ abstract class Kode {
     /**
      * Instance of the module containing the built-in methods and variables.
      */
-    static final KodeModule BUILTIN_MODULE = new KodeModule(Kode.BUILTIN_NAME, Kode.BUILTIN_NAME);
+    static final KodeModule BUILTIN_MODULE = new KodeModule(Kode.BUILTIN_NAME, File.separator + Kode.BUILTIN_NAME);
 
     /**
      * This part contains code snippets needed to initialize the interpreted
@@ -520,8 +541,10 @@ abstract class Kode {
      */
     static {
         try {
+            // LIBPATH variable is initialized with the actual path equivalent to <installation_location>/libs/
             LIBPATH = Paths.get(Paths.get(Kode.class.getProtectionDomain().getCodeSource().getLocation().toURI())
                     .getParent().getParent().toFile().getAbsolutePath(), "libs").toAbsolutePath().toString(); // Get Parent added.
+
             Interpreter INTER = BUILTIN_MODULE.inter;
             Map<String, Object> DEF_GLOBALS = INTER.globals.values;
 

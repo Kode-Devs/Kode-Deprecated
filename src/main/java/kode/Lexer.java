@@ -26,16 +26,16 @@ import math.KodeNumber;
 import utils.TextUtils;
 
 /**
- * <B>--- Lexical Analyzer for KODE interpreter ---</B>
+ * <B><center>--- Lexical Analyzer for KODE interpreter ---</center></B>
  * <p>
  * Lexical Analyzer or in-short Lexer is an algorithm/process which breaks down
  * high level source code into small parts known as Tokens.</p>
  *
  * <p>
- * The default syntax to perform Lexical Analysis is
- * <code>new Lexer(&lt;fn>&gt;, &lt;scr&gt;).scanTokens()</code> where,
- * {@literal fn} is the associated file name and {@literal scr} is the source
- * code snippet.</p>
+ * The default syntax to perform Lexical Analysis is<br>
+ * &nbsp;&nbsp;&nbsp;&nbsp;<code>new Lexer(&lt;fn&gt;, &lt;scr&gt;).scanTokens();
+ * </code><br>where, {@code fn} is the associated file name and
+ * {@code scr} is the source code snippet.</p>
  *
  * @author Arpan Mahanty < edumate696@gmail.com >
  * @see scanTokens()
@@ -90,7 +90,7 @@ class Lexer {
         KEYWORDS.put("var", VAR);
         KEYWORDS.put("while", WHILE);
         KEYWORDS.put("try", TRY);
-        KEYWORDS.put("except", CATCH);
+        KEYWORDS.put("except", EXCEPT);
         KEYWORDS.put("raise", RAISE);
     }
 
@@ -208,12 +208,12 @@ class Lexer {
             // Longer Lexemes
             case '/':
                 if (match('/')) {
-                    // A comment goes until the end of line.
+                    // A single-lined comment goes until the end of line.
                     while (peek() != '\n' && !isAtEnd()) {
                         advance();
                     }
                 } else if (match('*')) {
-                    // A comment goes until the '*' followed by '/'
+                    // A multi-lined comment goes until the '*' followed by '/'
                     while (!isAtEnd()) {
                         if (peek() == '*' && peekNext() == '/') {
                             advance(); // For '*'
@@ -247,13 +247,13 @@ class Lexer {
             case '`':
                 multilineString();
                 break;
-            // Error Handling
             default:
                 if (isDigit(c)) {
                     number();
                 } else if (isAlpha(c)) {
                     identifier();
                 } else {
+                    // Error Handling
                     error(fn, line, "Unexpected character '" + c + "'.");
                 }
                 break;
@@ -519,6 +519,7 @@ class Lexer {
      * @param fn Associated file name.
      * @param line Current line number.
      * @param message Error Message to be display.
+     * @see RuntimeError
      */
     void error(String fn, int line, String message) {
         throw new RuntimeError(message, new Token(EOF, source.substring(start, current), null, line, getLine(line), fn));

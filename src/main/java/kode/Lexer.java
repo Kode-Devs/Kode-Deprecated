@@ -26,14 +26,16 @@ import math.KodeNumber;
 import utils.TextUtils;
 
 /**
- * <B>--- Lexical Analyzer for KODE interpreter ---</B><br>
+ * <B>--- Lexical Analyzer for KODE interpreter ---</B>
+ * <p>
  * Lexical Analyzer or in-short Lexer is an algorithm/process which breaks down
- * high level source code into small parts known as Tokens.
+ * high level source code into small parts known as Tokens.</p>
  *
+ * <p>
  * The default syntax to perform Lexical Analysis is
  * <code>new Lexer(&lt;fn>&gt;, &lt;scr&gt;).scanTokens()</code> where,
  * {@literal fn} is the associated file name and {@literal scr} is the source
- * code snippet.
+ * code snippet.</p>
  *
  * @author Arpan Mahanty < edumate696@gmail.com >
  * @see scanTokens()
@@ -50,8 +52,6 @@ class Lexer {
      *
      * Note - The structure of this lexer has been derived from jLox
      * interpreter.
-     *
-     * Author -> Arpan Mahanty < edumate696@gmail.com >
      */
     private final String source;
     private final List<Token> tokens = new ArrayList<>();
@@ -60,6 +60,9 @@ class Lexer {
     private int line = 1;
     private final String fn;
 
+    /**
+     * Mapping between the keywords and respective {@link TokenType}.
+     */
     private static final Map<String, TokenType> KEYWORDS;
 
     static {
@@ -104,10 +107,21 @@ class Lexer {
         this.source = source;
     }
 
-    private String getLine(int line) {
-        return source.split("\n", -1)[line - 1];
+    /**
+     * Returns the string representing the {@literal n}<sup>th</sup> line from
+     * the source code.
+     */
+    private String getLine(int n) {
+        return source.split("\n", -1)[n - 1];
     }
 
+    /**
+     * Scans the whole source code and finally convert it into {@link Tokens}.
+     *
+     * @return Returns the produced tokens in the form of a {@link List}.
+     * @see Lexer
+     * @see scanToken
+     */
     List<Token> scanTokens() {
         while (!isAtEnd()) {
             // We are at the beginning of the next lexeme.
@@ -118,10 +132,20 @@ class Lexer {
         return tokens;
     }
 
+    /**
+     * Checks weather the whole source code has been scanned i.e., the current
+     * index pointer is at end or not.
+     */
     private boolean isAtEnd() {
         return current >= source.length();
     }
 
+    /**
+     * Scans the next most token available in the source code and throws an
+     * error if the token isn't a valid one.
+     *
+     * @see scanTokens
+     */
     private void scanToken() {
         char c = advance();
         switch (c) {
@@ -236,19 +260,41 @@ class Lexer {
         }
     }
 
+    /**
+     * Increases the current index pointer value by 1.
+     *
+     * @return The character at the current index position before update.
+     */
     private char advance() {
         current++;
         return source.charAt(current - 1);
     }
 
+    /**
+     * Appends a new Token at the end of the result.
+     *
+     * @param type TokenType associated with the new Token.
+     */
     private void addToken(TokenType type) {
         addToken(type, null);
     }
 
+    /**
+     * Appends a new Token at the end of the result.
+     *
+     * @param type TokenType associated with the new Token.
+     * @param literal Value associated with the new Token.
+     */
     private void addToken(TokenType type, Object literal) {
         tokens.add(new Token(type, source.substring(start, current), literal, line, getLine(line), fn));
     }
 
+    /**
+     * Matches the current character with the expected character and finally
+     * consumes it if they form a match.
+     *
+     * @return Returns {@code true} if they form a match else {@code false}
+     */
     private boolean match(char expected) {
         if (isAtEnd()) {
             return false;
@@ -261,6 +307,11 @@ class Lexer {
         return true;
     }
 
+    /**
+     * Returns the current character from the source code without consuming it.
+     * If the current index pointer is at end then it returns null character (
+     * ACSII value 0 ).
+     */
     private char peek() {
         if (isAtEnd()) {
             return '\0';
@@ -268,6 +319,35 @@ class Lexer {
         return source.charAt(current);
     }
 
+    /**
+     * Returns the next character from the source code without consuming it. If
+     * the current index pointer is at last charecter or it has no next
+     * character, then it returns null character ( ACSII value 0 ).
+     */
+    private char peekNext() {
+        if (current + 1 >= source.length()) {
+            return '\0';
+        }
+        return source.charAt(current + 1);
+    }
+
+    /**
+     * <p>
+     * Scans for single-line string literals surrounded by the {@literal quote}
+     * character. Also it checks for unterminated strings and process escape
+     * character sequences.</p>
+     *
+     * <p>
+     * The string can not extend to the next line of source code, for that
+     * please use the bellow provided technique.</p>
+     *
+     * <p>
+     * <code>&nbsp;&nbsp;&nbsp;&nbsp;var str1 = 'This string '<br>
+     * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ 'extends to the next
+     * line.';</code></p>
+     *
+     * @see TextUtils#translateEscapes(java.lang.Object)
+     */
     private void string(char quote) {
         String text = "";
 
@@ -300,6 +380,14 @@ class Lexer {
         addToken(STRING, text);
     }
 
+    /**
+     * Scans for multi-line string literals surrounded by the {@literal `}
+     * character. Also it checks for unterminated strings and process escape
+     * character sequences. The indents used are auto collapsed relatively.
+     *
+     * @see TextUtils#translateEscapes(java.lang.Object)
+     * @see String#stripIndent()
+     */
     @SuppressWarnings("removal")
     private void multilineString() {
         String text = "";
@@ -340,10 +428,11 @@ class Lexer {
         addToken(MLSTRING, text);
     }
 
-    private boolean isDigit(char c) {
-        return c >= '0' && c <= '9';
-    }
-
+    /**
+     * Scans for numeric literals.
+     *
+     * @see isDigit
+     */
     private void number() {
         while (isDigit(peek())) {
             advance();
@@ -374,19 +463,11 @@ class Lexer {
         addToken(NUMBER, KodeNumber.valueOf(source.substring(start, current)));
     }
 
-    private char peekNext() {
-        if (current + 1 >= source.length()) {
-            return '\0';
-        }
-        return source.charAt(current + 1);
-    }
-
-    private boolean isAlpha(char c) {
-        return (c >= 'a' && c <= 'z')
-                || (c >= 'A' && c <= 'Z')
-                || c == '_';
-    }
-
+    /**
+     * Scans for identifiers or keywords.
+     *
+     * @see KEYWORDS
+     */
     private void identifier() {
         while (isAlphaNumeric(peek())) {
             advance();
@@ -402,10 +483,43 @@ class Lexer {
         addToken(type);
     }
 
+    /**
+     * Checks weather the character resembles a single digit or not.
+     */
+    private boolean isDigit(char c) {
+        return c >= '0' && c <= '9';
+    }
+
+    /**
+     * Checks weather the character resembles either an alphabet or a
+     * underscore, or not.
+     */
+    private boolean isAlpha(char c) {
+        return (c >= 'a' && c <= 'z')
+                || (c >= 'A' && c <= 'Z')
+                || c == '_';
+    }
+
+    /**
+     * Checks weather the character resembles either an alphabet or a single
+     * digit or a underscore, or not.
+     *
+     * @see isAlpha
+     * @see isDigit
+     */
     private boolean isAlphaNumeric(char c) {
         return isAlpha(c) || isDigit(c);
     }
 
+    /**
+     * Generates an error instance containing the file name, current line number
+     * and an error message, whenever the lexer finds or encounters an error and
+     * thus is reported to the user.
+     *
+     * @param fn Associated file name.
+     * @param line Current line number.
+     * @param message Error Message to be display.
+     */
     void error(String fn, int line, String message) {
         throw new RuntimeError(message, new Token(EOF, source.substring(start, current), null, line, getLine(line), fn));
     }

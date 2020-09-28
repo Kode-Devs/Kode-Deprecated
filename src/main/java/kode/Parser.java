@@ -1012,7 +1012,7 @@ class Parser {
      * @return The error instance generated.
      * @see RuntimeError
      */
-    Error error(Token token, String message) {
+    private Error error(Token token, String message) {
         return new RuntimeError(message, token);
     }
 }

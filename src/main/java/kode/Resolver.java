@@ -100,6 +100,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         declare(stmt.name);
         define(stmt.name);
 
+        // Sub-class and super-class can not have same name.
         if (stmt.superclass != null && stmt.name.lexeme.equals(stmt.superclass.name.lexeme)) {
             error(stmt.superclass.name,
                     "A class cannot inherit from itself.");
@@ -112,7 +113,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
         if (stmt.superclass != null) {
             beginScope();
-            scopes.peek().put("super", true);
+            scopes.peek().put("super", true); // super needs to be pre-declared inside the scope of the class.
         }
 
         beginScope();
@@ -327,6 +328,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
     @Override
     public Void visitSuperExpr(Expr.Super expr) {
+        // Super can be called inside sub-class only.
         if (currentClass == ClassType.NONE) {
             error(expr.keyword,
                     "Cannot use 'super' outside of a class.");
@@ -390,20 +392,42 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         return null;
     }
 
+    /**
+     * Scans a specific Statement Node representing a single statement.
+     */
     private void resolve(Stmt stmt) {
+        // Calling accept on node executes the necessary function defined in the object passed as parameter.
         stmt.accept(this);
     }
 
+    /**
+     * Scans a specific Expression Node.
+     */
     private void resolve(Expr expr) {
+        // Calling accept on node executes the necessary function defined in the object passed as parameter.
         expr.accept(this);
     }
 
+    /**
+     * Scans through the list of Statement Nodes where each Node represents each
+     * single statement. The resolver starts its execution from this point, when
+     * the root of the AST is passed as the list of statements.
+     *
+     * @param statements List of Statements.
+     * @see Stmt
+     */
     void resolve(List<Stmt> statements) {
         statements.forEach((statement) -> {
             resolve(statement);
         });
     }
 
+    /**
+     * Resolves any type of function.
+     *
+     * @param function Node representing the function, method, or constructor.
+     * @param type Type of the function.
+     */
     private void resolveFunction(Stmt.Function function, FunctionType type) {
         FunctionType enclosingFunction = currentFunction;
         currentFunction = type;
@@ -418,14 +442,26 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         currentFunction = enclosingFunction;
     }
 
+    /**
+     * Begins a new scope.
+     */
     private void beginScope() {
         scopes.push(new HashMap<>());
     }
 
+    /**
+     * Terminates the previous scope.
+     */
     private void endScope() {
         scopes.pop();
     }
 
+    /**
+     * Defines a new variable without initializing it i.e., it represents
+     * variable declaration.
+     *
+     * @param name Variable identifier
+     */
     private void declare(Token name) {
         if (scopes.isEmpty()) {
             // Added to check already defined variable in global scope
@@ -447,6 +483,12 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         scope.put(name.lexeme, false);
     }
 
+    /**
+     * Initializes a already defined variable i.e., it represents variable
+     * initialization.
+     *
+     * @param name Variable identifier
+     */
     private void define(Token name) {
         if (scopes.isEmpty()) {
             return;
@@ -454,6 +496,13 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         scopes.peek().put(name.lexeme, true);
     }
 
+    /**
+     * A very important utility function used to define the scope depth for any
+     * local variable.
+     * 
+     * @param expr Associated expression node required for mapping
+     * @param name Variable identifier
+     */
     private void resolveLocal(Expr expr, Token name) {
         for (int i = scopes.size() - 1; i >= 0; i--) {
             if (scopes.get(i).containsKey(name.lexeme)) {
@@ -465,6 +514,15 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         // Not found. Assume it is global.                   
     }
 
+    /**
+     * Generates an instance of error having a specific message, including a
+     * token as reference.
+     *
+     * @param token A token instance as reference.
+     * @param message Error message describing the error instance.
+     * @return The error instance generated.
+     * @see RuntimeError
+     */
     private void error(Token token, String message) {
         throw new RuntimeError(message, token);
     }

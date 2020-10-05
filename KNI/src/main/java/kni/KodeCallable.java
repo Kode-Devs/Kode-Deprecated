@@ -14,20 +14,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package kode;
+package kni;
 
 /**
  *
  * @author dell
  */
-interface KodeCallable {
+public interface KodeCallable {
     
-    boolean isBind();
+    public boolean isBind();
     
-    int arity();
+    public int arity();
 
-    Object call(Object... arguments);
+    public Object call(Object... arguments);
     
     @Override
-    abstract String toString();
+    public abstract String toString();
 }

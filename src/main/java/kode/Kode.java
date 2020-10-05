@@ -16,6 +16,7 @@
  */
 package kode;
 
+import kni.KodeCallable;
 import utils.IO;
 import java.io.File;
 import java.io.IOException;

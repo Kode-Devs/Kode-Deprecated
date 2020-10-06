@@ -17,17 +17,23 @@
 package kode;
 
 /**
+ * Throwing instance of this class represents that {@code continue} statement
+ * has been called inside an loop.
  *
- * @author dell
+ * @author Arpan Mahanty < edumate696@gmail.com >
  */
 class Continue extends RuntimeException {
 
-    /**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	Continue() {
+    /**
+     * Generates an throwable instance of the {@link Continue} class, representing
+     * {@code continue} statement call.
+     * 
+     * @see Continue
+     * @see Stmt.Continue
+     */
+    Continue() {
         super("Cannot continue from top-level code.", null, false, false);
     }
 }

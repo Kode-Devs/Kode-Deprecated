@@ -1,8 +1,0 @@
-
-fun demo(){
-    native KodeGUI.Driver(temp);
-}
-
-fun temp(){
-    printf('Hello World!\n');
-}

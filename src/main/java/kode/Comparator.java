@@ -21,11 +21,27 @@ import java.util.Objects;
 import math.KodeMath;
 
 /**
+ * Utility class for performing pre-defined comparison operations (i.e., ==, !=,
+ * &lt;, &lt;=, &gt; and &gt;=) on two objects of same/different type.
  *
- * @author dell
+ * @implNote If it fails to perform the operation i.e., it can not find any
+ * pre-defined operation for the types of the object, then it throws an instance
+ * of the {@link NotImplemented} error class.
+ *
+ * @author Arpan Mahanty < edumate696@gmail.com >
  */
 abstract class Comparator {
 
+    /**
+     * Checks for weather {@literal left} object is equal to {@literal right}
+     * object, or not.
+     *
+     * @param left Left Object.
+     * @param right Right Object.
+     * @param interpreter Instance of associated interpreter.
+     * @return Returns either {@code true} or {@code false} based on the
+     * operation to be performed.
+     */
     static boolean eq(Object left, Object right, Interpreter interpreter) {
         Boolean res = null;
         if (left instanceof KodeInstance && right instanceof KodeInstance) {
@@ -67,6 +83,16 @@ abstract class Comparator {
         return res;
     }
 
+    /**
+     * Checks for weather {@literal left} object is not equal to
+     * {@literal right} object, or not.
+     *
+     * @param left Left Object.
+     * @param right Right Object.
+     * @param interpreter Instance of associated interpreter.
+     * @return Returns either {@code true} or {@code false} based on the
+     * operation to be performed.
+     */
     static boolean ne(Object left, Object right, Interpreter interpreter) {
         Boolean res = null;
         if (left instanceof KodeInstance && right instanceof KodeInstance) {
@@ -108,6 +134,16 @@ abstract class Comparator {
         return res;
     }
 
+    /**
+     * Checks for weather {@literal left} object is less than {@literal right}
+     * object, or not.
+     *
+     * @param left Left Object.
+     * @param right Right Object.
+     * @param interpreter Instance of associated interpreter.
+     * @return Returns either {@code true} or {@code false} based on the
+     * operation to be performed.
+     */
     static boolean lt(Object left, Object right, Interpreter interpreter) {
         Boolean res = null;
         if (left instanceof KodeInstance && right instanceof KodeInstance) {
@@ -133,6 +169,16 @@ abstract class Comparator {
         return res;
     }
 
+    /**
+     * Checks for weather {@literal left} object is less than or equal to
+     * {@literal right} object, or not.
+     *
+     * @param left Left Object.
+     * @param right Right Object.
+     * @param interpreter Instance of associated interpreter.
+     * @return Returns either {@code true} or {@code false} based on the
+     * operation to be performed.
+     */
     static boolean le(Object left, Object right, Interpreter interpreter) {
         Boolean res = null;
         if (left instanceof KodeInstance && right instanceof KodeInstance) {
@@ -158,6 +204,16 @@ abstract class Comparator {
         return res;
     }
 
+    /**
+     * Checks for weather {@literal left} object is greater than
+     * {@literal right} object, or not.
+     *
+     * @param left Left Object.
+     * @param right Right Object.
+     * @param interpreter Instance of associated interpreter.
+     * @return Returns either {@code true} or {@code false} based on the
+     * operation to be performed.
+     */
     static boolean gt(Object left, Object right, Interpreter interpreter) {
         Boolean res = null;
         if (left instanceof KodeInstance && right instanceof KodeInstance) {
@@ -183,6 +239,16 @@ abstract class Comparator {
         return res;
     }
 
+    /**
+     * Checks for weather {@literal left} object is greater than or equal to
+     * {@literal right} object, or not.
+     *
+     * @param left Left Object.
+     * @param right Right Object.
+     * @param interpreter Instance of associated interpreter.
+     * @return Returns either {@code true} or {@code false} based on the
+     * operation to be performed.
+     */
     static boolean ge(Object left, Object right, Interpreter interpreter) {
         Boolean res = null;
         if (left instanceof KodeInstance && right instanceof KodeInstance) {
@@ -208,6 +274,17 @@ abstract class Comparator {
         return res;
     }
 
+    /**
+     * This method performs element-wise comparison of two list objects and
+     * finally returns a integer value representing the result.
+     *
+     * @param l1 Left list object.
+     * @param l2 Right list object.
+     * @param interpreter Instance of the associated interpreter.
+     * @return Returns negative integer, zero, or positive integer based on
+     * weather {@literal l1} is less than, equal to, or greater than
+     * {@literal l2} respectively.
+     */
     private static int list_comparator(List<?> l1, List<?> l2, Interpreter interpreter) {
         int lim = Math.min(l1.size(), l2.size());
         for (int k = 0; k < lim; k++) {

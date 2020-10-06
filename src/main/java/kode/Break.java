@@ -17,16 +17,22 @@
 package kode;
 
 /**
+ * Throwing instance of this class represents that {@code break} statement has
+ * been called inside an loop.
  *
- * @author dell
+ * @author Arpan Mahanty < edumate696@gmail.com >
  */
 class Break extends RuntimeException {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 1L;
 
+    /**
+     * Generates an throwable instance of the {@link Break} class, representing
+     * {@code break} statement call.
+     * 
+     * @see Break
+     * @see Stmt.Break
+     */
     Break() {
         super("Cannot break from top-level code.", null, false, false);
     }

@@ -17,17 +17,29 @@
 package kode;
 
 /**
+ * Throwing instance of this class represents that {@code return} statement has
+ * been called inside an loop.
  *
- * @author dell
+ * @author Arpan Mahanty < edumate696@gmail.com >
  */
 class Return extends RuntimeException {
 
+    private static final long serialVersionUID = 1L;
+    
     /**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	final Object value;
+     * Stores the return value.
+     */
+    final Object value;
 
+    /**
+     * Generates an throwable instance of the {@link Return} class, representing
+     * {@code return} statement call.
+     * 
+     * @param value Return value or {@code null} for void return.
+     * 
+     * @see Return
+     * @see Stmt.Return
+     */
     Return(Object value) {
         super(null, null, false, false);
         this.value = value;

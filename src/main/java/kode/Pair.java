@@ -17,33 +17,17 @@
 package kode;
 
 /**
+ * Utility class to pack 2 object in form of a single object
  *
- * @author dell
- * @param <K>
- * @param <V>
+ * @author Arpan Mahanty < edumate696@gmail.com >
  */
-class Pair<K, V> {
+class Pair<T1, T2> implements Cloneable {
 
-    public K key;
-    public V value;
-    TokenType type = null;
+    public T1 item1;
+    public T2 item2;
 
-    Pair(K key, V value) {
-        this.key = key;
-        this.value = value;
+    Pair(T1 item1, T2 value) {
+        this.item1 = item1;
+        this.item2 = value;
     }
-    
-    Pair(K key) {
-        this(key,null);
-    }
-    
-    Pair<K,V> setType(TokenType type){
-        this.type = type;
-        return this;
-    }
-    
-     Pair<K,V> copy(){
-         return new Pair<>(key,value).setType(type);
-     }
-    
 }

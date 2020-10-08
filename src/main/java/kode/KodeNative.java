@@ -28,8 +28,9 @@ import kni.KNI;
 import kni.KodeObject;
 
 /**
+ * This class is used to represent any native function.
  *
- * @author dell
+ * @author Arpan Mahanty < edumate696@gmail.com >
  */
 class KodeNative implements KodeCallable {
 
@@ -37,6 +38,14 @@ class KodeNative implements KodeCallable {
     final String pkg;
     final Interpreter inter;
 
+    /**
+     * Generates a new object representing a callable object associated with
+     * some KNI.
+     *
+     * @param className Name of the class along with the java package name.
+     * @param pkg Library name if mentioned, else {@code null}.
+     * @param inter Associated interpreter.
+     */
     KodeNative(String className, String pkg, Interpreter inter) {
         this.className = className;
         this.pkg = pkg;
@@ -45,19 +54,19 @@ class KodeNative implements KodeCallable {
 
     @Override
     public boolean isBind() {
-        return false;
+        return false; // can not be binded.
     }
 
     @Override
     public int arity() {
-        return -1;
+        return -1; // Can have any 0 or more parameters.
     }
 
     @Override
     public Object call(Object... arguments) {
         try {
             URLClassLoader urlClassLoader = new URLClassLoader(
-                    addToList(this.pkg == null ? Paths.get("shared-lib") : Paths.get(Kode.LIBPATH, this.pkg, "shared-lib")).toArray(new URL[]{}),
+                    KodeNative.addToList(this.pkg == null ? Paths.get("shared-lib") : Paths.get(Kode.LIBPATH, this.pkg, "shared-lib")).toArray(new URL[]{}),
                     Kode.class.getClassLoader());
             @SuppressWarnings("deprecation")
             Object newInstance = urlClassLoader.loadClass(this.className).newInstance();
@@ -86,7 +95,15 @@ class KodeNative implements KodeCallable {
         }
     }
 
-    private List<URL> addToList(Path path) {
+    /**
+     * Static utility method to list out URLs of all .jar files in the directory
+     * denoted by the argument {@literal path}, including URL to the path itself
+     * as the first URL.
+     *
+     * @param path Path to the directory.
+     * @return List of associated URLs.
+     */
+    private static List<URL> addToList(Path path) {
         List<URL> urls = new ArrayList<>();
         try {
             urls.add(path.toUri().toURL());

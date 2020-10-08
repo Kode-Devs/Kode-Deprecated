@@ -19,8 +19,9 @@ package kode;
 import java.util.List;
 
 /**
+ * Abstract class representing all expression nodes.
  *
- * @author dell
+ * @author Arpan Mahanty < edumate696@gmail.com >
  */
 abstract class Expr {
 
@@ -43,7 +44,7 @@ abstract class Expr {
         R visitCallExpr(Call expr);
 
         R visitGetATIndexExpr(GetAtIndex expr);
-        
+
         R visitSetATIndexExpr(SetAtIndex expr);
 
         R visitGetExpr(Get expr);
@@ -61,13 +62,16 @@ abstract class Expr {
         R visitUnaryExpr(Unary expr);
 
         R visitVariableExpr(Variable expr);
-        
+
         R visitArrayExpr(Array expr);
-        
+
         R visitNativeExpr(Native expr);
     }
 
     // Nested Expr clases here...
+    /**
+     * Expression node for assigning a new value to a predefined variable.
+     */
     static class Assign extends Expr {
 
         Assign(Token name, Expr value) {
@@ -84,6 +88,9 @@ abstract class Expr {
         final Expr value;
     }
 
+    /**
+     * Expression node for performing binary operations.
+     */
     static class Binary extends Expr {
 
         Binary(Expr left, Token operator, Expr right) {
@@ -102,6 +109,9 @@ abstract class Expr {
         final Expr right;
     }
 
+    /**
+     * Expression node for performing call operation.
+     */
     static class Call extends Expr {
 
         Call(Expr callee, Token paren, Expr[] arguments) {
@@ -119,11 +129,15 @@ abstract class Expr {
         final Token paren;
         final Expr[] arguments;
     }
-    
+
+    /**
+     * Expression node for retrieving an element present at a specific index in
+     * any data-structure.
+     */
     static class GetAtIndex extends Expr {
 
-        GetAtIndex(Expr array,Expr index, Token paren) {
-            this.array= array;
+        GetAtIndex(Expr array, Expr index, Token paren) {
+            this.array = array;
             this.index = index;
             this.paren = paren;
         }
@@ -135,13 +149,18 @@ abstract class Expr {
 
         final Expr array;
         final Expr index;
-        final Token paren;;
+        final Token paren;
+    ;
+
     }
     
+    /**
+     * Expression node for assigning a new element to a specific index in any data-structure.
+     */
     static class SetAtIndex extends Expr {
 
-        SetAtIndex(Expr array,Expr index,Expr value, Token paren) {
-            this.array= array;
+        SetAtIndex(Expr array, Expr index, Expr value, Token paren) {
+            this.array = array;
             this.index = index;
             this.value = value;
             this.paren = paren;
@@ -155,9 +174,14 @@ abstract class Expr {
         final Expr array;
         final Expr index;
         final Expr value;
-        final Token paren;;
+        final Token paren;
+    ;
+
     }
 
+    /**
+     * Expression node for retrieving a field from any element.
+     */
     static class Get extends Expr {
 
         Get(Expr object, Token name) {
@@ -174,6 +198,9 @@ abstract class Expr {
         final Token name;
     }
 
+    /**
+     * Expression node representing braces.
+     */
     static class Grouping extends Expr {
 
         Grouping(Expr expression) {
@@ -188,6 +215,9 @@ abstract class Expr {
         final Expr expression;
     }
 
+    /**
+     * Expression node for generating a new literal.
+     */
     static class Literal extends Expr {
 
         Literal(Object value) {
@@ -202,6 +232,9 @@ abstract class Expr {
         final Object value;
     }
 
+    /**
+     * Expression node for performing logical operations.
+     */
     static class Logical extends Expr {
 
         Logical(Expr left, Token operator, Expr right) {
@@ -220,6 +253,9 @@ abstract class Expr {
         final Expr right;
     }
 
+    /**
+     * Expression node for assigning a value to a field in any element.
+     */
     static class Set extends Expr {
 
         Set(Expr object, Token name, Expr value) {
@@ -238,6 +274,10 @@ abstract class Expr {
         final Expr value;
     }
 
+    /**
+     * Expression node for retrieving a specific field from the super class of
+     * an class.
+     */
     static class Super extends Expr {
 
         Super(Token keyword, Token method) {
@@ -254,6 +294,9 @@ abstract class Expr {
         final Token method;
     }
 
+    /**
+     * Expression node for performing unary operations.
+     */
     static class Unary extends Expr {
 
         Unary(Token operator, Expr right) {
@@ -270,6 +313,9 @@ abstract class Expr {
         final Expr right;
     }
 
+    /**
+     * Expression node for retrieving the value stored in a variable.
+     */
     static class Variable extends Expr {
 
         Variable(Token name) {
@@ -283,10 +329,13 @@ abstract class Expr {
 
         final Token name;
     }
-    
+
+    /**
+     * Expression node for generating a new array.
+     */
     static class Array extends Expr {
 
-        Array(Token paren,List<Expr> array) {
+        Array(Token paren, List<Expr> array) {
             this.paren = paren;
             this.array = array;
         }
@@ -299,10 +348,13 @@ abstract class Expr {
         final Token paren;
         final List<Expr> array;
     }
-    
+
+    /**
+     * Expression node for performing native call to Java.
+     */
     static class Native extends Expr {
 
-        Native(Token nav,List<Token> path, String pkg) {
+        Native(Token nav, List<Token> path, String pkg) {
             this.nav = nav;
             this.path = path;
             this.pkg = pkg;

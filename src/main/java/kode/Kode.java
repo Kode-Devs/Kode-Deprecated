@@ -107,8 +107,8 @@ abstract class Kode {
                     try {
                         IO.printf(">>> ");
                         Pair<String, Object> run = run("<shell>", IO.scanf(), interpreter);
-                        if (run.value != null) {
-                            IO.printfln(Kode.repr(run.value));
+                        if (run.item2 != null) {
+                            IO.printfln(Kode.repr(run.item2));
                         }
                     } catch (Throwable e) {
                         handleThrowable(e);
@@ -288,7 +288,7 @@ abstract class Kode {
             Path path = Paths.get("./", name + "." + Kode.EXTENSION).toAbsolutePath();
             if (path.toFile().exists()) {
                 byte[] bytes = Files.readAllBytes(path);
-                return run(path.toFile().getName(), new String(bytes, ENCODING), inter).key;
+                return run(path.toFile().getName(), new String(bytes, ENCODING), inter).item1;
             }
 
             // Check for avialibility of update for the package.
@@ -304,7 +304,7 @@ abstract class Kode {
             path = Paths.get(initial_path, name + "." + Kode.EXTENSION).toAbsolutePath();
             if (path.toFile().exists()) {
                 byte[] bytes = Files.readAllBytes(path);
-                return run(path.toFile().getName(), new String(bytes, ENCODING), inter).key;
+                return run(path.toFile().getName(), new String(bytes, ENCODING), inter).item1;
             }
 
             // Check w.r.t built-in directory.
@@ -312,7 +312,7 @@ abstract class Kode {
             InputStream file = Kode.class.getResourceAsStream("/" + name + "." + Kode.EXTENSION);
             if (file != null) {
                 bytes = file.readAllBytes();
-                return run(name + "." + Kode.EXTENSION, new String(bytes, ENCODING), inter).key;
+                return run(name + "." + Kode.EXTENSION, new String(bytes, ENCODING), inter).item1;
             }
 
             // Not Found.
@@ -350,8 +350,8 @@ abstract class Kode {
      * @param fn Source file name.
      * @param source Actual source code.
      * @param inter Associated interpreter.
-     * @return A Pair instance whose key is the help text and value is the last
-     * output value generated.
+     * @return A Pair instance whose item1 is the help text and item2 is the last
+ output item2 generated.
      * @throws Throwable
      */
     static Pair<String, Object> run(String fn, String source, Interpreter inter) throws Throwable {
@@ -752,7 +752,7 @@ abstract class Kode {
                 if (src instanceof KodeInstance) {
                     if (ValueString.isString((KodeInstance) src)) {
                         try {
-                            return Kode.run("<eval>", ValueString.toStr(src), new Interpreter()).value;
+                            return Kode.run("<eval>", ValueString.toStr(src), new Interpreter()).item2;
                         } catch (RuntimeError ex) {
                             throw ex;
                         } catch (Throwable ex) {

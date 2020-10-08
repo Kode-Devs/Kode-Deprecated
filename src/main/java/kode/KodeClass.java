@@ -25,11 +25,16 @@ import java.util.Map;
 import math.KodeMath;
 
 /**
+ * This class is used to represent any non-builtin class definition.
  *
- * @author dell
+ * @author Arpan Mahanty < edumate696@gmail.com >
  */
 class KodeClass implements KodeCallable {
 
+    /**
+     * Doc-string or help text associated with the function, or {@code null} for
+     * missing documentation.
+     */
     String __doc__ = null;
 
     final String class_name;
@@ -37,49 +42,60 @@ class KodeClass implements KodeCallable {
     Map<String, KodeFunction> methods;
     final Interpreter interpreter;
 
+    /**
+     * Map containing names and declaration of all predefined methods for any
+     * class.
+     */
+    Map<String, KodeFunction> specialMethods;
+
+    /**
+     * Generates a new non-builtin class definition.
+     *
+     * @param name Name of the class.
+     * @param superclass Reference to the super-class definition if present, or
+     * {@code null}.
+     * @param methods A map consisting all method names and its definitions,
+     * declared within the class definition.
+     * @param interpreter Associated interpreter reference.
+     */
     KodeClass(String name, KodeClass superclass, Map<String, KodeFunction> methods, Interpreter interpreter) {
         this.superclass = superclass;
         this.class_name = name;
         this.methods = methods;
         this.interpreter = interpreter;
-    }
 
-    @Override
-    public boolean isBind() {
-        return true;
-    }
+        // Definations for predefined methods.
+        this.specialMethods = new HashMap<>();
 
-    private Map<String, KodeFunction> specialMethods() {
-        Map<String, KodeFunction> sm = new HashMap<>();
         //<editor-fold defaultstate="collapsed" desc="init">
-        sm.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, interpreter, null, 1, arg -> {
+        specialMethods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, interpreter, null, 1, arg -> {
             return arg[0];
         }));
 //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="str">
-        sm.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, interpreter, null, 1, arg -> {
+        specialMethods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, interpreter, null, 1, arg -> {
             return "<object of '" + class_name + "'>"; //BUG
         }));
         //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="number">
-        sm.put(Kode.NUMBER, new KodeBuiltinFunction(Kode.NUMBER, interpreter, null, 1, args -> {
+        specialMethods.put(Kode.NUMBER, new KodeBuiltinFunction(Kode.NUMBER, interpreter, null, 1, args -> {
             throw new NotImplemented();
         }));
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="list">
-        sm.put(Kode.LIST, new KodeBuiltinFunction(Kode.LIST, interpreter, null, 1, args -> {
+        specialMethods.put(Kode.LIST, new KodeBuiltinFunction(Kode.LIST, interpreter, null, 1, args -> {
             throw new NotImplemented();
         }));
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="bool">
-        sm.put(Kode.BOOLEAN, new KodeBuiltinFunction(Kode.BOOLEAN, interpreter, null, 1, args -> {
+        specialMethods.put(Kode.BOOLEAN, new KodeBuiltinFunction(Kode.BOOLEAN, interpreter, null, 1, args -> {
             return interpreter.toKodeValue(Interpreter.isTruthy(true));
         }));
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="neg">
-        sm.put(Kode.NEG, new KodeBuiltinFunction(Kode.NEG, interpreter, null, 1, args -> {
+        specialMethods.put(Kode.NEG, new KodeBuiltinFunction(Kode.NEG, interpreter, null, 1, args -> {
             Object This = args[0];
             if (This instanceof KodeInstance) {
                 if (ValueBool.isBool((KodeInstance) This)) {
@@ -93,7 +109,7 @@ class KodeClass implements KodeCallable {
         }));
         //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="pos">
-        sm.put(Kode.POS, new KodeBuiltinFunction(Kode.POS, interpreter, null, 1, args -> {
+        specialMethods.put(Kode.POS, new KodeBuiltinFunction(Kode.POS, interpreter, null, 1, args -> {
             Object This = args[0];
             if (This instanceof KodeInstance) {
                 if (ValueBool.isBool((KodeInstance) This)) {
@@ -107,7 +123,7 @@ class KodeClass implements KodeCallable {
         }));
         //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="getItem">
-        sm.put(Kode.GET_ITEM, new KodeBuiltinFunction(Kode.GET_ITEM, interpreter, null, 2, args -> {
+        specialMethods.put(Kode.GET_ITEM, new KodeBuiltinFunction(Kode.GET_ITEM, interpreter, null, 2, args -> {
             Object This = args[0];
             Object index = args[1];
             if (This instanceof KodeInstance && index instanceof KodeInstance) {
@@ -140,7 +156,7 @@ class KodeClass implements KodeCallable {
         }));
         //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="setItem">
-        sm.put(Kode.SET_ITEM, new KodeBuiltinFunction(Kode.SET_ITEM, interpreter, null, 3, args -> {
+        specialMethods.put(Kode.SET_ITEM, new KodeBuiltinFunction(Kode.SET_ITEM, interpreter, null, 3, args -> {
             Object This = args[0];
             Object index = args[1];
             if (This instanceof KodeInstance && index instanceof KodeInstance) {
@@ -167,7 +183,7 @@ class KodeClass implements KodeCallable {
         }));
         //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="len">
-        sm.put(Kode.LEN, new KodeBuiltinFunction(Kode.LEN, interpreter, null, 1, args -> {
+        specialMethods.put(Kode.LEN, new KodeBuiltinFunction(Kode.LEN, interpreter, null, 1, args -> {
             Object This = args[0];
             if (This instanceof KodeInstance) {
                 if (ValueString.isString((KodeInstance) This)) {
@@ -182,7 +198,7 @@ class KodeClass implements KodeCallable {
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="add">
-        sm.put(Kode.ADD, new KodeBuiltinFunction(Kode.ADD, interpreter, null, 2, args -> {
+        specialMethods.put(Kode.ADD, new KodeBuiltinFunction(Kode.ADD, interpreter, null, 2, args -> {
             Object left = args[0];
             Object right = args[1];
             if (left instanceof KodeInstance && right instanceof KodeInstance) {
@@ -207,12 +223,12 @@ class KodeClass implements KodeCallable {
             }
             throw new NotImplemented();
         }));
-        sm.put(Kode.RADD, new KodeBuiltinFunction(Kode.RADD, interpreter, null, 2, args -> {
+        specialMethods.put(Kode.RADD, new KodeBuiltinFunction(Kode.RADD, interpreter, null, 2, args -> {
             return findMethod(Kode.ADD).call(args[1], args[0]);
         }));
         //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="sub">
-        sm.put(Kode.SUB, new KodeBuiltinFunction(Kode.SUB, interpreter, null, 2, args -> {
+        specialMethods.put(Kode.SUB, new KodeBuiltinFunction(Kode.SUB, interpreter, null, 2, args -> {
             Object left = args[0];
             Object right = args[1];
             if (left instanceof KodeInstance && right instanceof KodeInstance) {
@@ -228,12 +244,12 @@ class KodeClass implements KodeCallable {
             }
             throw new NotImplemented();
         }));
-        sm.put(Kode.RSUB, new KodeBuiltinFunction(Kode.RSUB, interpreter, null, 2, args -> {
+        specialMethods.put(Kode.RSUB, new KodeBuiltinFunction(Kode.RSUB, interpreter, null, 2, args -> {
             return findMethod(Kode.SUB).call(args[1], args[0]);
         }));
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="mul">
-        sm.put(Kode.MUL, new KodeBuiltinFunction(Kode.MUL, interpreter, null, 2, args -> {
+        specialMethods.put(Kode.MUL, new KodeBuiltinFunction(Kode.MUL, interpreter, null, 2, args -> {
             Object left = args[0];
             Object right = args[1];
             if (left instanceof KodeInstance && right instanceof KodeInstance) {
@@ -293,12 +309,12 @@ class KodeClass implements KodeCallable {
             }
             throw new NotImplemented();
         }));
-        sm.put(Kode.RMUL, new KodeBuiltinFunction(Kode.RMUL, interpreter, null, 2, args -> {
+        specialMethods.put(Kode.RMUL, new KodeBuiltinFunction(Kode.RMUL, interpreter, null, 2, args -> {
             return findMethod(Kode.MUL).call(args[1], args[0]);
         }));
         //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="true_div">
-        sm.put(Kode.TRUE_DIV, new KodeBuiltinFunction(Kode.TRUE_DIV, interpreter, null, 2, args -> {
+        specialMethods.put(Kode.TRUE_DIV, new KodeBuiltinFunction(Kode.TRUE_DIV, interpreter, null, 2, args -> {
             Object left = args[0];
             Object right = args[1];
             if (left instanceof KodeInstance && right instanceof KodeInstance) {
@@ -318,12 +334,12 @@ class KodeClass implements KodeCallable {
             }
             throw new NotImplemented();
         }));
-        sm.put(Kode.RTRUE_DIV, new KodeBuiltinFunction(Kode.RTRUE_DIV, interpreter, null, 2, args -> {
+        specialMethods.put(Kode.RTRUE_DIV, new KodeBuiltinFunction(Kode.RTRUE_DIV, interpreter, null, 2, args -> {
             return findMethod(Kode.TRUE_DIV).call(args[1], args[0]);
         }));
         //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="floor_div">
-        sm.put(Kode.FLOOR_DIV, new KodeBuiltinFunction(Kode.FLOOR_DIV, interpreter, null, 2, args -> {
+        specialMethods.put(Kode.FLOOR_DIV, new KodeBuiltinFunction(Kode.FLOOR_DIV, interpreter, null, 2, args -> {
             Object left = args[0];
             Object right = args[1];
             if (left instanceof KodeInstance && right instanceof KodeInstance) {
@@ -343,12 +359,12 @@ class KodeClass implements KodeCallable {
             }
             throw new NotImplemented();
         }));
-        sm.put(Kode.RFLOOR_DIV, new KodeBuiltinFunction(Kode.RFLOOR_DIV, interpreter, null, 2, args -> {
+        specialMethods.put(Kode.RFLOOR_DIV, new KodeBuiltinFunction(Kode.RFLOOR_DIV, interpreter, null, 2, args -> {
             return findMethod(Kode.FLOOR_DIV).call(args[1], args[0]);
         }));
         //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="mod">
-        sm.put(Kode.MOD, new KodeBuiltinFunction(Kode.MOD, interpreter, null, 2, args -> {
+        specialMethods.put(Kode.MOD, new KodeBuiltinFunction(Kode.MOD, interpreter, null, 2, args -> {
             Object left = args[0];
             Object right = args[1];
             if (left instanceof KodeInstance && right instanceof KodeInstance) {
@@ -368,12 +384,12 @@ class KodeClass implements KodeCallable {
             }
             throw new NotImplemented();
         }));
-        sm.put(Kode.RMOD, new KodeBuiltinFunction(Kode.RMOD, interpreter, null, 2, args -> {
+        specialMethods.put(Kode.RMOD, new KodeBuiltinFunction(Kode.RMOD, interpreter, null, 2, args -> {
             return findMethod(Kode.MOD).call(args[1], args[0]);
         }));
         //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="pow">
-        sm.put(Kode.POWER, new KodeBuiltinFunction(Kode.POWER, interpreter, null, 2, args -> {
+        specialMethods.put(Kode.POWER, new KodeBuiltinFunction(Kode.POWER, interpreter, null, 2, args -> {
             Object left = args[0];
             Object right = args[1];
             if (left instanceof KodeInstance && right instanceof KodeInstance) {
@@ -393,12 +409,12 @@ class KodeClass implements KodeCallable {
             }
             throw new NotImplemented();
         }));
-        sm.put(Kode.RPOWER, new KodeBuiltinFunction(Kode.RPOWER, interpreter, null, 2, args -> {
+        specialMethods.put(Kode.RPOWER, new KodeBuiltinFunction(Kode.RPOWER, interpreter, null, 2, args -> {
             return findMethod(Kode.POWER).call(args[1], args[0]);
         }));
         //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="lshift">
-        sm.put(Kode.LSHIFT, new KodeBuiltinFunction(Kode.LSHIFT, interpreter, null, 2, args -> {
+        specialMethods.put(Kode.LSHIFT, new KodeBuiltinFunction(Kode.LSHIFT, interpreter, null, 2, args -> {
             Object left = args[0];
             Object right = args[1];
             if (left instanceof KodeInstance && right instanceof KodeInstance) {
@@ -418,12 +434,12 @@ class KodeClass implements KodeCallable {
             }
             throw new NotImplemented();
         }));
-        sm.put(Kode.RLSHIFT, new KodeBuiltinFunction(Kode.RLSHIFT, interpreter, null, 2, args -> {
+        specialMethods.put(Kode.RLSHIFT, new KodeBuiltinFunction(Kode.RLSHIFT, interpreter, null, 2, args -> {
             return findMethod(Kode.LSHIFT).call(args[1], args[0]);
         }));
         //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="rshift">
-        sm.put(Kode.RSHIFT, new KodeBuiltinFunction(Kode.RSHIFT, interpreter, null, 2, args -> {
+        specialMethods.put(Kode.RSHIFT, new KodeBuiltinFunction(Kode.RSHIFT, interpreter, null, 2, args -> {
             Object left = args[0];
             Object right = args[1];
             if (left instanceof KodeInstance && right instanceof KodeInstance) {
@@ -443,46 +459,54 @@ class KodeClass implements KodeCallable {
             }
             throw new NotImplemented();
         }));
-        sm.put(Kode.RRSHIFT, new KodeBuiltinFunction(Kode.RRSHIFT, interpreter, null, 2, args -> {
+        specialMethods.put(Kode.RRSHIFT, new KodeBuiltinFunction(Kode.RRSHIFT, interpreter, null, 2, args -> {
             return findMethod(Kode.RSHIFT).call(args[1], args[0]);
         }));
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="eq">
-        sm.put(Kode.EQ, new KodeBuiltinFunction(Kode.EQ, interpreter, null, 2, args -> {
+        specialMethods.put(Kode.EQ, new KodeBuiltinFunction(Kode.EQ, interpreter, null, 2, args -> {
             return interpreter.toKodeValue(Comparator.eq(args[0], args[1], interpreter));
         }));
         //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="ne">
-        sm.put(Kode.NE, new KodeBuiltinFunction(Kode.NE, interpreter, null, 2, args -> {
+        specialMethods.put(Kode.NE, new KodeBuiltinFunction(Kode.NE, interpreter, null, 2, args -> {
             return interpreter.toKodeValue(Comparator.ne(args[0], args[1], interpreter));
         }));
         //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="lt">
-        sm.put(Kode.LT, new KodeBuiltinFunction(Kode.LT, interpreter, null, 2, args -> {
+        specialMethods.put(Kode.LT, new KodeBuiltinFunction(Kode.LT, interpreter, null, 2, args -> {
             return interpreter.toKodeValue(Comparator.lt(args[0], args[1], interpreter));
         }));
         //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="le">
-        sm.put(Kode.LE, new KodeBuiltinFunction(Kode.LE, interpreter, null, 2, args -> {
+        specialMethods.put(Kode.LE, new KodeBuiltinFunction(Kode.LE, interpreter, null, 2, args -> {
             return interpreter.toKodeValue(Comparator.le(args[0], args[1], interpreter));
         }));
         //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="gt">
-        sm.put(Kode.GT, new KodeBuiltinFunction(Kode.GT, interpreter, null, 2, args -> {
+        specialMethods.put(Kode.GT, new KodeBuiltinFunction(Kode.GT, interpreter, null, 2, args -> {
             return interpreter.toKodeValue(Comparator.gt(args[0], args[1], interpreter));
         }));
         //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="ge">
-        sm.put(Kode.GE, new KodeBuiltinFunction(Kode.GE, interpreter, null, 2, args -> {
+        specialMethods.put(Kode.GE, new KodeBuiltinFunction(Kode.GE, interpreter, null, 2, args -> {
             return interpreter.toKodeValue(Comparator.ge(args[0], args[1], interpreter));
         }));
         //</editor-fold>
-        return sm;
     }
 
-    Map<String, KodeFunction> specialMethods = specialMethods();
+    @Override
+    public boolean isBind() {
+        return true; // A class whenever called gets binded with a new object by default.
+    }
 
+    /**
+     * Retrieves a method definition by using its name from a class object.
+     *
+     * @param name Name of the method.
+     * @return Returns the associated method definition.
+     */
     KodeFunction findMethod(String name) {
         if (methods.containsKey(name)) {
             return methods.get(name);
@@ -506,23 +530,29 @@ class KodeClass implements KodeCallable {
 
     @Override
     public Object call(Object... arguments) {
+        // Genaration of new Instance
         KodeInstance instance = new KodeInstance(this);
-        KodeClass klass = this.superclass;
+
+        // Constructor Validation Call
         ArrayList asList = new ArrayList(Arrays.asList(arguments));
         asList.add(0, this);
         asList.add(1, instance);
-        while (klass != null) {
+        for (KodeClass klass = this.superclass; klass != null; klass = klass.superclass) {
             if (klass.methods.containsKey(Kode.INIT_SUBCLASS)) {
                 klass.methods.get(Kode.INIT_SUBCLASS).call(asList.toArray());
             }
-            klass = klass.superclass;
         }
+
+        // Constructor Call
         this.findMethod(Kode.INIT).bind(instance).call(arguments);
+
+        // Return the new generated instance of the class
         return instance;
     }
 
     @Override
     public int arity() {
+        // Same as of its constructor.
         KodeFunction initializer = findMethod(Kode.INIT);
         if (initializer == null) {
             return 0;

@@ -19,10 +19,21 @@ package kode;
 import java.util.List;
 
 /**
+ * Abstract class representing all statement nodes.
  *
- * @author dell
+ * @author Arpan Mahanty < edumate696@gmail.com >
  */
 abstract class Stmt {
+
+    @Override
+    public int hashCode() {
+        return super.hashCode(); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return super.equals(obj); //To change body of generated methods, choose Tools | Templates.
+    }
 
     interface Visitor<R> {
 
@@ -58,6 +69,10 @@ abstract class Stmt {
     }
 
     // Nested Stmt classes here...
+    /**
+     * Statement node representing a block of statements surrounded by curly
+     * braces.
+     */
     static class Block extends Stmt {
 
         Block(List<Stmt> statements) {
@@ -72,6 +87,9 @@ abstract class Stmt {
         final List<Stmt> statements;
     }
 
+    /**
+     * Statement node for declaring a new class.
+     */
     static class Class extends Stmt {
 
         Class(Token name, Expr.Variable superclass, List<Stmt.Function> methods, String doc) {
@@ -92,6 +110,9 @@ abstract class Stmt {
         final String doc;
     }
 
+    /**
+     * Statement node representing a statement containing only one expression.
+     */
     static class Expression extends Stmt {
 
         Expression(Expr expression) {
@@ -106,6 +127,9 @@ abstract class Stmt {
         final Expr expression;
     }
 
+    /**
+     * Statement node for declaring a new function.
+     */
     static class Function extends Stmt {
 
         Function(Token name, Token[] params, List<Stmt> body, String doc) {
@@ -126,6 +150,9 @@ abstract class Stmt {
         final String doc;
     }
 
+    /**
+     * Statement node representing if-else block.
+     */
     static class If extends Stmt {
 
         If(Expr condition, Stmt thenBranch, Stmt elseBranch) {
@@ -144,6 +171,9 @@ abstract class Stmt {
         final Stmt elseBranch;
     }
 
+    /**
+     * Statement node representing try block.
+     */
     static class Require extends Stmt {
 
         Require(Token imp, List<Token> dir, Token alias, List<Token> methods) {
@@ -164,6 +194,9 @@ abstract class Stmt {
         final List<Token> methods;
     }
 
+    /**
+     * Statement node to raise an error instance.
+     */
     static class Raise extends Stmt {
 
         Raise(Token keyword, Expr value) {
@@ -180,6 +213,9 @@ abstract class Stmt {
         final Expr value;
     }
 
+    /**
+     * Statement node representing a single-valued return statement, inside a function.
+     */
     static class Return extends Stmt {
 
         Return(Token keyword, Expr value) {
@@ -196,6 +232,9 @@ abstract class Stmt {
         final Expr value;
     }
 
+    /**
+     * Statement node representing a break statement, inside a loop.
+     */
     static class Break extends Stmt {
 
         Break(Token keyword) {
@@ -210,6 +249,9 @@ abstract class Stmt {
         final Token keyword;
     }
 
+    /**
+     * Statement node representing a continue statement, inside a loop.
+     */
     static class Continue extends Stmt {
 
         Continue(Token keyword) {
@@ -224,6 +266,9 @@ abstract class Stmt {
         final Token keyword;
     }
 
+    /**
+     * Statement node to declare a new variable with/without a initial value.
+     */
     static class Var extends Stmt {
 
         Var(List<Token> name, List<Expr> initial) {
@@ -240,6 +285,9 @@ abstract class Stmt {
         final List<Expr> initial;
     }
 
+    /**
+     * Statement node representing while loop.
+     */
     static class While extends Stmt {
 
         While(Expr condition, Stmt body) {
@@ -256,6 +304,9 @@ abstract class Stmt {
         final Stmt body;
     }
 
+    /**
+     * Statement node representing for loop.
+     */
     static class For extends Stmt {
 
         For(Stmt init, Expr condition, Stmt increment, Stmt body) {
@@ -276,6 +327,9 @@ abstract class Stmt {
         final Stmt body;
     }
 
+    /**
+     * Statement node representing try block.
+     */
     static class Try extends Stmt {
 
         Try(List<Stmt> tryStmt, List<Stmt.Catch> catchs) {
@@ -292,6 +346,9 @@ abstract class Stmt {
         final List<Stmt.Catch> catchs;
     }
 
+    /**
+     * Statement node representing except block.
+     */
     static class Catch extends Stmt {
 
         Catch(Expr.Variable ErrorType, Token alias, List<Stmt> catchStmt) {

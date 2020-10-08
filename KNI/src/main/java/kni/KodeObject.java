@@ -11,10 +11,11 @@ package kni;
  * @author dell
  */
 public final class KodeObject {
-    private Object data;
-    private boolean isnative = false;
+    private final Object data;
+    private boolean isnative;
     
     public KodeObject(Object data){
+        this.isnative = false;
         this.data = data;
     }
     

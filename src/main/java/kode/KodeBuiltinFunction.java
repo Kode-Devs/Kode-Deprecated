@@ -20,8 +20,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
+ * This class is used to represent any builtin function/method, and thus used to
+ * define them.
  *
- * @author dell
+ * @author Arpan Mahanty < edumate696@gmail.com >
  */
 final class KodeBuiltinFunction extends KodeFunction {
 
@@ -29,6 +31,17 @@ final class KodeBuiltinFunction extends KodeFunction {
     private final int arity;
     private final VarArgFunction<Object, Object> call;
 
+    /**
+     * Generates a new builtin function/method/constructor object.
+     *
+     * @param name Name of the function.
+     * @param inter Associated interpreter reference.
+     * @param doc Doc-string or help text associated with the function, or
+     * {@code null} for missing documentation.
+     * @param arity Arity of the function.
+     * @param call A lambda method defining the actual work of the function or
+     * the body of the function written in Java.
+     */
     KodeBuiltinFunction(String name, Interpreter inter, String doc, int arity, VarArgFunction<Object, Object> call) {
         super(null, null, inter, false);
         this.fun_name = name;
@@ -66,6 +79,13 @@ final class KodeBuiltinFunction extends KodeFunction {
         return this.call.apply(arguments);
     }
 
+    /**
+     * Functional Interface for function with variable parameter input and one
+     * output.
+     *
+     * @param <R> Return data type.
+     * @param <T> Parameter data type.
+     */
     @FunctionalInterface
     interface VarArgFunction<R, T> {
 

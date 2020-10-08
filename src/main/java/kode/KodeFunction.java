@@ -22,11 +22,16 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
+ * This class is used to represent any non-builtin function/method.
  *
- * @author dell
+ * @author Arpan Mahanty < edumate696@gmail.com >
  */
 class KodeFunction implements KodeCallable {
 
+    /**
+     * Doc-string or help text associated with the function, or {@code null} for
+     * missing documentation.
+     */
     String __doc__ = null;
 
     final Stmt.Function declaration;
@@ -35,6 +40,16 @@ class KodeFunction implements KodeCallable {
     Interpreter interpreter;
     KodeInstance instance;
 
+    /**
+     * Generates a new non-builtin function/method/constructor object.
+     *
+     * @param declaration Actual declaration of the function i.e., the function
+     * node from the AST.
+     * @param closure Associated Symbol table.
+     * @param inter Associated interpreter.
+     * @param isInitializer {@link boolean} value representing weather this
+     * function is a constructor of an class or not.
+     */
     KodeFunction(Stmt.Function declaration, Environment closure, Interpreter inter, boolean isInitializer) {
         this.instance = null;
         this.isInitializer = isInitializer;
@@ -48,6 +63,13 @@ class KodeFunction implements KodeCallable {
         return this.instance != null;
     }
 
+    /**
+     * Associates an object with the method call for non-static methods.
+     *
+     * @param instance Reference to the object, needs to be associated.
+     * @return Returns a new function object referencing the associated
+     * instance.
+     */
     KodeFunction bind(KodeInstance instance) {
         KodeFunction bind = new KodeFunction(declaration, new Environment(closure), interpreter, isInitializer);
         bind.instance = instance;

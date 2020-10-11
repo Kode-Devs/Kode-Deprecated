@@ -16,10 +16,11 @@
     </properties>
     <name>Kode Native Interface</name>
     <distributionManagement>
+        <!-- Repository for KODE -->
         <repository>
-            <id>github</id>
-            <name>GitHub Kode-Devs Apache Maven Packages</name>
-            <url>https://maven.pkg.github.com/Kode-Devs</url>
+            <id>mvn-repo</id>
+            <name>Maven Repository - Kode Devs</name>
+            <url>file://${user.home}/mvn-repo</url>
         </repository>
     </distributionManagement>
 </project>

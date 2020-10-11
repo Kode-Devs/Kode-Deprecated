@@ -350,8 +350,8 @@ abstract class Kode {
      * @param fn Source file name.
      * @param source Actual source code.
      * @param inter Associated interpreter.
-     * @return A Pair instance whose item1 is the help text and item2 is the last
- output item2 generated.
+     * @return A Pair instance whose item1 is the help text and item2 is the
+     * last output item2 generated.
      * @throws Throwable
      */
     static Pair<String, Object> run(String fn, String source, Interpreter inter) throws Throwable {
@@ -533,7 +533,7 @@ abstract class Kode {
     /**
      * Instance of the module containing the built-in methods and variables.
      */
-    static final KodeModule BUILTIN_MODULE = new KodeModule(Kode.BUILTIN_NAME, File.separator + Kode.BUILTIN_NAME);
+    static final KodeModule BUILTIN_MODULE = new KodeModule(Kode.BUILTIN_NAME, Kode.BUILTIN_NAME);
 
     /**
      * This part contains code snippets needed to initialize the interpreted

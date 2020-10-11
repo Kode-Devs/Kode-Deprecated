@@ -10,28 +10,46 @@
         <url>https://github.com/Kode-Devs</url>
     </organization>
     <dependencies>
+        <!-- Jansi -->
         <dependency>
             <groupId>org.fusesource.jansi</groupId>
             <artifactId>jansi</artifactId>
             <version>1.18</version>
         </dependency>
+        
+        <!-- J-Git -->
         <dependency>
             <groupId>org.eclipse.jgit</groupId>
             <artifactId>org.eclipse.jgit</artifactId>
             <version>5.8.1.202007141445-r</version>
         </dependency>
+        
+        <!-- KODE Native Interface -->
         <dependency>
             <groupId>org.kodeDevs</groupId>
             <artifactId>KNI</artifactId>
             <version>latest</version>
         </dependency>
     </dependencies>
+    <repositories>
+        <!-- Repository for KODE -->
+        <repository>
+            <id>kode-mvn-repo</id>
+            <name>Kode Maven Repository</name>
+            <url>https://raw.githubusercontent.com/Kode-Devs/mvn-repo/master/</url>
+        </repository>
+    </repositories>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>13</maven.compiler.source>
         <maven.compiler.target>13</maven.compiler.target>
     </properties>
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

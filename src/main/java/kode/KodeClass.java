@@ -502,7 +502,7 @@ class KodeClass implements KodeCallable {
     }
 
     /**
-     * Retrieves a method definition by using its name from a class object.
+     * Retrieves a method definition by using its name from a class or its object.
      *
      * @param name Name of the method.
      * @return Returns the associated method definition.

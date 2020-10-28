@@ -20,18 +20,46 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * This class is used to represent an instance of an class.
  *
- * @author dell
+ * @author Arpan Mahanty < edumate696@gmail.com >
  */
 class KodeInstance {
 
+    /**
+     * Doc-string or help text associated with the instance, or {@code null} for
+     * missing documentation.
+     */
     String __doc__ = null;
 
+    /**
+     * Associated class reference.
+     */
     KodeClass klass;
+
+    /**
+     * This fields stores the actual data object, or in other words it defines
+     * the value of the instance.
+     */
     Object data = null;
-    boolean reccured = false; 
+
+    /**
+     * This field helps to detect circular recursion, when necessary. A
+     * {@literal true} value represents that the instance has already been
+     * encountered, else not.
+     */
+    boolean reccured = false;
+
+    /**
+     * Map data structure to store the associated fields.
+     */
     Map<String, Object> fields = new HashMap<>();
 
+    /**
+     * Generates a new instance object associated with a class.
+     *
+     * @param klass The associated class.
+     */
     KodeInstance(KodeClass klass) {
         this.klass = klass;
         if (klass != null) {
@@ -39,6 +67,15 @@ class KodeInstance {
         }
     }
 
+    /**
+     * Retrieves a field/method by using its name from the object of the class.
+     *
+     * @implNote It first scans for a field with the given name an then goes for
+     * method, if no such field exits.
+     *
+     * @param name Name of the attribute as Token object.
+     * @return Returns the associated field/method.
+     */
     Object get(Token name) {
         if (fields.containsKey(name.lexeme)) {
             return fields.get(name.lexeme);
@@ -54,6 +91,15 @@ class KodeInstance {
                 name);
     }
 
+    /**
+     * Retrieves a field/method by using its name from the object of the class.
+     *
+     * @implNote It first scans for a field with the given name an then goes for
+     * method, if no such field exits.
+     *
+     * @param name Name of the attribute as String object.
+     * @return Returns the associated field/method.
+     */
     Object get(String name) {
         if (fields.containsKey(name)) {
             return fields.get(name);
@@ -68,10 +114,24 @@ class KodeInstance {
                 "Undefined property '" + name + "'.");
     }
 
+    /**
+     * Defines or assigns a field with a new value by using its name w.r.t., the
+     * object of the class.
+     *
+     * @param name Name of the attribute as Token object.
+     * @param value New Value for the field.
+     */
     void set(Token name, Object value) {
         set(name.lexeme, value);
     }
-    
+
+    /**
+     * Defines or assigns a field with a new value by using its name w.r.t., the
+     * object of the class.
+     *
+     * @param name Name of the attribute as String object.
+     * @param value New Value for the field.
+     */
     void set(String name, Object value) {
         fields.put(name, value);
     }

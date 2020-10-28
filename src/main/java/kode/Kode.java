@@ -98,6 +98,7 @@ abstract class Kode {
         switch (args.length) {
             case 1:
                 VERSION = args[0];
+                // Executed in case of no-arg in cmd i.e., starts the shell.
                 //<editor-fold defaultstate="collapsed" desc="Code for Shell">
                 IO.printfln(Kode.getIntro());
                 IO.printfln("Call exit() to quit the shell.");
@@ -114,7 +115,7 @@ abstract class Kode {
                         handleThrowable(e);
                     }
                 }
-            //</editor-fold> // Executed in case of no-arg in cmd i.e., starts the shell.
+            //</editor-fold>
             case 2:
                 VERSION = args[0];
                 switch (args[1]) {
@@ -127,6 +128,7 @@ abstract class Kode {
                         IO.printfln(Kode.HELP); // Prints help text.
                         break;
                     default:
+                        // Executed in case of run as script file in cmd i.e., reads the script file and executes it.
                         //<editor-fold defaultstate="collapsed" desc="Code for Script">
                         Path path = Paths.get(args[1]);
                         if (path.getFileName().toString().endsWith("." + Kode.EXTENSION)) {
@@ -139,7 +141,7 @@ abstract class Kode {
                             IO.printfln_err("Not a " + Kode.NAME + " runnable file");
                             IO.exit(64);
                         }
-                    //</editor-fold> // Executed in case of run as script file in cmd i.e., reads the script file and executes it.
+                    //</editor-fold>
                 }
                 break;
             default:

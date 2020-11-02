@@ -18,6 +18,7 @@ package kode;
 
 import java.util.ArrayList;
 import java.util.List;
+import kni.KodeObject;
 
 /**
  *
@@ -27,10 +28,11 @@ class ValueList extends Value {
 
     static Value val = new ValueList(new Interpreter());
 
-    static KodeInstance create(List<Object> x) {
+    static KodeInstance create(List<KodeObject> x) {
         KodeInstance instance = new KodeInstance(val);
+        instance.data = x;
         KodeFunction initializer = val.findMethod(Kode.INIT);
-        initializer.bind(instance).call(x);
+        initializer.bind(instance).call(instance);
         return instance;
     }
 
@@ -38,7 +40,7 @@ class ValueList extends Value {
         super("List", interpreter);
         //<editor-fold defaultstate="collapsed" desc="init">
         this.methods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, interpreter, null, 2, args -> {
-            Object This = args[0];
+            KodeObject This = args[0];
             if (This instanceof KodeInstance) {
                 ((KodeInstance) This).data = ValueList.toList(args[1]);
             }
@@ -47,7 +49,7 @@ class ValueList extends Value {
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="init subclass">
         this.methods.put(Kode.INIT_SUBCLASS, new KodeBuiltinFunction(Kode.INIT_SUBCLASS, interpreter, null, -3, args -> {
-            Object This = args[1];
+            KodeObject This = args[1];
             if (This instanceof KodeInstance) {
                 ((KodeInstance) This).data = new ArrayList();
             }
@@ -57,11 +59,11 @@ class ValueList extends Value {
 
         //<editor-fold defaultstate="collapsed" desc="str">
         this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, interpreter, null, 1, args -> {
-            Object This = args[0];
+            KodeObject This = args[0];
             if (This instanceof KodeInstance) {
                 if (ValueList.isList((KodeInstance) This)) {
                     try {
-                        Object i;
+                        KodeObject i;
                         if (!((KodeInstance) This).reccured) {
                             ((KodeInstance) This).reccured = true;
                             i = interpreter.toKodeValue(Kode.stringify(ValueList.toList(This)));
@@ -81,7 +83,7 @@ class ValueList extends Value {
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="bool">
         this.methods.put(Kode.BOOLEAN, new KodeBuiltinFunction(Kode.BOOLEAN, interpreter, null, 1, args -> {
-            Object This = args[0];
+            KodeObject This = args[0];
             if (This instanceof KodeInstance) {
                 if (ValueList.isList((KodeInstance) This)) {
                     return interpreter.toKodeValue(Interpreter.isTruthy(ValueList.toList(This)));
@@ -92,7 +94,7 @@ class ValueList extends Value {
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="list">
         this.methods.put(Kode.LIST, new KodeBuiltinFunction(Kode.LIST, interpreter, null, 1, args -> {
-            Object This = args[0];
+            KodeObject This = args[0];
             if (This instanceof KodeInstance) {
                 if (ValueList.isList((KodeInstance) This)) {
                     return This;
@@ -104,8 +106,8 @@ class ValueList extends Value {
 
         //<editor-fold defaultstate="collapsed" desc="append">
         this.methods.put("append", new KodeBuiltinFunction("append", interpreter, null, 2, args -> {
-            Object This = args[0];
-            Object obj = args[1];
+            KodeObject This = args[0];
+            KodeObject obj = args[1];
             if (This instanceof KodeInstance) {
                 if (ValueList.isList((KodeInstance) This)) {
                     ValueList.toList(This).add(interpreter.toKodeValue(obj));
@@ -119,14 +121,12 @@ class ValueList extends Value {
 
     //<editor-fold defaultstate="collapsed" desc="toList">
     @SuppressWarnings({"unchecked", "rawtypes"})
-    static List<Object> toList(Object x) {
-        Object a = x;
+    static List<KodeObject> toList(KodeObject x) {
+        KodeObject a = x;
         for (;;) {
-            if (x instanceof List) {
-                return (List) x;
-            } else if (x instanceof KodeInstance) {
+            if (x instanceof KodeInstance) {
                 if (ValueList.isList((KodeInstance) x)) {
-                    return (List) ((KodeInstance) x).data;
+                    return (List<KodeObject>) ((KodeInstance) x).data;
                 } else {
                     try {
                         if (((KodeInstance) x).fields.containsKey(Kode.LIST)) {

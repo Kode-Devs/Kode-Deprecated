@@ -14,7 +14,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package kni;
+package kode;
+
+import kni.KodeObject;
 
 /**
  * This class is used to represent any callable object.
@@ -26,13 +28,13 @@ package kni;
  *
  * @author Arpan Mahanty < edumate696@gmail.com >
  */
-public interface KodeCallable {
+abstract class KodeCallable implements ExtKodeObject {
 
     /**
      * For any non-static method, it returns {@code true} if an instance is
      * already associated with the method, else {@code false}.
      */
-    public boolean isBind();
+    abstract boolean isBind();
 
     /**
      * Returns the number of arguments for the callable object. A negative value
@@ -44,7 +46,7 @@ public interface KodeCallable {
      * {@code n} parameters, where as, another callable with arity {@code -n}
      * represents , {@code n-1} or more number of parameters.</p>
      */
-    public int arity();
+    abstract int arity();
 
     /**
      * This method performs the actual work, and thus represents the actual
@@ -54,7 +56,15 @@ public interface KodeCallable {
      * @return The result after ending its execution or {@code null} if void.
      * For classes it returns the generated object.
      */
-    public Object call(Object... arguments);
+    abstract KodeObject __call__(KodeObject... arguments);
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final KodeObject call(KodeObject... args) {
+        return null;
+    }
 
     @Override
     public abstract String toString();

@@ -16,7 +16,6 @@
  */
 package kode;
 
-import kni.KodeCallable;
 import utils.IO;
 import java.io.File;
 import java.io.IOException;
@@ -39,6 +38,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import javax.swing.JOptionPane;
+import kni.KodeObject;
 import math.KodeNumber;
 import utils.Pip4kode;
 import utils.Pip4kode.PipError;
@@ -107,7 +107,7 @@ abstract class Kode {
                 for (;;) {
                     try {
                         IO.printf(">>> ");
-                        Pair<String, Object> run = run("<shell>", IO.scanf(), interpreter);
+                        Pair<String, KodeObject> run = run("<shell>", IO.scanf(), interpreter);
                         if (run.item2 != null) {
                             IO.printfln(Kode.repr(run.item2));
                         }
@@ -356,7 +356,7 @@ abstract class Kode {
      * last output item2 generated.
      * @throws Throwable
      */
-    static Pair<String, Object> run(String fn, String source, Interpreter inter) throws Throwable {
+    static Pair<String, KodeObject> run(String fn, String source, Interpreter inter) throws Throwable {
         List<Token> tokens = new Lexer(fn, source).scanTokens(); // Lexical Analysis.
         Parser parser = new Parser(tokens);
         List<Stmt> statements = parser.parse(); // Syntax Analysis.
@@ -491,7 +491,7 @@ abstract class Kode {
     /**
      * Utility function to detect the predefined type label for any object.
      */
-    static String type(Object object) {
+    static String type(KodeObject object) {
         if (object instanceof KodeClass) {
             return "class." + ((KodeClass) object).class_name;
         }
@@ -549,7 +549,7 @@ abstract class Kode {
                     .getParent().getParent().toFile().getAbsolutePath(), "libs").toAbsolutePath().toString(); // Get Parent added.
 
             Interpreter INTER = BUILTIN_MODULE.inter;
-            Map<String, Object> DEF_GLOBALS = INTER.globals.values;
+            Map<String, KodeObject> DEF_GLOBALS = INTER.globals.values;
 
             DEF_GLOBALS.put("disp", new KodeBuiltinFunction("disp", INTER, null, 1, args -> {
                 IO.printf(args[0] + "\n");
@@ -569,7 +569,7 @@ abstract class Kode {
                 if (temp instanceof KodeInstance) {
                     if (ValueString.isString((KodeInstance) temp)) {
                         try {
-                            return INTER.toKodeValue(String.format(ValueString.toStr(temp), ll.toArray()));
+                            return INTER.toKodeValue(String.format(ValueString.toStr((KodeInstance) temp), ll.toArray()));
                         } catch (IllegalFormatException e) {
                             throw new RuntimeError("Format error -> " + e);
                         }
@@ -614,7 +614,7 @@ abstract class Kode {
                 return null;
             }));
             DEF_GLOBALS.put("len", new KodeBuiltinFunction("len", INTER, null, 1, args -> {
-                Object obj = args[0];
+                KodeObject obj = args[0];
                 try {
                     if (obj instanceof KodeInstance) {
                         Object fun = ((KodeInstance) obj).get(Kode.LEN);
@@ -695,7 +695,7 @@ abstract class Kode {
                 return null;
             }));
             DEF_GLOBALS.put("help", new KodeBuiltinFunction("help", INTER, null, 1, args -> {
-                Object get = args[0];
+                KodeObject get = args[0];
                 String doc = null;
                 if (get instanceof KodeFunction) {
                     doc = ((KodeFunction) get).__doc__;
@@ -754,7 +754,7 @@ abstract class Kode {
                 if (src instanceof KodeInstance) {
                     if (ValueString.isString((KodeInstance) src)) {
                         try {
-                            return Kode.run("<eval>", ValueString.toStr(src), new Interpreter()).item2;
+                            return Kode.run("<eval>", ValueString.toStr((KodeInstance) src), new Interpreter()).item2;
                         } catch (RuntimeError ex) {
                             throw ex;
                         } catch (Throwable ex) {
@@ -781,7 +781,7 @@ abstract class Kode {
                     + "\n------"
                     + "\nThrows Error if a String of length 1 is not passed as ch.\n",
                     1, args -> {
-                        Object temp = args[0];
+                        KodeObject temp = args[0];
                         if (temp instanceof KodeInstance) {
                             if (ValueString.isString((KodeInstance) temp)) {
                                 String ch = ValueString.toStr(temp);
@@ -810,7 +810,7 @@ abstract class Kode {
                     + "\n------"
                     + "\nThrows Error if a Integer Number within " + Long.MIN_VALUE + " to " + Long.MAX_VALUE + " is not passed.\n",
                     1, args -> {
-                        Object temp = args[0];
+                        KodeObject temp = args[0];
                         if (temp instanceof KodeInstance) {
                             if (ValueNumber.isNumber((KodeInstance) temp)) {
                                 KodeNumber asIndex = ValueNumber.toNumber(temp);

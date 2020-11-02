@@ -16,17 +16,17 @@
  */
 package kode;
 
-import kni.KodeCallable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import kni.KodeObject;
 
 /**
  * This class is used to represent any non-builtin function/method.
  *
  * @author Arpan Mahanty < edumate696@gmail.com >
  */
-class KodeFunction implements KodeCallable {
+class KodeFunction extends KodeCallable {
 
     /**
      * Doc-string or help text associated with the function, or {@code null} for
@@ -88,12 +88,12 @@ class KodeFunction implements KodeCallable {
     }
 
     @Override
-    public Object call(Object... arguments) {
+    public KodeObject __call__(KodeObject... arguments) {
         KodeInstance This = this.instance;
         if (This != null) {
-            ArrayList asList = new ArrayList(Arrays.asList(arguments));
+            ArrayList<KodeObject> asList = new ArrayList(Arrays.asList(arguments));
             asList.add(0, This);
-            arguments = asList.toArray();
+            arguments = asList.toArray(arguments);
         }
 
         Environment environment = new Environment(closure);
@@ -126,5 +126,15 @@ class KodeFunction implements KodeCallable {
             return arguments[0];
         }
         return null;
+    }
+
+    @Override
+    public KodeObject get(String name) {
+        throw new RuntimeError("Not supported yet.");
+    }
+
+    @Override
+    public void set(String name, KodeObject value) {
+        throw new RuntimeError("Not supported yet.");
     }
 }

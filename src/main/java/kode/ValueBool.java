@@ -16,6 +16,8 @@
  */
 package kode;
 
+import kni.KodeObject;
+
 /**
  *
  * @author dell
@@ -26,8 +28,9 @@ class ValueBool extends Value {
 
     static KodeInstance create(Boolean x) {
         KodeInstance instance = new KodeInstance(val);
+        instance.data = x;
         KodeFunction initializer = val.findMethod(Kode.INIT);
-        initializer.bind(instance).call(x);
+        initializer.bind(instance).call(instance);
         return instance;
     }
 
@@ -35,7 +38,7 @@ class ValueBool extends Value {
         super("Bool", interpreter);
         //<editor-fold defaultstate="collapsed" desc="init">
         this.methods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, interpreter, null, 2, args -> {
-            Object This = args[0];
+            KodeObject This = args[0];
             if (This instanceof KodeInstance) {
                 ((KodeInstance) This).data = ValueBool.toBoolean(args[1]);
             }
@@ -44,12 +47,12 @@ class ValueBool extends Value {
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="init subclass">
         this.methods.put(Kode.INIT_SUBCLASS, new KodeBuiltinFunction(Kode.INIT_SUBCLASS, interpreter, null, -3, args -> {
-            throw new RuntimeError("Class "+ValueBool.val.class_name + " can not be used as superclass.");
+            throw new RuntimeError("Class " + ValueBool.val.class_name + " can not be used as superclass.");
         }));
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="str">
         this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, interpreter, null, 1, args -> {
-            Object This = args[0];
+            KodeObject This = args[0];
             if (This instanceof KodeInstance) {
                 if (ValueBool.isBool((KodeInstance) This)) {
                     return interpreter.toKodeValue(Kode.stringify(ValueBool.toBoolean(This)));
@@ -60,7 +63,7 @@ class ValueBool extends Value {
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="bool">
         this.methods.put(Kode.BOOLEAN, new KodeBuiltinFunction(Kode.BOOLEAN, interpreter, null, 1, args -> {
-            Object This = args[0];
+            KodeObject This = args[0];
             if (This instanceof KodeInstance) {
                 if (ValueBool.isBool((KodeInstance) This)) {
                     return This;
@@ -71,7 +74,7 @@ class ValueBool extends Value {
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="num">
         this.methods.put(Kode.NUMBER, new KodeBuiltinFunction(Kode.NUMBER, interpreter, null, 1, args -> {
-            Object This = args[0];
+            KodeObject This = args[0];
             if (This instanceof KodeInstance) {
                 if (ValueBool.isBool((KodeInstance) This)) {
                     return interpreter.toKodeValue(Interpreter.isTruthy(ValueBool.toBoolean(This)) ? 1 : 0);
@@ -83,11 +86,9 @@ class ValueBool extends Value {
     }
 
     //<editor-fold defaultstate="collapsed" desc="toBoolean">
-    static Boolean toBoolean(Object x) {
+    static Boolean toBoolean(KodeObject x) {
         for (;;) {
-            if (x instanceof Boolean) {
-                return (Boolean) x;
-            } else if (x instanceof KodeInstance) {
+            if (x instanceof KodeInstance) {
                 if (ValueBool.isBool((KodeInstance) x)) {
                     return (Boolean) ((KodeInstance) x).data;
                 } else {

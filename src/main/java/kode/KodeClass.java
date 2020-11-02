@@ -16,12 +16,12 @@
  */
 package kode;
 
-import kni.KodeCallable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import kni.KodeObject;
 import math.KodeMath;
 
 /**
@@ -29,7 +29,7 @@ import math.KodeMath;
  *
  * @author Arpan Mahanty < edumate696@gmail.com >
  */
-class KodeClass implements KodeCallable {
+class KodeClass extends KodeCallable {
 
     /**
      * Doc-string or help text associated with the function, or {@code null} for
@@ -75,7 +75,7 @@ class KodeClass implements KodeCallable {
 
         //<editor-fold defaultstate="collapsed" desc="str">
         specialMethods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, interpreter, null, 1, arg -> {
-            return "<object of '" + class_name + "'>"; //BUG
+            return interpreter.toKodeValue("<object of '" + class_name + "'>");
         }));
         //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="number">
@@ -96,7 +96,7 @@ class KodeClass implements KodeCallable {
 
         //<editor-fold defaultstate="collapsed" desc="neg">
         specialMethods.put(Kode.NEG, new KodeBuiltinFunction(Kode.NEG, interpreter, null, 1, args -> {
-            Object This = args[0];
+            KodeObject This = args[0];
             if (This instanceof KodeInstance) {
                 if (ValueBool.isBool((KodeInstance) This)) {
                     This = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) This) ? 1 : 0);
@@ -110,7 +110,7 @@ class KodeClass implements KodeCallable {
         //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="pos">
         specialMethods.put(Kode.POS, new KodeBuiltinFunction(Kode.POS, interpreter, null, 1, args -> {
-            Object This = args[0];
+            KodeObject This = args[0];
             if (This instanceof KodeInstance) {
                 if (ValueBool.isBool((KodeInstance) This)) {
                     This = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) This) ? 1 : 0);
@@ -124,8 +124,8 @@ class KodeClass implements KodeCallable {
         //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="getItem">
         specialMethods.put(Kode.GET_ITEM, new KodeBuiltinFunction(Kode.GET_ITEM, interpreter, null, 2, args -> {
-            Object This = args[0];
-            Object index = args[1];
+            KodeObject This = args[0];
+            KodeObject index = args[1];
             if (This instanceof KodeInstance && index instanceof KodeInstance) {
                 if (ValueNumber.isNumber((KodeInstance) index)) {
                     int toNumber;
@@ -157,8 +157,8 @@ class KodeClass implements KodeCallable {
         //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="setItem">
         specialMethods.put(Kode.SET_ITEM, new KodeBuiltinFunction(Kode.SET_ITEM, interpreter, null, 3, args -> {
-            Object This = args[0];
-            Object index = args[1];
+            KodeObject This = args[0];
+            KodeObject index = args[1];
             if (This instanceof KodeInstance && index instanceof KodeInstance) {
                 if (ValueNumber.isNumber((KodeInstance) index)) {
                     int toNumber;
@@ -184,7 +184,7 @@ class KodeClass implements KodeCallable {
         //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="len">
         specialMethods.put(Kode.LEN, new KodeBuiltinFunction(Kode.LEN, interpreter, null, 1, args -> {
-            Object This = args[0];
+            KodeObject This = args[0];
             if (This instanceof KodeInstance) {
                 if (ValueString.isString((KodeInstance) This)) {
                     return interpreter.toKodeValue(ValueString.toStr(This).length());
@@ -199,13 +199,13 @@ class KodeClass implements KodeCallable {
 
         //<editor-fold defaultstate="collapsed" desc="add">
         specialMethods.put(Kode.ADD, new KodeBuiltinFunction(Kode.ADD, interpreter, null, 2, args -> {
-            Object left = args[0];
-            Object right = args[1];
+            KodeObject left = args[0];
+            KodeObject right = args[1];
             if (left instanceof KodeInstance && right instanceof KodeInstance) {
                 if (ValueString.isString((KodeInstance) left) && ValueString.isString((KodeInstance) right)) {
                     return interpreter.toKodeValue(ValueString.toStr(left).concat(ValueString.toStr(right)));
                 } else if (ValueList.isList((KodeInstance) left) && ValueList.isList((KodeInstance) right)) {
-                    List<Object> ll = new ArrayList<>();
+                    List<KodeObject> ll = new ArrayList<>();
                     ll.addAll(ValueList.toList(left));
                     ll.addAll(ValueList.toList(right));
                     return interpreter.toKodeValue(ll);
@@ -229,8 +229,8 @@ class KodeClass implements KodeCallable {
         //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="sub">
         specialMethods.put(Kode.SUB, new KodeBuiltinFunction(Kode.SUB, interpreter, null, 2, args -> {
-            Object left = args[0];
-            Object right = args[1];
+            KodeObject left = args[0];
+            KodeObject right = args[1];
             if (left instanceof KodeInstance && right instanceof KodeInstance) {
                 if (ValueBool.isBool((KodeInstance) left)) {
                     left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
@@ -250,8 +250,8 @@ class KodeClass implements KodeCallable {
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="mul">
         specialMethods.put(Kode.MUL, new KodeBuiltinFunction(Kode.MUL, interpreter, null, 2, args -> {
-            Object left = args[0];
-            Object right = args[1];
+            KodeObject left = args[0];
+            KodeObject right = args[1];
             if (left instanceof KodeInstance && right instanceof KodeInstance) {
                 if (ValueBool.isBool((KodeInstance) left)) {
                     left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
@@ -315,8 +315,8 @@ class KodeClass implements KodeCallable {
         //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="true_div">
         specialMethods.put(Kode.TRUE_DIV, new KodeBuiltinFunction(Kode.TRUE_DIV, interpreter, null, 2, args -> {
-            Object left = args[0];
-            Object right = args[1];
+            KodeObject left = args[0];
+            KodeObject right = args[1];
             if (left instanceof KodeInstance && right instanceof KodeInstance) {
                 if (ValueBool.isBool((KodeInstance) left)) {
                     left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
@@ -340,8 +340,8 @@ class KodeClass implements KodeCallable {
         //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="floor_div">
         specialMethods.put(Kode.FLOOR_DIV, new KodeBuiltinFunction(Kode.FLOOR_DIV, interpreter, null, 2, args -> {
-            Object left = args[0];
-            Object right = args[1];
+            KodeObject left = args[0];
+            KodeObject right = args[1];
             if (left instanceof KodeInstance && right instanceof KodeInstance) {
                 if (ValueBool.isBool((KodeInstance) left)) {
                     left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
@@ -365,8 +365,8 @@ class KodeClass implements KodeCallable {
         //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="mod">
         specialMethods.put(Kode.MOD, new KodeBuiltinFunction(Kode.MOD, interpreter, null, 2, args -> {
-            Object left = args[0];
-            Object right = args[1];
+            KodeObject left = args[0];
+            KodeObject right = args[1];
             if (left instanceof KodeInstance && right instanceof KodeInstance) {
                 if (ValueBool.isBool((KodeInstance) left)) {
                     left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
@@ -390,8 +390,8 @@ class KodeClass implements KodeCallable {
         //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="pow">
         specialMethods.put(Kode.POWER, new KodeBuiltinFunction(Kode.POWER, interpreter, null, 2, args -> {
-            Object left = args[0];
-            Object right = args[1];
+            KodeObject left = args[0];
+            KodeObject right = args[1];
             if (left instanceof KodeInstance && right instanceof KodeInstance) {
                 if (ValueBool.isBool((KodeInstance) left)) {
                     left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
@@ -415,8 +415,8 @@ class KodeClass implements KodeCallable {
         //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="lshift">
         specialMethods.put(Kode.LSHIFT, new KodeBuiltinFunction(Kode.LSHIFT, interpreter, null, 2, args -> {
-            Object left = args[0];
-            Object right = args[1];
+            KodeObject left = args[0];
+            KodeObject right = args[1];
             if (left instanceof KodeInstance && right instanceof KodeInstance) {
                 if (ValueBool.isBool((KodeInstance) left)) {
                     left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
@@ -440,8 +440,8 @@ class KodeClass implements KodeCallable {
         //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="rshift">
         specialMethods.put(Kode.RSHIFT, new KodeBuiltinFunction(Kode.RSHIFT, interpreter, null, 2, args -> {
-            Object left = args[0];
-            Object right = args[1];
+            KodeObject left = args[0];
+            KodeObject right = args[1];
             if (left instanceof KodeInstance && right instanceof KodeInstance) {
                 if (ValueBool.isBool((KodeInstance) left)) {
                     left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
@@ -529,17 +529,17 @@ class KodeClass implements KodeCallable {
     }
 
     @Override
-    public Object call(Object... arguments) {
+    public KodeObject __call__(KodeObject... arguments) {
         // Genaration of new Instance
         KodeInstance instance = new KodeInstance(this);
 
         // Constructor Validation Call
-        ArrayList asList = new ArrayList(Arrays.asList(arguments));
+        ArrayList<KodeObject> asList = new ArrayList(Arrays.asList(arguments));
         asList.add(0, this);
         asList.add(1, instance);
         for (KodeClass klass = this.superclass; klass != null; klass = klass.superclass) {
             if (klass.methods.containsKey(Kode.INIT_SUBCLASS)) {
-                klass.methods.get(Kode.INIT_SUBCLASS).call(asList.toArray());
+                klass.methods.get(Kode.INIT_SUBCLASS).call(asList.toArray(arguments));
             }
         }
 
@@ -558,6 +558,16 @@ class KodeClass implements KodeCallable {
             return 0;
         }
         return initializer.arity();
+    }
+
+    @Override
+    public KodeObject get(String name) {
+        throw new RuntimeError("Not supported yet.");
+    }
+
+    @Override
+    public void set(String name, KodeObject value) {
+        throw new RuntimeError("Not supported yet.");
     }
 
 }

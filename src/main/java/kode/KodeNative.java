@@ -16,7 +16,6 @@
  */
 package kode;
 
-import kni.KodeCallable;
 import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -26,13 +25,14 @@ import java.util.ArrayList;
 import java.util.List;
 import kni.KNI;
 import kni.KodeNativeObject;
+import kni.KodeObject;
 
 /**
  * This class is used to represent any native function.
  *
  * @author Arpan Mahanty < edumate696@gmail.com >
  */
-class KodeNative implements KodeCallable {
+class KodeNative extends KodeCallable {
 
     final String className;
     final String pkg;
@@ -63,7 +63,7 @@ class KodeNative implements KodeCallable {
     }
 
     @Override
-    public Object call(Object... arguments) {
+    public KodeObject __call__(KodeObject... arguments) {
         try {
             URLClassLoader urlClassLoader = new URLClassLoader(
                     KodeNative.addToList(this.pkg == null ? Paths.get("shared-lib") : Paths.get(Kode.LIBPATH, this.pkg, "shared-lib")).toArray(new URL[]{}),
@@ -73,7 +73,7 @@ class KodeNative implements KodeCallable {
             urlClassLoader.close();
             KodeNativeObject[] args = new KodeNativeObject[arguments.length];
             for (int i = 0; i < arguments.length; i++) {
-                Object get = arguments[i];
+                KodeObject get = arguments[i];
                 if (get instanceof KodeInstance) {
                     if (ValueNative.isNative((KodeInstance) get)) {
                         args[i] = new KodeNativeObject(((KodeInstance) get).data).asNative();
@@ -126,6 +126,16 @@ class KodeNative implements KodeCallable {
     @Override
     public String toString() {
         return "<native '" + this.className + "'>";
+    }
+
+    @Override
+    public KodeObject get(String name) {
+        throw new RuntimeError("Not supported yet.");
+    }
+
+    @Override
+    public void set(String name, KodeObject value) {
+        throw new RuntimeError("Not supported yet.");
     }
 
 }

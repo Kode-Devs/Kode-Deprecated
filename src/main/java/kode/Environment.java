@@ -18,6 +18,7 @@ package kode;
 
 import java.util.HashMap;
 import java.util.Map;
+import kni.KodeObject;
 
 /**
  * Acts as the Symbol Table to store the values of the declared variables.
@@ -35,7 +36,7 @@ class Environment {
      * Data-structure which acts as the actual storage for the values of the
      * variables, mapping the variable name and its value.
      */
-    final Map<String, Object> values = new HashMap<>();
+    final Map<String, KodeObject> values = new HashMap<>();
 
     /**
      * Generates a new Symbol Table, as root.
@@ -62,22 +63,13 @@ class Environment {
      * @return Returns the value stored.
      * @throws RuntimeError If the variable with the specified name not found.
      */
-    Object get(Token name) {
-        if (values.containsKey(name.lexeme)) {
-            return values.get(name.lexeme);
+    KodeObject get(Token name) {
+        try{
+            return this.get(name.lexeme);
+        } catch (RuntimeError error){
+            error.token.add(name);
+            throw error;
         }
-
-        if (enclosing != null) {
-            return enclosing.get(name);
-        }
-
-        if (Kode.BUILTIN_MODULE.inter.globals.values.containsKey(name.lexeme)) {
-            return Kode.BUILTIN_MODULE.inter.globals.get(name);
-        }
-
-        throw new RuntimeError(
-                "Undefined variable '" + name.lexeme + "'.",
-                name);
     }
 
     /**
@@ -88,7 +80,7 @@ class Environment {
      * @return Returns the value stored.
      * @throws RuntimeError If the variable with the specified name not found.
      */
-    Object get(String name) {
+    KodeObject get(String name) {
         if (values.containsKey(name)) {
             return values.get(name);
         }
@@ -104,6 +96,24 @@ class Environment {
         throw new RuntimeError(
                 "Undefined variable '" + name + "'.");
     }
+    
+    /**
+     * Recursively Assigns a new value to a variable if and only if the variable
+     * is already present in the symbol table or its parents.
+     *
+     * @param name Variable Name as Token Object.
+     * @param value New value of the variable.
+     * @throws RuntimeError If the variable with the specified name not found in
+     * the symbol table.
+     */
+    void assign(Token name, KodeObject value) {
+        try{
+            this.assign(name.lexeme, value);
+        } catch (RuntimeError error){
+            error.token.add(name);
+            throw error;
+        }
+    }
 
     /**
      * Recursively Assigns a new value to a variable if and only if the variable
@@ -114,9 +124,9 @@ class Environment {
      * @throws RuntimeError If the variable with the specified name not found in
      * the symbol table.
      */
-    void assign(Token name, Object value) {
-        if (values.containsKey(name.lexeme)) {
-            values.put(name.lexeme, value);
+    void assign(String name, KodeObject value) {
+        if (values.containsKey(name)) {
+            values.put(name, value);
             return;
         }
 
@@ -125,14 +135,13 @@ class Environment {
             return;
         }
 
-        if (Kode.BUILTIN_MODULE.inter.globals.values.containsKey(name.lexeme)) {
-            Kode.BUILTIN_MODULE.inter.globals.define(name.lexeme, value);
+        if (Kode.BUILTIN_MODULE.inter.globals.values.containsKey(name)) {
+            Kode.BUILTIN_MODULE.inter.globals.define(name, value);
             return;
         }
 
         throw new RuntimeError(
-                "Undefined variable '" + name.lexeme + "'.",
-                name);
+                "Undefined variable '" + name + "'.");
     }
 
     /**
@@ -141,7 +150,7 @@ class Environment {
      * @param name Variable Name as String.
      * @param value Initial Value of the Variable.
      */
-    void define(String name, Object value) {
+    void define(String name, KodeObject value) {
         values.put(name, value);
     }
 
@@ -171,7 +180,7 @@ class Environment {
      * @return Returns the value stored in the variable, if found, or
      * {@code null} if not found.
      */
-    Object getAt(int distance, String name) {
+    KodeObject getAt(int distance, String name) {
         return ancestor(distance).values.get(name);
     }
 
@@ -184,7 +193,7 @@ class Environment {
      * @param name Name of the Variable as Token Object.
      * @param value New value to be assigned.
      */
-    void assignAt(int distance, Token name, Object value) {
+    void assignAt(int distance, Token name, KodeObject value) {
         ancestor(distance).values.put(name.lexeme, value);
     }
 }

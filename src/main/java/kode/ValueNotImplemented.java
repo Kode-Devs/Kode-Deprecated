@@ -16,6 +16,8 @@
  */
 package kode;
 
+import kni.KodeObject;
+
 /**
  *
  * @author dell
@@ -34,7 +36,7 @@ class ValueNotImplemented extends Value {
         super("NotImplemented", ValueError.val, interpreter);
         //<editor-fold defaultstate="collapsed" desc="init">
         this.methods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, interpreter, null, 1, args -> {
-                Object This = args[0];
+                KodeObject This = args[0];
                 if (This instanceof KodeInstance) {
                     ((KodeInstance) This).klass.superclass.findMethod(Kode.INIT).bind((KodeInstance) This)
                             .call(this.interpreter.toKodeValue("This method is not implemented yet."));

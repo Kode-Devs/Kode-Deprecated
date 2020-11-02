@@ -18,6 +18,7 @@ package kode;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import kni.KodeObject;
 
 /**
  * This class is used to represent any builtin function/method, and thus used to
@@ -29,7 +30,7 @@ final class KodeBuiltinFunction extends KodeFunction {
 
     final String fun_name;
     private final int arity;
-    private final VarArgFunction<Object, Object> call;
+    private final VarArgFunction<KodeObject, KodeObject> call;
 
     /**
      * Generates a new builtin function/method/constructor object.
@@ -42,7 +43,7 @@ final class KodeBuiltinFunction extends KodeFunction {
      * @param call A lambda method defining the actual work of the function or
      * the body of the function written in Java.
      */
-    KodeBuiltinFunction(String name, Interpreter inter, String doc, int arity, VarArgFunction<Object, Object> call) {
+    KodeBuiltinFunction(String name, Interpreter inter, String doc, int arity, VarArgFunction<KodeObject, KodeObject> call) {
         super(null, null, inter, false);
         this.fun_name = name;
         this.__doc__ = doc;
@@ -69,12 +70,12 @@ final class KodeBuiltinFunction extends KodeFunction {
     }
 
     @Override
-    public Object call(Object... arguments) {
+    public KodeObject __call__(KodeObject... arguments) {
         KodeInstance This = this.instance;
         if (This != null) {
-            ArrayList asList = new ArrayList(Arrays.asList(arguments));
+            ArrayList<KodeObject> asList = new ArrayList(Arrays.asList(arguments));
             asList.add(0, This);
-            arguments = asList.toArray();
+            arguments = asList.toArray(arguments);
         }
         return this.call.apply(arguments);
     }

@@ -16,6 +16,8 @@
  */
 package kode;
 
+import kni.KodeObject;
+
 /**
  * Throwing instance of this class represents that {@code return} statement has
  * been called inside an loop.
@@ -29,7 +31,7 @@ class Return extends RuntimeException {
     /**
      * Stores the return value.
      */
-    final Object value;
+    final KodeObject value;
 
     /**
      * Generates an throwable instance of the {@link Return} class, representing
@@ -40,7 +42,7 @@ class Return extends RuntimeException {
      * @see Return
      * @see Stmt.Return
      */
-    Return(Object value) {
+    Return(KodeObject value) {
         super(null, null, false, false);
         this.value = value;
     }

@@ -16,6 +16,7 @@
  */
 package kode;
 
+import kni.KodeObject;
 import math.KodeNumber;
 
 /**
@@ -28,7 +29,8 @@ class ValueString extends Value {
 
     static KodeInstance create(String x) {
         KodeInstance instance = new KodeInstance(val);
-        val.findMethod(Kode.INIT).bind(instance).call(x);
+        instance.data = x;
+        val.findMethod(Kode.INIT).bind(instance).call(instance);
         return instance;
     }
 
@@ -36,7 +38,7 @@ class ValueString extends Value {
         super("String", interpreter);
         //<editor-fold defaultstate="collapsed" desc="init">
         this.methods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, interpreter, null, 2, args -> {
-            Object This = args[0];
+            KodeObject This = args[0];
             if (This instanceof KodeInstance) {
                 ((KodeInstance) This).data = ValueString.toStr(args[1]);
             }
@@ -45,7 +47,7 @@ class ValueString extends Value {
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="init subclass">
         this.methods.put(Kode.INIT_SUBCLASS, new KodeBuiltinFunction(Kode.INIT_SUBCLASS, interpreter, null, -3, args -> {
-            Object This = args[1];
+            KodeObject This = args[1];
             if (This instanceof KodeInstance) {
                 ((KodeInstance) This).data = "";
             }
@@ -54,7 +56,7 @@ class ValueString extends Value {
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="str">
         this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, interpreter, null, 1, args -> {
-            Object This = args[0];
+            KodeObject This = args[0];
             if (This instanceof KodeInstance) {
                 if (ValueString.isString((KodeInstance) This)) {
                     return This;
@@ -65,7 +67,7 @@ class ValueString extends Value {
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="num">
         this.methods.put(Kode.NUMBER, new KodeBuiltinFunction(Kode.NUMBER, interpreter, null, 1, args -> {
-            Object This = args[0];
+            KodeObject This = args[0];
             if (This instanceof KodeInstance) {
                 if (ValueString.isString((KodeInstance) This)) {
                     try {
@@ -80,7 +82,7 @@ class ValueString extends Value {
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="bool">
         this.methods.put(Kode.BOOLEAN, new KodeBuiltinFunction(Kode.BOOLEAN, interpreter, null, 1, args -> {
-            Object This = args[0];
+            KodeObject This = args[0];
             if (This instanceof KodeInstance) {
                 if (ValueString.isString((KodeInstance) This)) {
                     return interpreter.toKodeValue(Interpreter.isTruthy(ValueString.toStr(This)));
@@ -91,7 +93,7 @@ class ValueString extends Value {
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="list">
         this.methods.put(Kode.LIST, new KodeBuiltinFunction(Kode.LIST, interpreter, null, 1, args -> {
-            Object This = args[0];
+            KodeObject This = args[0];
             if (This instanceof KodeInstance) {
                 if (ValueString.isString((KodeInstance) This)) {
                     return interpreter.toKodeValue(ValueString.toStr(This).toCharArray());
@@ -103,12 +105,10 @@ class ValueString extends Value {
     }
 
     //<editor-fold defaultstate="collapsed" desc="toStr">
-    static String toStr(Object x) {
-        Object a = x;
+    static String toStr(KodeObject x) {
+        KodeObject a = x;
         for (;;) {
-            if (x instanceof String) {
-                return (String) x;
-            } else if (x instanceof KodeInstance) {
+            if (x instanceof KodeInstance) {
                 if (ValueString.isString((KodeInstance) x)) {
                     return (String) ((KodeInstance) x).data;
                 } else {

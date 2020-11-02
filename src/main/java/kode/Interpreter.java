@@ -16,7 +16,6 @@
  */
 package kode;
 
-import kni.KodeCallable;
 import java.io.File;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -26,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import kni.KodeObject;
 import math.KodeMath;
 import math.KodeNumber;
 
@@ -52,7 +52,7 @@ import math.KodeNumber;
  * @see interpret(java.util.List)
  * @see Interpreter()
  */
-class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
+class Interpreter implements Expr.Visitor<KodeObject>, Stmt.Visitor<KodeObject> {
 
     /**
      * Global Symbol Table.
@@ -90,9 +90,9 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
      * @return Returns the result of the last statement from the list.
      * @see Stmt
      */
-    Object interpret(List<Stmt> statements) throws Exception {
+    KodeObject interpret(List<Stmt> statements) throws Exception {
         try {
-            Object ret = null;
+            KodeObject ret = null;
             for (Stmt statement : statements) {
                 ret = execute(statement);
             }
@@ -109,13 +109,13 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     }
 
     @Override
-    public Object visitLiteralExpr(Expr.Literal expr) {
+    public KodeObject visitLiteralExpr(Expr.Literal expr) {
         return this.toKodeValue(expr.value);
     }
 
     @Override
-    public Object visitLogicalExpr(Expr.Logical expr) {
-        Object left = evaluate(expr.left);
+    public KodeObject visitLogicalExpr(Expr.Logical expr) {
+        KodeObject left = evaluate(expr.left);
 
         if (expr.operator.type == TokenType.OR) {
             if (isTruthy(left)) {
@@ -131,7 +131,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     }
 
     @Override
-    public Object visitSetExpr(Expr.Set expr) {
+    public KodeObject visitSetExpr(Expr.Set expr) {
         Object object = evaluate(expr.object);
 
         if (expr.name.lexeme.equals(Kode.CLASS)) {
@@ -139,13 +139,13 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
         }
 
         if (object instanceof KodeInstance) {
-            Object value = evaluate(expr.value);
+            KodeObject value = evaluate(expr.value);
             ((KodeInstance) object).set(expr.name, value);
             return value;
         }
 
         if (object instanceof KodeModule) {
-            Object value = evaluate(expr.value);
+            KodeObject value = evaluate(expr.value);
             ((KodeModule) object).set(expr.name, value);
             return value;
         }
@@ -154,7 +154,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     }
 
     @Override
-    public Object visitSuperExpr(Expr.Super expr) {
+    public KodeObject visitSuperExpr(Expr.Super expr) {
         int distance = locals.get(expr);
         KodeClass superclass = (KodeClass) environment.getAt(distance, "super");
         KodeFunction method = superclass.findMethod(expr.method.lexeme);
@@ -165,14 +165,14 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     }
 
     @Override
-    public Object visitGroupingExpr(Expr.Grouping expr) {
+    public KodeObject visitGroupingExpr(Expr.Grouping expr) {
         return evaluate(expr.expression);
     }
 
     /**
      * Scans a specific Expression Node.
      */
-    Object evaluate(Expr expr) {
+    KodeObject evaluate(Expr expr) {
         // Calling accept on node executes the necessary function defined in the object passed as parameter.
         return expr.accept(this);
     }
@@ -180,7 +180,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     /**
      * Scans a specific Statement Node representing a single statement.
      */
-    Object execute(Stmt stmt) {
+    KodeObject execute(Stmt stmt) {
         // Calling accept on node executes the necessary function defined in the object passed as parameter.
         return stmt.accept(this);
     }
@@ -208,14 +208,14 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     }
 
     @Override
-    public Void visitBlockStmt(Stmt.Block stmt) {
+    public KodeObject visitBlockStmt(Stmt.Block stmt) {
         executeBlock(stmt.statements, new Environment(environment));
         return null;
     }
 
     @Override
-    public Void visitClassStmt(Stmt.Class stmt) {
-        Object superclass = null;
+    public KodeObject visitClassStmt(Stmt.Class stmt) {
+        KodeObject superclass = null;
         if (stmt.superclass != null) {
             superclass = evaluate(stmt.superclass);
             if (!(superclass instanceof KodeClass)) {
@@ -248,12 +248,12 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     }
 
     @Override
-    public Object visitExpressionStmt(Stmt.Expression stmt) {
+    public KodeObject visitExpressionStmt(Stmt.Expression stmt) {
         return evaluate(stmt.expression);
     }
 
     @Override
-    public Void visitFunctionStmt(Stmt.Function stmt) {
+    public KodeObject visitFunctionStmt(Stmt.Function stmt) {
         KodeFunction function = new KodeFunction(stmt, environment, this, false);
         function.__doc__ = stmt.doc;
         environment.define(stmt.name.lexeme, function);
@@ -261,7 +261,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     }
 
     @Override
-    public Void visitIfStmt(Stmt.If stmt) {
+    public KodeObject visitIfStmt(Stmt.If stmt) {
         if (isTruthy(evaluate(stmt.condition))) {
             execute(stmt.thenBranch);
         } else if (stmt.elseBranch != null) {
@@ -271,7 +271,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     }
 
     @Override
-    public Void visitRequireStmt(Stmt.Require stmt) {
+    public KodeObject visitRequireStmt(Stmt.Require stmt) {
         List<String> dir = new ArrayList<>();
         stmt.dir.forEach((item) -> {
             dir.add(item.lexeme);
@@ -310,8 +310,8 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     }
 
     @Override
-    public Void visitRaiseStmt(Stmt.Raise stmt) {
-        Object value = evaluate(stmt.value);
+    public KodeObject visitRaiseStmt(Stmt.Raise stmt) {
+        KodeObject value = evaluate(stmt.value);
         if (value instanceof KodeInstance) {
             if (ValueNotImplemented.isNotImplemented((KodeInstance) value)) {
                 RuntimeError e = new NotImplemented((KodeInstance) value);
@@ -329,24 +329,24 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     }
 
     @Override
-    public Void visitReturnStmt(Stmt.Return stmt) {
+    public KodeObject visitReturnStmt(Stmt.Return stmt) {
         throw new Return(stmt.value != null ? evaluate(stmt.value) : null);
     }
 
     @Override
-    public Void visitBreakStmt(Stmt.Break stmt) {
+    public KodeObject visitBreakStmt(Stmt.Break stmt) {
         throw new Break();
     }
 
     @Override
-    public Void visitContinueStmt(Stmt.Continue stmt) {
+    public KodeObject visitContinueStmt(Stmt.Continue stmt) {
         throw new Continue();
     }
 
     @Override
-    public Void visitVarStmt(Stmt.Var stmt) {
+    public KodeObject visitVarStmt(Stmt.Var stmt) {
         for (int i = 0; i < stmt.name.size(); i++) {
-            Object value;
+            KodeObject value;
             if (stmt.initial.get(i) != null) {
                 value = evaluate(stmt.initial.get(i));
                 if (value == null) {
@@ -362,7 +362,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     }
 
     @Override
-    public Void visitWhileStmt(Stmt.While stmt) {
+    public KodeObject visitWhileStmt(Stmt.While stmt) {
         while (isTruthy(evaluate(stmt.condition))) {
             try {
                 execute(stmt.body);
@@ -375,7 +375,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     }
 
     @Override
-    public Void visitForStmt(Stmt.For stmt) {
+    public KodeObject visitForStmt(Stmt.For stmt) {
         if (stmt.init != null) {
             execute(stmt.init);
         }
@@ -394,8 +394,8 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     }
 
     @Override
-    public Object visitAssignExpr(Expr.Assign expr) {
-        Object value = evaluate(expr.value);
+    public KodeObject visitAssignExpr(Expr.Assign expr) {
+        KodeObject value = evaluate(expr.value);
         if (value == null) {
             throw new RuntimeError(
                     "The expression associated with variable '" + expr.name.lexeme + "' does not return any value.",
@@ -424,7 +424,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
      * @param op Operator as a reference for the error message.
      * @return Returns the resultant value.
      */
-    private Object BinOP(Object left, Object right, String lop, String rop, Token op) {
+    private KodeObject BinOP(KodeObject left, KodeObject right, String lop, String rop, Token op) {
         if (left instanceof KodeInstance) {
             try {
                 Object fun = ((KodeInstance) left).get(lop);
@@ -454,9 +454,9 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     }
 
     @Override
-    public Object visitBinaryExpr(Expr.Binary expr) {
-        Object left = evaluate(expr.left);
-        Object right = evaluate(expr.right);
+    public KodeObject visitBinaryExpr(Expr.Binary expr) {
+        KodeObject left = evaluate(expr.left);
+        KodeObject right = evaluate(expr.right);
 
         switch (expr.operator.type) {
             case GREATER:
@@ -498,34 +498,34 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     }
 
     @Override
-    public Object visitCallExpr(Expr.Call expr) {
+    public KodeObject visitCallExpr(Expr.Call expr) {
         Object callee = evaluate(expr.callee);
         if (!(callee instanceof KodeCallable)) {
             throw new RuntimeError("Can only call functions and classes.", expr.paren);
         }
 
         // TODO Make Some Adjustments here.
-        Object[] arguments = new Object[expr.arguments.length];
+        KodeObject[] arguments = new KodeObject[expr.arguments.length];
         for (int i = 0; i < expr.arguments.length; i++) {
             arguments[i] = evaluate(expr.arguments[i]);
         }
 
         KodeCallable function = (KodeCallable) callee;
 
-        int len = arguments.length;
-        int arity = function.arity();
-        if (function.isBind()) {
-            len++;
-        }
-
-        if (arity < 0 && len < -arity - 1) {
-            throw new RuntimeError(
-                    "Expected minimum " + (-arity - 1) + " arguments but got " + len + ".",
-                    expr.paren);
-        } else if (arity >= 0 && len != arity) {
-            throw new RuntimeError("Expected " + arity + " arguments but got " + len + ".",
-                    expr.paren);
-        }
+//        int len = arguments.length;
+//        int arity = function.arity();
+//        if (function.isBind()) {
+//            len++;
+//        }
+//
+//        if (arity < 0 && len < -arity - 1) {
+//            throw new RuntimeError(
+//                    "Expected minimum " + (-arity - 1) + " arguments but got " + len + ".",
+//                    expr.paren);
+//        } else if (arity >= 0 && len != arity) {
+//            throw new RuntimeError("Expected " + arity + " arguments but got " + len + ".",
+//                    expr.paren);
+//        }
         try {
             return function.call(arguments);
         } catch (RuntimeError e) {
@@ -535,9 +535,9 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     }
 
     @Override
-    public Object visitGetATIndexExpr(Expr.GetAtIndex expr) {
-        Object array = evaluate(expr.array);
-        Object index = evaluate(expr.index);
+    public KodeObject visitGetATIndexExpr(Expr.GetAtIndex expr) {
+        KodeObject array = evaluate(expr.array);
+        KodeObject index = evaluate(expr.index);
         if (array instanceof KodeInstance) {
             KodeFunction method = ((KodeInstance) array).klass.findMethod(Kode.GET_ITEM);
             try {
@@ -551,10 +551,10 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     }
 
     @Override
-    public Object visitSetATIndexExpr(Expr.SetAtIndex expr) {
-        Object value = evaluate(expr.value);
-        Object array = evaluate(expr.array);
-        Object index = evaluate(expr.index);
+    public KodeObject visitSetATIndexExpr(Expr.SetAtIndex expr) {
+        KodeObject value = evaluate(expr.value);
+        KodeObject array = evaluate(expr.array);
+        KodeObject index = evaluate(expr.index);
         if (array instanceof KodeInstance) {
             KodeFunction method = ((KodeInstance) array).klass.findMethod(Kode.SET_ITEM);
             try {
@@ -568,7 +568,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     }
 
     @Override
-    public Object visitGetExpr(Expr.Get expr) {
+    public KodeObject visitGetExpr(Expr.Get expr) {
         Object object = evaluate(expr.object);
         if (object == null) {
             throw new RuntimeError("No such object found", expr.name);
@@ -584,8 +584,8 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     }
 
     @Override
-    public Object visitUnaryExpr(Expr.Unary expr) {
-        Object right = evaluate(expr.right);
+    public KodeObject visitUnaryExpr(Expr.Unary expr) {
+        KodeObject right = evaluate(expr.right);
 
         switch (expr.operator.type) {
             case BANG:
@@ -621,7 +621,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     }
 
     @Override
-    public Object visitArrayExpr(Expr.Array expr) {
+    public KodeObject visitArrayExpr(Expr.Array expr) {
         List<Object> arr = new ArrayList<>();
         expr.array.forEach((ex) -> {
             arr.add(evaluate(ex));
@@ -630,12 +630,12 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     }
 
     @Override
-    public Object visitVariableExpr(Expr.Variable expr) {
+    public KodeObject visitVariableExpr(Expr.Variable expr) {
         return lookUpVariable(expr.name, expr);
     }
 
     @Override
-    public Object visitNativeExpr(Expr.Native expr) {
+    public KodeObject visitNativeExpr(Expr.Native expr) {
         List<String> temp = new ArrayList<>();
         expr.path.forEach(i -> temp.add(i.lexeme));
         String className = String.join(".", temp);
@@ -643,7 +643,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     }
 
     @Override
-    public Object visitTryStmt(Stmt.Try stmt) {
+    public KodeObject visitTryStmt(Stmt.Try stmt) {
         try {
             executeBlock(stmt.tryStmt, new Environment(environment));
         } catch (RuntimeError e) {
@@ -667,7 +667,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     }
 
     @Override
-    public Object visitCatchStmt(Stmt.Catch stmt) {
+    public KodeObject visitCatchStmt(Stmt.Catch stmt) {
         Environment env = new Environment(this.environment);
         if (stmt.alias != null) {
             env.define(stmt.alias.lexeme, stmt.instance);
@@ -679,7 +679,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     /**
      * Retrieve the actual value of a variable from the symbol table.
      */
-    private Object lookUpVariable(Token name, Expr expr) {
+    private KodeObject lookUpVariable(Token name, Expr expr) {
         Integer distance = locals.get(expr);
         if (distance != null) {
             return environment.getAt(distance, name.lexeme);
@@ -709,7 +709,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
         }
         if (object instanceof KodeInstance) {
             if (ValueBool.isBool((KodeInstance) object)) {
-                return ValueBool.toBoolean(object);
+                return ValueBool.toBoolean((KodeInstance) object);
             }
             Object method = ((KodeInstance) object).get(Kode.BOOLEAN);
             if (method instanceof KodeFunction) {
@@ -724,7 +724,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
      * Converts an Java object to suitable KODE object. If it fails to do its
      * task, then it returns the object without converting it.
      */
-    Object toKodeValue(Object value) {
+    KodeObject toKodeValue(Object value) {
         if (value == null) {
             return ValueNone.create();
         } else if (value instanceof KodeNumber) {
@@ -738,15 +738,18 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
         } else if (value instanceof Boolean) {
             return ValueBool.create((Boolean) value);
         } else if (value instanceof List) {
-            List<Object> ll = new ArrayList<>();
-            for (Object item : (List<?>) value) {
+            final List<KodeObject> ll = new ArrayList<>();
+            ((List<?>) value).forEach((item) -> {
                 ll.add(this.toKodeValue(item));
-            }
+            });
             return ValueList.create(ll);
         } else if (value.getClass().isArray()) {
             return this.toKodeValue(convertToObjectArray(value));
+        } else if (value instanceof KodeObject) {
+            return (KodeObject) value;
+        } else {
+            throw new RuntimeError("Unsupported Data-Type.");
         }
-        return value;
     }
 
     /**
@@ -771,7 +774,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
      * Converts an KODE object to suitable Java object. If it fails to do its
      * task, then it returns the object without converting it.
      */
-    static Object toJava(Object value) {
+    static Object toJava(KodeObject value) {
         if (value instanceof KodeInstance) {
             if (ValueNone.isNone((KodeInstance) value)) {
                 return null;

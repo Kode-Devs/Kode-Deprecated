@@ -17,6 +17,7 @@
 package kode;
 
 import java.util.Objects;
+import kni.KodeObject;
 
 /**
  *
@@ -30,7 +31,7 @@ class ValueType extends Value {
         super("type", interpreter);
         //<editor-fold defaultstate="collapsed" desc="init">
         this.methods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, interpreter, null, 2, args -> {
-            Object This = args[0];
+            KodeObject This = args[0];
             if (This instanceof KodeInstance) {
                 ((KodeInstance) This).data = args[1];
             }
@@ -45,10 +46,12 @@ class ValueType extends Value {
 
         //<editor-fold defaultstate="collapsed" desc="str">
         this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, interpreter, null, 1, args -> {
-            Object This = args[0];
+            KodeObject This = args[0];
             if (This instanceof KodeInstance) {
-                if (((KodeInstance) This).data != null) {
-                    return interpreter.toKodeValue("<type '" + Kode.type(((KodeInstance) This).data) + "'>");
+                Object data = ((KodeInstance) This).data;
+                if (data != null) {
+                    return interpreter.toKodeValue("<type '" + (data instanceof KodeObject
+                            ? Kode.type((KodeObject) data) : data.getClass().getName()) + "'>");
                 }
             }
             throw new NotImplemented();
@@ -57,8 +60,8 @@ class ValueType extends Value {
 
         //<editor-fold defaultstate="collapsed" desc="eq">
         this.methods.put(Kode.EQ, new KodeBuiltinFunction(Kode.EQ, interpreter, null, 2, args -> {
-            Object This = args[0];
-            Object klass = args[1];
+            KodeObject This = args[0];
+            KodeObject klass = args[1];
             if (This instanceof KodeInstance) {
                 if (klass instanceof KodeClass && ((KodeInstance) This).data instanceof KodeInstance) {
                     return interpreter.toKodeValue(
@@ -70,8 +73,8 @@ class ValueType extends Value {
         //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="ne">
         this.methods.put(Kode.NE, new KodeBuiltinFunction(Kode.NE, interpreter, null, 2, args -> {
-            Object This = args[0];
-            Object klass = args[1];
+            KodeObject This = args[0];
+            KodeObject klass = args[1];
             if (This instanceof KodeInstance) {
                 if (klass instanceof KodeClass && ((KodeInstance) This).data instanceof KodeInstance) {
                     return interpreter.toKodeValue(

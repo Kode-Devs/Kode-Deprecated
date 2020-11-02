@@ -18,13 +18,14 @@ package kode;
 
 import java.util.HashMap;
 import java.util.Map;
+import kni.KodeObject;
 
 /**
  * This class is used to represent an instance of an class.
  *
  * @author Arpan Mahanty < edumate696@gmail.com >
  */
-class KodeInstance {
+class KodeInstance implements ExtKodeObject{
 
     /**
      * Doc-string or help text associated with the instance, or {@code null} for
@@ -53,7 +54,7 @@ class KodeInstance {
     /**
      * Map data structure to store the associated fields.
      */
-    Map<String, Object> fields = new HashMap<>();
+    Map<String, KodeObject> fields = new HashMap<>();
 
     /**
      * Generates a new instance object associated with a class.
@@ -76,7 +77,8 @@ class KodeInstance {
      * @param name Name of the attribute as Token object.
      * @return Returns the associated field/method.
      */
-    Object get(Token name) {
+    @Override
+    public KodeObject get(Token name) {
         if (fields.containsKey(name.lexeme)) {
             return fields.get(name.lexeme);
         }
@@ -100,7 +102,8 @@ class KodeInstance {
      * @param name Name of the attribute as String object.
      * @return Returns the associated field/method.
      */
-    Object get(String name) {
+    @Override
+    public KodeObject get(String name) {
         if (fields.containsKey(name)) {
             return fields.get(name);
         }
@@ -121,7 +124,8 @@ class KodeInstance {
      * @param name Name of the attribute as Token object.
      * @param value New Value for the field.
      */
-    void set(Token name, Object value) {
+    @Override
+    public void set(Token name, KodeObject value) {
         set(name.lexeme, value);
     }
 
@@ -132,7 +136,8 @@ class KodeInstance {
      * @param name Name of the attribute as String object.
      * @param value New Value for the field.
      */
-    void set(String name, Object value) {
+    @Override
+    public void set(String name, KodeObject value) {
         fields.put(name, value);
     }
 
@@ -143,6 +148,11 @@ class KodeInstance {
         } catch (StackOverflowError e) {
             throw new RuntimeError("Max Depth of Recursion Exceeded.");
         }
+    }
+
+    @Override
+    public KodeObject call(KodeObject... args) {
+        throw new RuntimeError("Not supported yet.");
     }
 
 }

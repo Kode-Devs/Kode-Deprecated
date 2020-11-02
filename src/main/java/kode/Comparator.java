@@ -18,6 +18,7 @@ package kode;
 
 import java.util.List;
 import java.util.Objects;
+import kni.KodeObject;
 import math.KodeMath;
 
 /**
@@ -42,7 +43,7 @@ abstract class Comparator {
      * @return Returns either {@code true} or {@code false} based on the
      * operation to be performed.
      */
-    static boolean eq(Object left, Object right, Interpreter interpreter) {
+    static boolean eq(KodeObject left, KodeObject right, Interpreter interpreter) {
         Boolean res = null;
         if (left instanceof KodeInstance && right instanceof KodeInstance) {
             if (ValueNone.isNone((KodeInstance) left) && ValueNone.isNone((KodeInstance) right)) {
@@ -63,8 +64,8 @@ abstract class Comparator {
                 res = Objects.equals(ValueString.toStr(left), ValueString.toStr(right));
             }
             if (ValueList.isList((KodeInstance) left) && ValueList.isList((KodeInstance) right)) {
-                List<?> l = ValueList.toList(left);
-                List<?> r = ValueList.toList(right);
+                List<KodeObject> l = ValueList.toList(left);
+                List<KodeObject> r = ValueList.toList(right);
                 if (l.size() == r.size()) {
                     res = true;
                     for (int i = 0; i < l.size(); i++) {
@@ -93,7 +94,7 @@ abstract class Comparator {
      * @return Returns either {@code true} or {@code false} based on the
      * operation to be performed.
      */
-    static boolean ne(Object left, Object right, Interpreter interpreter) {
+    static boolean ne(KodeObject left, KodeObject right, Interpreter interpreter) {
         Boolean res = null;
         if (left instanceof KodeInstance && right instanceof KodeInstance) {
             if (ValueNone.isNone((KodeInstance) left) && ValueNone.isNone((KodeInstance) right)) {
@@ -114,8 +115,8 @@ abstract class Comparator {
                 res = !Objects.equals(ValueString.toStr(left), ValueString.toStr(right));
             }
             if (ValueList.isList((KodeInstance) left) && ValueList.isList((KodeInstance) right)) {
-                List<?> l = ValueList.toList(left);
-                List<?> r = ValueList.toList(right);
+                List<KodeObject> l = ValueList.toList(left);
+                List<KodeObject> r = ValueList.toList(right);
                 if (l.size() == r.size()) {
                     res = false;
                     for (int i = 0; i < l.size(); i++) {
@@ -144,7 +145,7 @@ abstract class Comparator {
      * @return Returns either {@code true} or {@code false} based on the
      * operation to be performed.
      */
-    static boolean lt(Object left, Object right, Interpreter interpreter) {
+    static boolean lt(KodeObject left, KodeObject right, Interpreter interpreter) {
         Boolean res = null;
         if (left instanceof KodeInstance && right instanceof KodeInstance) {
             if (ValueBool.isBool((KodeInstance) left)) {
@@ -179,7 +180,7 @@ abstract class Comparator {
      * @return Returns either {@code true} or {@code false} based on the
      * operation to be performed.
      */
-    static boolean le(Object left, Object right, Interpreter interpreter) {
+    static boolean le(KodeObject left, KodeObject right, Interpreter interpreter) {
         Boolean res = null;
         if (left instanceof KodeInstance && right instanceof KodeInstance) {
             if (ValueBool.isBool((KodeInstance) left)) {
@@ -214,7 +215,7 @@ abstract class Comparator {
      * @return Returns either {@code true} or {@code false} based on the
      * operation to be performed.
      */
-    static boolean gt(Object left, Object right, Interpreter interpreter) {
+    static boolean gt(KodeObject left, KodeObject right, Interpreter interpreter) {
         Boolean res = null;
         if (left instanceof KodeInstance && right instanceof KodeInstance) {
             if (ValueBool.isBool((KodeInstance) left)) {
@@ -249,7 +250,7 @@ abstract class Comparator {
      * @return Returns either {@code true} or {@code false} based on the
      * operation to be performed.
      */
-    static boolean ge(Object left, Object right, Interpreter interpreter) {
+    static boolean ge(KodeObject left, KodeObject right, Interpreter interpreter) {
         Boolean res = null;
         if (left instanceof KodeInstance && right instanceof KodeInstance) {
             if (ValueBool.isBool((KodeInstance) left)) {
@@ -285,11 +286,11 @@ abstract class Comparator {
      * weather {@literal l1} is less than, equal to, or greater than
      * {@literal l2} respectively.
      */
-    private static int list_comparator(List<?> l1, List<?> l2, Interpreter interpreter) {
+    private static int list_comparator(List<KodeObject> l1, List<KodeObject> l2, Interpreter interpreter) {
         int lim = Math.min(l1.size(), l2.size());
         for (int k = 0; k < lim; k++) {
-            Object c1 = l1.get(k);
-            Object c2 = l2.get(k);
+            KodeObject c1 = l1.get(k);
+            KodeObject c2 = l2.get(k);
             try {
                 if (lt(c1, c2, interpreter)) {
                     return -1;

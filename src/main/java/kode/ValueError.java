@@ -18,6 +18,7 @@ package kode;
 
 import java.util.Arrays;
 import java.util.List;
+import kni.KodeObject;
 
 /**
  *
@@ -38,7 +39,7 @@ class ValueError extends Value {
         super("Error", interpreter);
         //<editor-fold defaultstate="collapsed" desc="init">
         this.methods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, interpreter, null, -2, args -> {
-            Object This = args[0];
+            KodeObject This = args[0];
             if (This instanceof KodeInstance) {
                 ((KodeInstance) This).set("args", this.interpreter.toKodeValue(Arrays.copyOfRange(args, 1, args.length)));
             }
@@ -47,7 +48,7 @@ class ValueError extends Value {
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="str">
         this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, interpreter, null, 1, args -> {
-            Object This = args[0];
+            KodeObject This = args[0];
             if (This instanceof KodeInstance) {
                 Object get = ((KodeInstance) This).get("args");
                 if (get == null) {
@@ -55,7 +56,7 @@ class ValueError extends Value {
                 }
                 if (get instanceof KodeInstance) {
                     if (ValueList.isList((KodeInstance) get)) {
-                        List<?> toList = ValueList.toList(get);
+                        List<?> toList = ValueList.toList((KodeInstance) get);
                         switch (toList.size()) {
                             case 0:
                                 get = "<Missing Error Details>";
@@ -75,8 +76,8 @@ class ValueError extends Value {
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="skip">
         this.methods.put("skip", new KodeBuiltinFunction("skip", interpreter, null, 2, args -> {
-            Object This = args[0];
-            Object level = args[1];
+            KodeObject This = args[0];
+            KodeObject level = args[1];
             if (This instanceof KodeInstance && level instanceof KodeInstance) {
                 if (ValueNumber.isNumber((KodeInstance) level)) {
                     try {

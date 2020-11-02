@@ -16,11 +16,13 @@
  */
 package kode;
 
+import kni.KodeObject;
+
 /**
  *
  * @author dell
  */
-class KodeModule {
+class KodeModule implements ExtKodeObject {
 
     String name;
     Interpreter inter = new Interpreter();
@@ -36,24 +38,31 @@ class KodeModule {
         this.__doc__ = Kode.runLib(path, inter);
     }
 
-    Object get(Token name) {
+    @Override
+    public String toString() {
+        return "<module '" + this.name + "'>";
+    }
+
+    @Override
+    public KodeObject call(KodeObject... args) {
+        throw new RuntimeError("Not supported yet.");
+    }
+
+    @Override
+    public KodeObject get(String name) {
         try {
             return inter.globals.get(name);
         } catch (RuntimeError ex) {
-            throw new RuntimeError("Module '" + this.name + "' has no attribute '" + name.lexeme + "'.", name);
-        }
-    }
-
-    void set(Token name, Object value) {
-        try {
-            inter.globals.assign(name, value);
-        } catch (RuntimeError ex) {
-            throw new RuntimeError("Module '" + this.name + "' has no attribute '" + name.lexeme + "'.", name);
+            throw new RuntimeError("Module '" + this.name + "' has no attribute '" + name + "'.");
         }
     }
 
     @Override
-    public String toString() {
-        return "<module '" + this.name + "'>";
+    public void set(String name, KodeObject value) {
+        try {
+            inter.globals.assign(name, value);
+        } catch (RuntimeError ex) {
+            throw new RuntimeError("Module '" + this.name + "' has no attribute '" + name + "'.");
+        }
     }
 }

@@ -12,6 +12,9 @@ package kni;
  */
 public interface KodeObject {
 
+    /**
+     * Call
+     */
     public KodeObject call(KodeObject... args);
 
     public KodeObject get(String name);

@@ -62,8 +62,17 @@ abstract class KodeCallable implements ExtKodeObject {
      * {@inheritDoc}
      */
     @Override
-    public final KodeObject call(KodeObject... args) {
-        return null;
+    public final KodeObject call(KodeObject... arguments) {
+        int len = this.isBind() ? arguments.length + 1 : arguments.length;
+        int arity = this.arity();
+
+        if (arity < 0 && len < -arity - 1) {
+            throw new RuntimeError("Expected minimum " + (-arity - 1) + " arguments but got " + len + ".");
+        } else if (arity >= 0 && len != arity) {
+            throw new RuntimeError("Expected " + arity + " arguments but got " + len + ".");
+        } else {
+            return this.__call__(arguments);
+        }
     }
 
     @Override

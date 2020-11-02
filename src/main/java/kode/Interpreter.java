@@ -509,25 +509,9 @@ class Interpreter implements Expr.Visitor<KodeObject>, Stmt.Visitor<KodeObject> 
         for (int i = 0; i < expr.arguments.length; i++) {
             arguments[i] = evaluate(expr.arguments[i]);
         }
-
-        KodeCallable function = (KodeCallable) callee;
-
-//        int len = arguments.length;
-//        int arity = function.arity();
-//        if (function.isBind()) {
-//            len++;
-//        }
-//
-//        if (arity < 0 && len < -arity - 1) {
-//            throw new RuntimeError(
-//                    "Expected minimum " + (-arity - 1) + " arguments but got " + len + ".",
-//                    expr.paren);
-//        } else if (arity >= 0 && len != arity) {
-//            throw new RuntimeError("Expected " + arity + " arguments but got " + len + ".",
-//                    expr.paren);
-//        }
+        
         try {
-            return function.call(arguments);
+            return ((KodeCallable) callee).call(arguments);
         } catch (RuntimeError e) {
             e.token.add(expr.paren);
             throw e;

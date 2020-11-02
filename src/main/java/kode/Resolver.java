@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Stack;
+import utils.IO;
 
 /**
  * <B><center>--- Semantic Analyzer for KODE interpreter ---</center></B>
@@ -54,6 +55,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
      * represents variable declared and but not initialized.
      */
     private final Stack<Map<String, Boolean>> scopes = new Stack<>();
+    private final Map<String, Boolean> global_scope = new HashMap<>();
 
     // Tracks the position of node, whether it is inside a function, constructor, method, class, subclass, or None.
     private FunctionType currentFunction = FunctionType.NONE;
@@ -467,17 +469,20 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
             // Added to check already defined variable in global scope
             try {
                 interpreter.globals.get(name);
-                error(name,
-                        "Variable with this name already declared in the this scope.");
             } catch (RuntimeError e) {
+                if (!global_scope.containsKey(name.lexeme)) {
+                    global_scope.put(name.lexeme, false);
+                    return;
+                }
             }
-            return;
+            error(name,
+                    "Variable '" + name.lexeme + "' is already declared in the this scope.");
         }
 
         Map<String, Boolean> scope = scopes.peek();
         if (scope.containsKey(name.lexeme)) {
             error(name,
-                    "Variable with this name already declared in this scope.");
+                    "Variable '" + name.lexeme + "' is already declared in this scope.");
         }
 
         scope.put(name.lexeme, false);
@@ -491,6 +496,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
      */
     private void define(Token name) {
         if (scopes.isEmpty()) {
+            global_scope.put(name.lexeme, true);
             return;
         }
         scopes.peek().put(name.lexeme, true);
@@ -499,19 +505,25 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     /**
      * A very important utility function used to define the scope depth for any
      * local variable.
-     * 
+     *
      * @param expr Associated expression node required for mapping
      * @param name Variable identifier
      */
-    private void resolveLocal(Expr expr, Token name) {
+    private boolean resolveLocal(Expr expr, Token name) {
         for (int i = scopes.size() - 1; i >= 0; i--) {
             if (scopes.get(i).containsKey(name.lexeme)) {
                 interpreter.resolve(expr, scopes.size() - 1 - i);
-                return;
+                return true;
             }
         }
 
-        // Not found. Assume it is global.                   
+        // Not found. Assume it is global.             
+        try {
+            interpreter.globals.get(name);
+            return true;
+        } catch (RuntimeError e) {
+            return global_scope.containsKey(name.lexeme);
+        }
     }
 
     /**

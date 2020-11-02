@@ -17,7 +17,7 @@
 package lib.math;
 
 import kni.KNI;
-import kni.KodeObject;
+import kni.KodeNativeObject;
 import math.KodeNumber;
 
 /**
@@ -27,8 +27,8 @@ import math.KodeNumber;
 public class log1p implements KNI {
 
     @Override
-    public KodeObject call(KodeObject... args) throws Throwable {
-        return new KodeObject(KodeNumber.valueOf(Math.log1p(((KodeNumber)args[0].get()).getFloat())));
+    public KodeNativeObject call(KodeNativeObject... args) throws Throwable {
+        return new KodeNativeObject(KodeNumber.valueOf(Math.log1p(((KodeNumber)args[0].get()).getFloat())));
     }
     
 }

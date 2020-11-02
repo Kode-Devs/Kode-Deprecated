@@ -17,7 +17,7 @@
 package lib.os;
 
 import kni.KNI;
-import kni.KodeObject;
+import kni.KodeNativeObject;
 
 /**
  *
@@ -26,11 +26,11 @@ import kni.KodeObject;
 public class setProperties implements KNI {
 
     @Override
-    public KodeObject call(KodeObject... args) throws Throwable {
+    public KodeNativeObject call(KodeNativeObject... args) throws Throwable {
         try {
-            return new KodeObject(System.setProperty(args[0].toString(), args[1].toString()));
+            return new KodeNativeObject(System.setProperty(args[0].toString(), args[1].toString()));
         } catch (Throwable e) {
-            return new KodeObject(null);
+            return new KodeNativeObject(null);
         }
     }
 

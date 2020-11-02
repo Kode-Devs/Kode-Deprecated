@@ -25,7 +25,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import kni.KNI;
-import kni.KodeObject;
+import kni.KodeNativeObject;
 
 /**
  * This class is used to represent any native function.
@@ -71,19 +71,19 @@ class KodeNative implements KodeCallable {
             @SuppressWarnings("deprecation")
             Object newInstance = urlClassLoader.loadClass(this.className).newInstance();
             urlClassLoader.close();
-            KodeObject[] args = new KodeObject[arguments.length];
+            KodeNativeObject[] args = new KodeNativeObject[arguments.length];
             for (int i = 0; i < arguments.length; i++) {
                 Object get = arguments[i];
                 if (get instanceof KodeInstance) {
                     if (ValueNative.isNative((KodeInstance) get)) {
-                        args[i] = new KodeObject(((KodeInstance) get).data).asNative();
+                        args[i] = new KodeNativeObject(((KodeInstance) get).data).asNative();
                         continue;
                     }
                 }
-                args[i] = new KodeObject(Interpreter.toJava(get));
+                args[i] = new KodeNativeObject(Interpreter.toJava(get));
             }
             if (newInstance instanceof KNI) {
-                KodeObject result = ((KNI) newInstance).call(args);
+                KodeNativeObject result = ((KNI) newInstance).call(args);
                 if (result == null) {
                     return null;
                 }

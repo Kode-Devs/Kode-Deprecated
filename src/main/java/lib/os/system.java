@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import kni.KNI;
-import kni.KodeObject;
+import kni.KodeNativeObject;
 
 /**
  *
@@ -30,7 +30,7 @@ import kni.KodeObject;
 public class system implements KNI {
 
     @Override
-    public KodeObject call(KodeObject... args) throws Throwable {
+    public KodeNativeObject call(KodeNativeObject... args) throws Throwable {
         List<String> c = Arrays.asList(args).stream()
                 .map(a -> a.get())
                 .map(a -> Objects.requireNonNullElse(a, ""))

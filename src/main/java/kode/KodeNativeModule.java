@@ -14,21 +14,26 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package lib.math;
-
-import kni.KNI;
-import kni.KodeNativeObject;
-import math.KodeNumber;
+package kode;
 
 /**
+ * This class is used to represent any native function.
  *
  * @author dell
  */
-public class log10 implements KNI {
+class KodeNativeModule {
+
+    private final Interpreter inter;
+    private final Class klass;
+    
+    KodeNativeModule(Class klass, Interpreter inter) {
+        this.klass = klass;
+        this.inter = inter;
+    }
 
     @Override
-    public KodeNativeObject call(KodeNativeObject... args) throws Throwable {
-        return new KodeNativeObject(KodeNumber.valueOf(Math.log10(((KodeNumber)args[0].get()).getFloat())));
+    public String toString() {
+        return "<native>";
     }
-    
+
 }

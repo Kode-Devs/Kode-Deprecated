@@ -346,13 +346,15 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     @Override
     public Void visitVarStmt(Stmt.Var stmt) {
         for (int i = 0; i < stmt.name.size(); i++) {
-            Object value = ValueNone.create();
+            Object value;
             if (stmt.initial.get(i) != null) {
                 value = evaluate(stmt.initial.get(i));
                 if (value == null) {
                     throw new RuntimeError("The expression associated with variable '" + stmt.name.get(i).lexeme
                             + "' does not return any value.", stmt.name.get(i));
                 }
+            } else {
+                value = ValueNone.create();
             }
             environment.define(stmt.name.get(i).lexeme, value);
         }

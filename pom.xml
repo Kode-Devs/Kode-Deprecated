@@ -39,6 +39,16 @@
             <url>https://raw.githubusercontent.com/Kode-Devs/mvn-repo/master/</url>
         </repository>
     </repositories>
+    
+    <distributionManagement>
+        <!-- Repository for KODE -->
+        <repository>
+            <id>mvn-repo</id>
+            <name>Maven Repository - Kode Devs</name>
+            <url>file://${user.home}/mvn-repo</url>
+        </repository>
+    </distributionManagement>
+    
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>13</maven.compiler.source>

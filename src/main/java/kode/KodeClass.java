@@ -254,13 +254,13 @@ class KodeClass extends KodeCallable {
             KodeObject right = args[1];
             if (left instanceof KodeInstance && right instanceof KodeInstance) {
                 if (ValueBool.isBool((KodeInstance) left)) {
-                    left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
+                    left = Interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
                 }
                 if (ValueBool.isBool((KodeInstance) right)) {
-                    right = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0);
+                    right = Interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0);
                 }
                 if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
-                    return interpreter.toKodeValue(KodeMath.multiply(ValueNumber.toNumber(left), ValueNumber.toNumber(right)));
+                    return Interpreter.toKodeValue(KodeMath.multiply(ValueNumber.toNumber(left), ValueNumber.toNumber(right)));
                 }
                 if (ValueString.isString((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
                     String str = "";
@@ -269,9 +269,9 @@ class KodeClass extends KodeCallable {
                             str = str.concat(ValueString.toStr(left));
                         }
                     } catch (Exception ex) {
-                        throw new RuntimeError("TODO");
+                        throw new NotImplemented();
                     }
-                    return interpreter.toKodeValue(str);
+                    return Interpreter.toKodeValue(str);
                 }
                 if (ValueString.isString((KodeInstance) right) && ValueNumber.isNumber((KodeInstance) left)) {
                     String str = "";
@@ -280,9 +280,9 @@ class KodeClass extends KodeCallable {
                             str = str.concat(ValueString.toStr(right));
                         }
                     } catch (Exception ex) {
-                        throw new RuntimeError("TODO");
+                        throw new NotImplemented();
                     }
-                    return interpreter.toKodeValue(str);
+                    return Interpreter.toKodeValue(str);
                 }
                 if (ValueList.isList((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
                     List<Object> ll = new ArrayList<>();
@@ -291,9 +291,9 @@ class KodeClass extends KodeCallable {
                             ll.addAll(ValueList.toList(left));
                         }
                     } catch (Exception ex) {
-                        throw new RuntimeError("TODO");
+                        throw new NotImplemented();
                     }
-                    return interpreter.toKodeValue(ll);
+                    return Interpreter.toKodeValue(ll);
                 }
                 if (ValueList.isList((KodeInstance) right) && ValueNumber.isNumber((KodeInstance) left)) {
                     List<Object> ll = new ArrayList<>();
@@ -302,9 +302,9 @@ class KodeClass extends KodeCallable {
                             ll.addAll(ValueList.toList(right));
                         }
                     } catch (Exception ex) {
-                        throw new RuntimeError("TODO");
+                        throw new NotImplemented();
                     }
-                    return interpreter.toKodeValue(ll);
+                    return Interpreter.toKodeValue(ll);
                 }
             }
             throw new NotImplemented();
@@ -394,16 +394,16 @@ class KodeClass extends KodeCallable {
             KodeObject right = args[1];
             if (left instanceof KodeInstance && right instanceof KodeInstance) {
                 if (ValueBool.isBool((KodeInstance) left)) {
-                    left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
+                    left = Interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
                 }
                 if (ValueBool.isBool((KodeInstance) right)) {
-                    right = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0);
+                    right = Interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0);
                 }
                 if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
                     try {
-                        return interpreter.toKodeValue(KodeMath.exponent(ValueNumber.toNumber(left), ValueNumber.toNumber(right)));
+                        return Interpreter.toKodeValue(KodeMath.exponent(ValueNumber.toNumber(left), ValueNumber.toNumber(right)));
                     } catch (ArithmeticException ex) {
-                        throw new RuntimeError("TODO");
+                        throw new NotImplemented();
                     }
                 }
             }
@@ -419,16 +419,16 @@ class KodeClass extends KodeCallable {
             KodeObject right = args[1];
             if (left instanceof KodeInstance && right instanceof KodeInstance) {
                 if (ValueBool.isBool((KodeInstance) left)) {
-                    left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
+                    left = Interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
                 }
                 if (ValueBool.isBool((KodeInstance) right)) {
-                    right = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0);
+                    right = Interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0);
                 }
                 if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
                     try {
-                        return interpreter.toKodeValue(KodeMath.lshift(ValueNumber.toNumber(left), ValueNumber.toNumber(right)));
+                        return Interpreter.toKodeValue(KodeMath.lshift(ValueNumber.toNumber(left), ValueNumber.toNumber(right)));
                     } catch (ArithmeticException ex) {
-                        throw new RuntimeError("TODO");
+                        throw new NotImplemented();
                     }
                 }
             }
@@ -444,16 +444,16 @@ class KodeClass extends KodeCallable {
             KodeObject right = args[1];
             if (left instanceof KodeInstance && right instanceof KodeInstance) {
                 if (ValueBool.isBool((KodeInstance) left)) {
-                    left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
+                    left = Interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
                 }
                 if (ValueBool.isBool((KodeInstance) right)) {
-                    right = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0);
+                    right = Interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0);
                 }
                 if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
                     try {
-                        return interpreter.toKodeValue(KodeMath.rshift(ValueNumber.toNumber(left), ValueNumber.toNumber(right)));
+                        return Interpreter.toKodeValue(KodeMath.rshift(ValueNumber.toNumber(left), ValueNumber.toNumber(right)));
                     } catch (ArithmeticException ex) {
-                        throw new RuntimeError("TODO");
+                        throw new NotImplemented();
                     }
                 }
             }

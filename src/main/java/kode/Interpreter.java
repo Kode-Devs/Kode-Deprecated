@@ -132,25 +132,20 @@ class Interpreter implements Expr.Visitor<KodeObject>, Stmt.Visitor<KodeObject> 
 
     @Override
     public KodeObject visitSetExpr(Expr.Set expr) {
-        Object object = evaluate(expr.object);
+        KodeObject object = evaluate(expr.object);
 
         if (expr.name.lexeme.equals(Kode.CLASS)) {
             throw new RuntimeError("Can not change '" + expr.name.lexeme + "' attribute of any instance.", expr.name);
         }
 
-        if (object instanceof KodeInstance) {
-            KodeObject value = evaluate(expr.value);
-            ((KodeInstance) object).set(expr.name, value);
-            return value;
+        KodeObject value = evaluate(expr.value);
+        try {
+            object.set(expr.name.lexeme, value);
+        } catch (RuntimeError e) {
+            e.token.add(expr.name);
+            throw e;
         }
-
-        if (object instanceof KodeModule) {
-            KodeObject value = evaluate(expr.value);
-            ((KodeModule) object).set(expr.name, value);
-            return value;
-        }
-
-        throw new RuntimeError("Only instances have fields.", expr.name);
+        return value;
     }
 
     @Override
@@ -287,7 +282,7 @@ class Interpreter implements Expr.Visitor<KodeObject>, Stmt.Visitor<KodeObject> 
                 Kode.ModuleRegistry.put(join, module);
                 module.inter.globals.define(Kode.__NAME__, module.inter.toKodeValue(stmt.imp.fn));
                 try {
-                    module.run();
+                    module.runModule();
                 } catch (Throwable e) {
                     Kode.ModuleRegistry.remove(join);
                     throw e;
@@ -499,19 +494,15 @@ class Interpreter implements Expr.Visitor<KodeObject>, Stmt.Visitor<KodeObject> 
 
     @Override
     public KodeObject visitCallExpr(Expr.Call expr) {
-        Object callee = evaluate(expr.callee);
-        if (!(callee instanceof KodeCallable)) {
-            throw new RuntimeError("Can only call functions and classes.", expr.paren);
-        }
+        KodeObject callee = evaluate(expr.callee);
 
-        // TODO Make Some Adjustments here.
         KodeObject[] arguments = new KodeObject[expr.arguments.length];
         for (int i = 0; i < expr.arguments.length; i++) {
             arguments[i] = evaluate(expr.arguments[i]);
         }
-        
+
         try {
-            return ((KodeCallable) callee).call(arguments);
+            return callee.call(arguments);
         } catch (RuntimeError e) {
             e.token.add(expr.paren);
             throw e;
@@ -553,18 +544,16 @@ class Interpreter implements Expr.Visitor<KodeObject>, Stmt.Visitor<KodeObject> 
 
     @Override
     public KodeObject visitGetExpr(Expr.Get expr) {
-        Object object = evaluate(expr.object);
+        KodeObject object = evaluate(expr.object);
         if (object == null) {
             throw new RuntimeError("No such object found", expr.name);
         }
-        if (object instanceof KodeInstance) {
-            return ((KodeInstance) object).get(expr.name);
+        try {
+            return object.get(expr.name.lexeme);
+        } catch (RuntimeError e) {
+            e.token.add(expr.name);
+            throw e;
         }
-        if (object instanceof KodeModule) {
-            return ((KodeModule) object).get(expr.name);
-        }
-
-        throw new RuntimeError("Only instances and modules have properties.", expr.name);
     }
 
     @Override
@@ -623,7 +612,7 @@ class Interpreter implements Expr.Visitor<KodeObject>, Stmt.Visitor<KodeObject> 
         List<String> temp = new ArrayList<>();
         expr.path.forEach(i -> temp.add(i.lexeme));
         String className = String.join(".", temp);
-        return new KodeNative(className, expr.pkg, this);
+        throw new RuntimeError("Deprecated", expr.nav);
     }
 
     @Override
@@ -708,7 +697,7 @@ class Interpreter implements Expr.Visitor<KodeObject>, Stmt.Visitor<KodeObject> 
      * Converts an Java object to suitable KODE object. If it fails to do its
      * task, then it returns the object without converting it.
      */
-    KodeObject toKodeValue(Object value) {
+    static KodeObject toKodeValue(Object value) {
         if (value == null) {
             return ValueNone.create();
         } else if (value instanceof KodeNumber) {
@@ -724,11 +713,11 @@ class Interpreter implements Expr.Visitor<KodeObject>, Stmt.Visitor<KodeObject> 
         } else if (value instanceof List) {
             final List<KodeObject> ll = new ArrayList<>();
             ((List<?>) value).forEach((item) -> {
-                ll.add(this.toKodeValue(item));
+                ll.add(Interpreter.toKodeValue(item));
             });
             return ValueList.create(ll);
         } else if (value.getClass().isArray()) {
-            return this.toKodeValue(convertToObjectArray(value));
+            return Interpreter.toKodeValue(ArrayObject2List(value));
         } else if (value instanceof KodeObject) {
             return (KodeObject) value;
         } else {
@@ -740,7 +729,7 @@ class Interpreter implements Expr.Visitor<KodeObject>, Stmt.Visitor<KodeObject> 
      * Converts an Java Array data-type to List data-type when pass as an single
      * object.
      */
-    private List<Object> convertToObjectArray(Object array) {
+    static private List<Object> ArrayObject2List(Object array) {
         Class<?> ofArray = array.getClass().getComponentType();
         if (ofArray.isPrimitive()) {
             List<Object> ar = new ArrayList<>();

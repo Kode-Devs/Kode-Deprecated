@@ -5,11 +5,17 @@
  */
 package kni;
 
+import java.lang.annotation.Retention;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import java.lang.annotation.Target;
+
 /**
  *
  * @author dell
  */
-public interface KNI {
-
-    public KodeNativeObject call(KodeNativeObject... args) throws Throwable;
+@Retention(RUNTIME)
+@Target(java.lang.annotation.ElementType.TYPE)
+public @interface KNI {
+    
+    public String doc();
 }

@@ -30,7 +30,7 @@ final class KodeBuiltinFunction extends KodeFunction {
 
     final String fun_name;
     private final int arity;
-    private final VarArgFunction<KodeObject, KodeObject> call;
+    private final VarArgFunction call;
 
     /**
      * Generates a new builtin function/method/constructor object.
@@ -43,13 +43,12 @@ final class KodeBuiltinFunction extends KodeFunction {
      * @param call A lambda method defining the actual work of the function or
      * the body of the function written in Java.
      */
-    KodeBuiltinFunction(String name, Interpreter inter, String doc, int arity, VarArgFunction<KodeObject, KodeObject> call) {
+    KodeBuiltinFunction(String name, Interpreter inter, String doc, int arity, VarArgFunction call) {
         super(null, null, inter, false);
         this.fun_name = name;
         this.__doc__ = doc;
         this.arity = arity;
         this.call = call;
-        this.instance = null;
     }
 
     @Override
@@ -79,17 +78,10 @@ final class KodeBuiltinFunction extends KodeFunction {
         }
         return this.call.apply(arguments);
     }
-
-    /**
-     * Functional Interface for function with variable parameter input and one
-     * output.
-     *
-     * @param <R> Return data type.
-     * @param <T> Parameter data type.
-     */
+    
     @FunctionalInterface
-    interface VarArgFunction<R, T> {
+    public interface VarArgFunction {
 
-        R apply(T... args);
+        KodeObject apply(KodeObject... args);
     }
 }

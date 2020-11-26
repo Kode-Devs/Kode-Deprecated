@@ -19,7 +19,6 @@ package kode;
 import utils.IO;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.math.BigInteger;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
@@ -40,8 +39,6 @@ import java.util.TreeSet;
 import javax.swing.JOptionPane;
 import kni.KodeObject;
 import math.KodeNumber;
-import utils.Pip4kode;
-import utils.Pip4kode.PipError;
 
 /**
  * Abstract class containing the driver method for KODE interpreter.
@@ -63,7 +60,7 @@ abstract class Kode {
     /**
      * Default file encoding for source files.
      */
-    private final static Charset ENCODING = StandardCharsets.UTF_8;
+    static final Charset ENCODING = StandardCharsets.UTF_8;
 
     /**
      * Use to store the currentTimeMillis value whenever tic() is called. Also
@@ -128,7 +125,7 @@ abstract class Kode {
                         IO.printfln(Kode.HELP); // Prints help text.
                         break;
                     default:
-                        // Executed in case of run as script file in cmd i.e., reads the script file and executes it.
+                        // Executed in case of runModule as script file in cmd i.e., reads the script file and executes it.
                         //<editor-fold defaultstate="collapsed" desc="Code for Script">
                         Path path = Paths.get(args[1]);
                         if (path.getFileName().toString().endsWith("." + Kode.EXTENSION)) {
@@ -247,103 +244,8 @@ abstract class Kode {
      */
     static void runFile(String path, Interpreter inter) throws Throwable {
         byte[] bytes = Files.readAllBytes(Paths.get(path));
-        inter.globals.define(Kode.__NAME__, inter.toKodeValue(Kode.__MAIN__));
+        inter.globals.define(Kode.__NAME__, Interpreter.toKodeValue(Kode.__MAIN__));
         run(Paths.get(path).toFile().getName(), new String(bytes, ENCODING), inter);
-    }
-
-    /**
-     * Utility function to search and execute any file from the system. It first
-     * scans for the file relative to the working directory, then to the package
-     * directory and finally in the builtin directory. It also checks for the
-     * availability of the package and its update, and hence downloads using
-     * {@link Pip4kode} if necessary.
-     *
-     * @implSpec The interpreter must have permissions to write or modify files
-     * in its installation location for its proper working. Else the
-     * download/update feature will not work.
-     *
-     * @param name Relative file path as per the import statement without file
-     * extension. For an example, to search file ./path/to/file.kde from the
-     * system, pass "path/to/file" as {@literal name}.
-     * @param inter Associated interpreter.
-     * @return The help text associated with the script file which is being
-     * imported.
-     * @throws Throwable
-     * @see run
-     */
-    static String runLib(String name, Interpreter inter) throws Throwable {
-        /*
-         *                  --- PROJECT NOTE ---
-         *
-         * AIM -> To design a system for searching a specific file from the
-         * system in a layered manner and finally execute it. Also check for
-         * versioning and availability of that file and hence take proper
-         * actions if needed.
-         *
-         * Author -> Arpan Mahanty < edumate696@gmail.com >
-         */
-
-        String pkgname = Paths.get(name).getName(0).toString();
-        String initial_path = Paths.get(Kode.LIBPATH, pkgname).toAbsolutePath().toString();
-        try {
-            // Check w.r.t working directory.
-            Path path = Paths.get("./", name + "." + Kode.EXTENSION).toAbsolutePath();
-            if (path.toFile().exists()) {
-                byte[] bytes = Files.readAllBytes(path);
-                return run(path.toFile().getName(), new String(bytes, ENCODING), inter).item1;
-            }
-
-            // Check for avialibility of update for the package.
-            if (Pip4kode.checkUpdate(pkgname, initial_path)) {
-                IO.printf_err("[Info]: Package '" + pkgname + "' needs an update.\n"
-                        + "Do you want to update the package '" + pkgname + "' ? [y/n] ");
-                if (IO.scanf().equalsIgnoreCase("y")) {
-                    throw new Exception(); // Accepted for update
-                }
-            }
-
-            // Check w.r.t package directory.
-            path = Paths.get(initial_path, name + "." + Kode.EXTENSION).toAbsolutePath();
-            if (path.toFile().exists()) {
-                byte[] bytes = Files.readAllBytes(path);
-                return run(path.toFile().getName(), new String(bytes, ENCODING), inter).item1;
-            }
-
-            // Check w.r.t built-in directory.
-            byte[] bytes;
-            InputStream file = Kode.class.getResourceAsStream("/" + name + "." + Kode.EXTENSION);
-            if (file != null) {
-                bytes = file.readAllBytes();
-                return run(name + "." + Kode.EXTENSION, new String(bytes, ENCODING), inter).item1;
-            }
-
-            // Not Found.
-            IO.printfln_err("[Info]: Library file " + name + "." + Kode.EXTENSION + " not found in your device.");
-            throw new Exception();
-        } catch (Exception e) {
-            // Download from online reposerity to local system.
-            try {
-                Pip4kode pip = new Pip4kode(pkgname);
-                IO.printfln("Reading package metadata from repository ...");
-                pip.init(initial_path);
-                IO.printf("Do you want to download the package '" + pip.pkg + "' (" + pip.sizeInWords + ") ? [y/n] ");
-                if (!IO.scanf().equalsIgnoreCase("y")) {
-                    throw new Exception();
-                }
-                if (pip.download()) {
-                    IO.printfln("Download Finished");
-                    return runLib(name, inter);
-                } else {
-                    IO.printfln_err("Download Failed");
-                }
-            } catch (PipError ex) {
-                throw new RuntimeError(ex.getMessage());
-            } catch (RuntimeError ex) {
-                throw ex;
-            } catch (Throwable ex) {
-            }
-            throw new RuntimeError("Requirement '" + name + "' not satisfied.");
-        }
     }
 
     /**
@@ -501,9 +403,6 @@ abstract class Kode {
             }
             return "function." + ((KodeFunction) object).declaration.name.lexeme;
         }
-        if (object instanceof KodeNative) {
-            return "native.function." + ((KodeNative) object).className;
-        }
         if (object instanceof KodeInstance) {
             return ((KodeInstance) object).klass.class_name;
         }
@@ -569,7 +468,7 @@ abstract class Kode {
                 if (temp instanceof KodeInstance) {
                     if (ValueString.isString((KodeInstance) temp)) {
                         try {
-                            return INTER.toKodeValue(String.format(ValueString.toStr((KodeInstance) temp), ll.toArray()));
+                            return Interpreter.toKodeValue(String.format(ValueString.toStr((KodeInstance) temp), ll.toArray()));
                         } catch (IllegalFormatException e) {
                             throw new RuntimeError("Format error -> " + e);
                         }
@@ -587,7 +486,7 @@ abstract class Kode {
                     ((KodeCallable) DEF_GLOBALS.get("printf")).call(args);
                 }
                 try {
-                    return INTER.toKodeValue(IO.scanf());
+                    return Interpreter.toKodeValue(IO.scanf());
                 } catch (IOException ex) {
                     throw new RuntimeError(ex.getMessage());
                 }
@@ -597,7 +496,7 @@ abstract class Kode {
                     ((KodeCallable) DEF_GLOBALS.get("printf")).call(args);
                 }
                 try {
-                    return INTER.toKodeValue(IO.scanf_pwd());
+                    return Interpreter.toKodeValue(IO.scanf_pwd());
                 } catch (IOException ex) {
                     throw new RuntimeError(ex.getMessage());
                 }
@@ -648,13 +547,13 @@ abstract class Kode {
                 if (obj instanceof KodeModule) {
                     dir.addAll(((KodeModule) obj).inter.globals.values.keySet());
                 }
-                return INTER.toKodeValue(Arrays.asList(dir.toArray()));
+                return Interpreter.toKodeValue(Arrays.asList(dir.toArray()));
             }));
             DEF_GLOBALS.put("id", new KodeBuiltinFunction("id", INTER, null, 1, args -> {
-                return INTER.toKodeValue(args[0].hashCode());
+                return Interpreter.toKodeValue(args[0].hashCode());
             }));
             DEF_GLOBALS.put("now", new KodeBuiltinFunction("now", INTER, null, 0, args -> {
-                return INTER.toKodeValue(System.currentTimeMillis());
+                return Interpreter.toKodeValue(System.currentTimeMillis());
             }));
             DEF_GLOBALS.put("free", new KodeBuiltinFunction("free", INTER, null, 0, args -> {
                 System.gc();
@@ -677,7 +576,7 @@ abstract class Kode {
                 if (!(type instanceof KodeClass)) {
                     throw new RuntimeError("Value passed for argument 'type' is not a class.");
                 }
-                return INTER.toKodeValue(Kode.instanceOf((KodeInstance) object, (KodeClass) type));
+                return Interpreter.toKodeValue(Kode.instanceOf((KodeInstance) object, (KodeClass) type));
             }));
             DEF_GLOBALS.put("issubclass", new KodeBuiltinFunction("issubclass", INTER, null, 2, args -> {
                 Object object = args[0];
@@ -688,7 +587,7 @@ abstract class Kode {
                 if (!(type instanceof KodeClass)) {
                     throw new RuntimeError("Value passed for argument 'type' is not a class.");
                 }
-                return INTER.toKodeValue(Kode.equal_or_sub_class_of((KodeClass) object, (KodeClass) type));
+                return Interpreter.toKodeValue(Kode.equal_or_sub_class_of((KodeClass) object, (KodeClass) type));
             }));
             DEF_GLOBALS.put("exit", new KodeBuiltinFunction("exit", INTER, null, 0, args -> {
                 IO.exit(0);
@@ -719,10 +618,10 @@ abstract class Kode {
                 Object object = args[0];
                 if (object instanceof KodeInstance) {
                     try {
-                        ((KodeInstance) object).get(args[1].toString());  //TODO change to String
-                        return INTER.toKodeValue(true);
+                        ((KodeInstance) object).get(ValueString.toStr(args[1]));
+                        return Interpreter.toKodeValue(true);
                     } catch (RuntimeError e) {
-                        return INTER.toKodeValue(false);
+                        return Interpreter.toKodeValue(false);
                     }
                 }
                 throw new RuntimeError("Value passed for argument 'object' is not an instance of a class.");
@@ -730,7 +629,7 @@ abstract class Kode {
             DEF_GLOBALS.put("setattr", new KodeBuiltinFunction("setattr", INTER, null, 3, args -> {
                 Object object = args[0];
                 if (object instanceof KodeInstance) {
-                    ((KodeInstance) object).set(args[1].toString(), args[2]);  //TODO change to String
+                    ((KodeInstance) object).set(ValueString.toStr(args[1]), args[2]);
                     return null;
                 }
                 throw new RuntimeError("Value passed for argument 'object' is not an instance of a class.");
@@ -739,7 +638,7 @@ abstract class Kode {
                 Object object = args[0];
                 if (object instanceof KodeInstance) {
                     try {
-                        return INTER.toKodeValue(((KodeInstance) object).get(args[1].toString()));  //TODO change to String
+                        return Interpreter.toKodeValue(((KodeInstance) object).get(ValueString.toStr(args[1])));
                     } catch (RuntimeError e) {
                         throw e;
                     }
@@ -747,7 +646,7 @@ abstract class Kode {
                 throw new RuntimeError("Value passed for argument 'object' is not an instance of a class.");
             }));
             DEF_GLOBALS.put("callable", new KodeBuiltinFunction("callable", INTER, null, 1, args -> {
-                return INTER.toKodeValue(args[0] instanceof KodeCallable);
+                return Interpreter.toKodeValue(args[0] instanceof KodeCallable);
             }));
             DEF_GLOBALS.put("eval", new KodeBuiltinFunction("eval", INTER, null, 1, args -> {
                 Object src = args[0];
@@ -788,7 +687,7 @@ abstract class Kode {
                                 if (ch.length() != 1) {
                                     throw new RuntimeError("ord() expected a Character, but " + Kode.type(temp) + " of length " + ch.length() + " found");
                                 }
-                                return INTER.toKodeValue((long) ch.charAt(0));
+                                return Interpreter.toKodeValue((long) ch.charAt(0));
                             }
                         }
                         throw new RuntimeError("ord() expected String of length 1, but " + Kode.type(temp) + " found");
@@ -816,7 +715,7 @@ abstract class Kode {
                                 KodeNumber asIndex = ValueNumber.toNumber(temp);
                                 if (asIndex.isInteger()) {
                                     try {
-                                        return INTER.toKodeValue((char) asIndex.getInteger().longValueExact());
+                                        return Interpreter.toKodeValue((char) asIndex.getInteger().longValueExact());
                                     } catch (ArithmeticException e) {
                                         throw new RuntimeError("Integer Number Out Of Range.");
                                     }
@@ -836,7 +735,7 @@ abstract class Kode {
 
             Kode.ModuleRegistry.put(Kode.BUILTIN_NAME, BUILTIN_MODULE);
             BUILTIN_MODULE.inter = INTER;
-            BUILTIN_MODULE.run();
+            BUILTIN_MODULE.runModule();
         } catch (Throwable ex) {
             handleThrowable(ex);
             JOptionPane.showMessageDialog(null, "Failed to Initialize Interpreter\nReason : " + ex.toString());

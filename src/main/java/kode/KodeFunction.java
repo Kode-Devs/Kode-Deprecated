@@ -73,6 +73,7 @@ class KodeFunction extends KodeCallable {
     KodeFunction bind(KodeInstance instance) {
         KodeFunction bind = new KodeFunction(declaration, new Environment(closure), interpreter, isInitializer);
         bind.instance = instance;
+        bind.__doc__ = this.__doc__;
         return bind;
     }
 

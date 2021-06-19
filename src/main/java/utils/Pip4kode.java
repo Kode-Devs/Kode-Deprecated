@@ -26,6 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Comparator;
+import java.util.Map;
 import javax.net.ssl.HttpsURLConnection;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.Git;
@@ -33,6 +34,8 @@ import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.TextProgressMonitor;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.AnsiConsole;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 /**
  *
@@ -132,7 +135,7 @@ public class Pip4kode {
             FileReader fr = new FileReader(Paths.get(local, "version.json").toString());
             StringWriter out = new StringWriter();
             fr.transferTo(out);
-            localVersion = out.toString();
+            localVersion = readVersion(out.toString());
             fr.close();
             out.close();
         } catch (Throwable e) {
@@ -142,12 +145,18 @@ public class Pip4kode {
         try {
             HttpsURLConnection con = (HttpsURLConnection) (new URL("https://raw.github.com/Kode-Devs/package-" + pkg + "/HEAD/version.json")).openConnection();
             con.setInstanceFollowRedirects(true);
-            remoteVersion = new String(con.getInputStream().readAllBytes());
+            remoteVersion = readVersion(new String(con.getInputStream().readAllBytes()));
             con.disconnect();
         } catch (Throwable e) {
             return false;
         }
-
+        
         return !localVersion.contentEquals(remoteVersion);
+    }
+    
+    static String readVersion(String version) throws ParseException{
+        JSONParser parser = new JSONParser();
+        Map parse = (Map) parser.parse(version);
+        return parse.get("version").toString();
     }
 }

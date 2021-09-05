@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2020 Kode Devs
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,14 +19,14 @@ package kode;
 import java.util.Stack;
 
 /**
- *
- * @author dell
+ * Runtime Error
+ * @author Arpan Mahanty < edumate696@gmail.com >
  */
 class RuntimeError extends Error {
 
     private static final long serialVersionUID = 1L;
     Stack<Token> token = new Stack<>();
-    KodeInstance instance = null;
+    KodeInstance instance;
 
     RuntimeError(String message, Token token) {
         this(ValueError.create(message));
@@ -43,7 +43,7 @@ class RuntimeError extends Error {
 
     @Override
     public String getMessage() {
-        return this.instance.klass.class_name + ": " + this.instance.toString();
+        return this.instance.klass.class_name + ": " + this.instance;
     }
 
     @Override

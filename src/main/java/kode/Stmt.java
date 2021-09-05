@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2020 Kode Devs
  *
  * This program is free software: you can redistribute it and/or modify
@@ -69,6 +69,7 @@ abstract class Stmt {
     }
 
     // Nested Stmt classes here...
+
     /**
      * Statement node representing a block of statements surrounded by curly
      * braces.
@@ -92,7 +93,7 @@ abstract class Stmt {
      */
     static class Class extends Stmt {
 
-        Class(Token name, Expr.Variable superclass, List<Stmt.Function> methods, String doc) {
+        Class(Token name, Expr.Variable superclass, List<Function> methods, String doc) {
             this.name = name;
             this.superclass = superclass;
             this.methods = methods;
@@ -106,7 +107,7 @@ abstract class Stmt {
 
         final Token name;
         final Expr.Variable superclass;
-        final List<Stmt.Function> methods;
+        final List<Function> methods;
         final String doc;
     }
 
@@ -267,7 +268,7 @@ abstract class Stmt {
     }
 
     /**
-     * Statement node to declare a new variable with/without a initial value.
+     * Statement node to declare a new variable with/without an initial value.
      */
     static class Var extends Stmt {
 
@@ -332,7 +333,7 @@ abstract class Stmt {
      */
     static class Try extends Stmt {
 
-        Try(List<Stmt> tryStmt, List<Stmt.Catch> catchs) {
+        Try(List<Stmt> tryStmt, List<Catch> catchs) {
             this.tryStmt = tryStmt;
             this.catchs = catchs;
         }
@@ -343,7 +344,7 @@ abstract class Stmt {
         }
 
         final List<Stmt> tryStmt;
-        final List<Stmt.Catch> catchs;
+        final List<Catch> catchs;
     }
 
     /**

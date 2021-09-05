@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2020 Kode Devs
  *
  * This program is free software: you can redistribute it and/or modify
@@ -68,7 +68,8 @@ abstract class Expr {
         R visitNativeExpr(Native expr);
     }
 
-    // Nested Expr clases here...
+    // Nested Expr classes here...
+
     /**
      * Expression node for assigning a new value to a predefined variable.
      */
@@ -150,10 +151,9 @@ abstract class Expr {
         final Expr array;
         final Expr index;
         final Token paren;
-    ;
 
     }
-    
+
     /**
      * Expression node for assigning a new element to a specific index in any data-structure.
      */
@@ -175,7 +175,6 @@ abstract class Expr {
         final Expr index;
         final Expr value;
         final Token paren;
-    ;
 
     }
 
@@ -276,7 +275,7 @@ abstract class Expr {
 
     /**
      * Expression node for retrieving a specific field from the super class of
-     * an class.
+     * a class.
      */
     static class Super extends Expr {
 

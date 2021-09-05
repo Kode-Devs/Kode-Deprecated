@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2020 Kode Devs
  *
  * This program is free software: you can redistribute it and/or modify
@@ -17,8 +17,8 @@
 package kode;
 
 /**
- *
- * @author dell
+ * None DataType
+ * @author Arpan Mahanty < edumate696@gmail.com >
  */
 class ValueNone extends Value {
 
@@ -43,7 +43,7 @@ class ValueNone extends Value {
             Object This = args[0];
             if (This instanceof KodeInstance) {
                 if (ValueNone.isNone((KodeInstance) This)) {
-                    return interpreter.toKodeValue(Kode.stringify(null));
+                    return Interpreter.toKodeValue(Kode.stringify(null));
                 }
             }
             throw new NotImplemented();
@@ -54,7 +54,7 @@ class ValueNone extends Value {
             Object This = args[0];
             if (This instanceof KodeInstance) {
                 if (ValueNone.isNone((KodeInstance) This)) {
-                    return interpreter.toKodeValue(false);
+                    return Interpreter.toKodeValue(false);
                 }
             }
             throw new NotImplemented();
@@ -62,7 +62,7 @@ class ValueNone extends Value {
 //</editor-fold>
     }
 
-    final static boolean isNone(KodeInstance i) {
+    static boolean isNone(KodeInstance i) {
         return instanceOf(i.klass, ValueNone.class);
     }
 

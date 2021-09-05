@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2020 Kode Devs
  *
  * This program is free software: you can redistribute it and/or modify
@@ -20,25 +20,24 @@ import kni.KodeObject;
 
 /**
  * Throwing instance of this class represents that {@code return} statement has
- * been called inside an loop.
+ * been called inside a loop.
  *
  * @author Arpan Mahanty < edumate696@gmail.com >
  */
 class Return extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
-    
+
     /**
      * Stores the return value.
      */
     final KodeObject value;
 
     /**
-     * Generates an throwable instance of the {@link Return} class, representing
+     * Generates a throwable instance of the {@link Return} class, representing
      * {@code return} statement call.
-     * 
+     *
      * @param value Return value or {@code null} for void return.
-     * 
      * @see Return
      * @see Stmt.Return
      */

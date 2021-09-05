@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2020 Kode Devs
  *
  * This program is free software: you can redistribute it and/or modify
@@ -17,8 +17,9 @@
 package kode;
 
 /**
+ * Native DataType
  *
- * @author dell
+ * @author Arpan Mahanty < edumate696@gmail.com >
  */
 class ValueNative extends Value {
 
@@ -46,14 +47,14 @@ class ValueNative extends Value {
         this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, interpreter, null, 1, args -> {
             Object This = args[0];
             if (This instanceof KodeInstance) {
-                return interpreter.toKodeValue("<native object '" + ((KodeInstance) This).data == null ? "null" : ((KodeInstance) This).data + "'>");
+                return Interpreter.toKodeValue("<native object '" + (((KodeInstance) This).data == null ? "null" : ((KodeInstance) This).data) + "'>");
             }
             throw new NotImplemented();
         }));
 //</editor-fold>
     }
 
-    final static boolean isNative(KodeInstance i) {
+    static boolean isNative(KodeInstance i) {
         return instanceOf(i.klass, ValueNative.class);
     }
 

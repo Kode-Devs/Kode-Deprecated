@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2020 Kode Devs
  *
  * This program is free software: you can redistribute it and/or modify
@@ -18,11 +18,13 @@ package kode;
 
 import java.util.Arrays;
 import java.util.List;
+
 import kni.KodeObject;
 
 /**
+ * Error DataType
  *
- * @author dell
+ * @author Arpan Mahanty < edumate696@gmail.com >
  */
 class ValueError extends Value {
 
@@ -31,7 +33,7 @@ class ValueError extends Value {
     static KodeInstance create(String msg) {
         KodeInstance instance = new KodeInstance(val);
         KodeFunction initializer = val.findMethod(Kode.INIT);
-        initializer.bind(instance).call(val.interpreter.toKodeValue(msg));
+        initializer.bind(instance).call(Interpreter.toKodeValue(msg));
         return instance;
     }
 
@@ -41,7 +43,7 @@ class ValueError extends Value {
         this.methods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, interpreter, null, -2, args -> {
             KodeObject This = args[0];
             if (This instanceof KodeInstance) {
-                ((KodeInstance) This).set("args", this.interpreter.toKodeValue(Arrays.copyOfRange(args, 1, args.length)));
+                This.set("args", Interpreter.toKodeValue(Arrays.copyOfRange(args, 1, args.length)));
             }
             return This;
         }));
@@ -50,7 +52,7 @@ class ValueError extends Value {
         this.methods.put(Kode.STRING, new KodeBuiltinFunction(Kode.STRING, interpreter, null, 1, args -> {
             KodeObject This = args[0];
             if (This instanceof KodeInstance) {
-                Object get = ((KodeInstance) This).get("args");
+                Object get = This.get("args");
                 if (get == null) {
                     get = "<Missing Error Details>";
                 }
@@ -69,7 +71,7 @@ class ValueError extends Value {
                         }
                     }
                 }
-                return interpreter.toKodeValue(get.toString());
+                return Interpreter.toKodeValue(get.toString());
             }
             throw new NotImplemented();
         }));
@@ -94,7 +96,7 @@ class ValueError extends Value {
 //</editor-fold>
     }
 
-    final static boolean isError(KodeInstance i) {
+    static boolean isError(KodeInstance i) {
         return instanceOf(i.klass, ValueError.class);
     }
 

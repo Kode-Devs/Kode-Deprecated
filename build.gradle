@@ -1,0 +1,64 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group 'org.edumate'
+version '1.0-SNAPSHOT'
+
+processResources {
+    doFirst {
+        def prop = new Properties()
+        prop.setProperty("project.name", project.name)
+        prop.setProperty("project.version", project.version.toString())
+
+        def propFile = new File("${project.projectDir}/src/main/resources/build.properties")
+        propFile.parentFile.mkdirs()
+        propFile.createNewFile()
+        prop.store(new FileWriter(propFile), null)
+    }
+}
+
+application {
+    mainClass = 'kode.Kode'
+}
+
+run {
+    // By Default standardInput is set to empty stream
+    standardInput = System.in
+}
+
+startScripts {
+    // Rename Application
+    applicationName = 'kode'
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(':kni')
+
+    // https://mvnrepository.com/artifact/org.fusesource.jansi/jansi
+    implementation 'org.fusesource.jansi:jansi:2.3.4'
+
+    // https://mvnrepository.com/artifact/org.eclipse.jgit/org.eclipse.jgit
+    implementation 'org.eclipse.jgit:org.eclipse.jgit:5.12.0.202106070339-r'
+
+    // https://mvnrepository.com/artifact/com.googlecode.json-simple/json-simple
+    implementation 'com.googlecode.json-simple:json-simple:1.1.1'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.2'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+wrapper {
+    gradleVersion = 7.2
+    distributionType = Wrapper.DistributionType.ALL
+}

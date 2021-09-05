@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2020 Kode Devs
  *
  * This program is free software: you can redistribute it and/or modify
@@ -17,8 +17,9 @@
 package kode;
 
 /**
+ * Token Type
  *
- * @author dell
+ * @author Arpan Mahanty < edumate696@gmail.com >
  */
 enum TokenType {
     //

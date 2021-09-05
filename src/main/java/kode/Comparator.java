@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2020 Kode Devs
  *
  * This program is free software: you can redistribute it and/or modify
@@ -18,6 +18,7 @@ package kode;
 
 import java.util.List;
 import java.util.Objects;
+
 import kni.KodeObject;
 import math.KodeMath;
 
@@ -25,11 +26,10 @@ import math.KodeMath;
  * Utility class for performing pre-defined comparison operations (i.e., ==, !=,
  * &lt;, &lt;=, &gt; and &gt;=) on two objects of same/different type.
  *
+ * @author Arpan Mahanty < edumate696@gmail.com >
  * @implNote If it fails to perform the operation i.e., it can not find any
  * pre-defined operation for the types of the object, then it throws an instance
  * of the {@link NotImplemented} error class.
- *
- * @author Arpan Mahanty < edumate696@gmail.com >
  */
 abstract class Comparator {
 
@@ -37,8 +37,8 @@ abstract class Comparator {
      * Checks for weather {@literal left} object is equal to {@literal right}
      * object, or not.
      *
-     * @param left Left Object.
-     * @param right Right Object.
+     * @param left        Left Object.
+     * @param right       Right Object.
      * @param interpreter Instance of associated interpreter.
      * @return Returns either {@code true} or {@code false} based on the
      * operation to be performed.
@@ -52,10 +52,10 @@ abstract class Comparator {
                 res = false;
             }
             if (ValueBool.isBool((KodeInstance) left)) {
-                left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
+                left = Interpreter.toKodeValue(ValueBool.toBoolean(left) ? 1 : 0);
             }
             if (ValueBool.isBool((KodeInstance) right)) {
-                right = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0);
+                right = Interpreter.toKodeValue(ValueBool.toBoolean(right) ? 1 : 0);
             }
             if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
                 res = KodeMath.equal(ValueNumber.toNumber(left), ValueNumber.toNumber(right));
@@ -88,8 +88,8 @@ abstract class Comparator {
      * Checks for weather {@literal left} object is not equal to
      * {@literal right} object, or not.
      *
-     * @param left Left Object.
-     * @param right Right Object.
+     * @param left        Left Object.
+     * @param right       Right Object.
      * @param interpreter Instance of associated interpreter.
      * @return Returns either {@code true} or {@code false} based on the
      * operation to be performed.
@@ -103,10 +103,10 @@ abstract class Comparator {
                 res = true;
             }
             if (ValueBool.isBool((KodeInstance) left)) {
-                left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
+                left = Interpreter.toKodeValue(ValueBool.toBoolean(left) ? 1 : 0);
             }
             if (ValueBool.isBool((KodeInstance) right)) {
-                right = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0);
+                right = Interpreter.toKodeValue(ValueBool.toBoolean(right) ? 1 : 0);
             }
             if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
                 res = KodeMath.not_equal(ValueNumber.toNumber(left), ValueNumber.toNumber(right));
@@ -139,8 +139,8 @@ abstract class Comparator {
      * Checks for weather {@literal left} object is less than {@literal right}
      * object, or not.
      *
-     * @param left Left Object.
-     * @param right Right Object.
+     * @param left        Left Object.
+     * @param right       Right Object.
      * @param interpreter Instance of associated interpreter.
      * @return Returns either {@code true} or {@code false} based on the
      * operation to be performed.
@@ -149,10 +149,10 @@ abstract class Comparator {
         Boolean res = null;
         if (left instanceof KodeInstance && right instanceof KodeInstance) {
             if (ValueBool.isBool((KodeInstance) left)) {
-                left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
+                left = Interpreter.toKodeValue(ValueBool.toBoolean(left) ? 1 : 0);
             }
             if (ValueBool.isBool((KodeInstance) right)) {
-                right = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0);
+                right = Interpreter.toKodeValue(ValueBool.toBoolean(right) ? 1 : 0);
             }
             if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
                 res = KodeMath.less(ValueNumber.toNumber(left), ValueNumber.toNumber(right));
@@ -174,8 +174,8 @@ abstract class Comparator {
      * Checks for weather {@literal left} object is less than or equal to
      * {@literal right} object, or not.
      *
-     * @param left Left Object.
-     * @param right Right Object.
+     * @param left        Left Object.
+     * @param right       Right Object.
      * @param interpreter Instance of associated interpreter.
      * @return Returns either {@code true} or {@code false} based on the
      * operation to be performed.
@@ -184,10 +184,10 @@ abstract class Comparator {
         Boolean res = null;
         if (left instanceof KodeInstance && right instanceof KodeInstance) {
             if (ValueBool.isBool((KodeInstance) left)) {
-                left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
+                left = Interpreter.toKodeValue(ValueBool.toBoolean(left) ? 1 : 0);
             }
             if (ValueBool.isBool((KodeInstance) right)) {
-                right = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0);
+                right = Interpreter.toKodeValue(ValueBool.toBoolean(right) ? 1 : 0);
             }
             if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
                 res = KodeMath.less_equal(ValueNumber.toNumber(left), ValueNumber.toNumber(right));
@@ -209,8 +209,8 @@ abstract class Comparator {
      * Checks for weather {@literal left} object is greater than
      * {@literal right} object, or not.
      *
-     * @param left Left Object.
-     * @param right Right Object.
+     * @param left        Left Object.
+     * @param right       Right Object.
      * @param interpreter Instance of associated interpreter.
      * @return Returns either {@code true} or {@code false} based on the
      * operation to be performed.
@@ -219,10 +219,10 @@ abstract class Comparator {
         Boolean res = null;
         if (left instanceof KodeInstance && right instanceof KodeInstance) {
             if (ValueBool.isBool((KodeInstance) left)) {
-                left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
+                left = Interpreter.toKodeValue(ValueBool.toBoolean(left) ? 1 : 0);
             }
             if (ValueBool.isBool((KodeInstance) right)) {
-                right = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0);
+                right = Interpreter.toKodeValue(ValueBool.toBoolean(right) ? 1 : 0);
             }
             if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
                 res = KodeMath.greater(ValueNumber.toNumber(left), ValueNumber.toNumber(right));
@@ -244,8 +244,8 @@ abstract class Comparator {
      * Checks for weather {@literal left} object is greater than or equal to
      * {@literal right} object, or not.
      *
-     * @param left Left Object.
-     * @param right Right Object.
+     * @param left        Left Object.
+     * @param right       Right Object.
      * @param interpreter Instance of associated interpreter.
      * @return Returns either {@code true} or {@code false} based on the
      * operation to be performed.
@@ -254,13 +254,13 @@ abstract class Comparator {
         Boolean res = null;
         if (left instanceof KodeInstance && right instanceof KodeInstance) {
             if (ValueBool.isBool((KodeInstance) left)) {
-                left = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) left) ? 1 : 0);
+                left = Interpreter.toKodeValue(ValueBool.toBoolean(left) ? 1 : 0);
             }
             if (ValueBool.isBool((KodeInstance) right)) {
-                right = interpreter.toKodeValue(ValueBool.toBoolean((KodeInstance) right) ? 1 : 0);
+                right = Interpreter.toKodeValue(ValueBool.toBoolean(right) ? 1 : 0);
             }
             if (ValueNumber.isNumber((KodeInstance) left) && ValueNumber.isNumber((KodeInstance) right)) {
-                res = KodeMath.greter_equal(ValueNumber.toNumber(left), ValueNumber.toNumber(right));
+                res = KodeMath.greater_equal(ValueNumber.toNumber(left), ValueNumber.toNumber(right));
             }
             if (ValueString.isString((KodeInstance) left) && ValueString.isString((KodeInstance) right)) {
                 res = (ValueString.toStr(left).compareTo(ValueString.toStr(right)) >= 0);
@@ -277,10 +277,10 @@ abstract class Comparator {
 
     /**
      * This method performs element-wise comparison of two list objects and
-     * finally returns a integer value representing the result.
+     * finally returns an integer value representing the result.
      *
-     * @param l1 Left list object.
-     * @param l2 Right list object.
+     * @param l1          Left list object.
+     * @param l2          Right list object.
      * @param interpreter Instance of the associated interpreter.
      * @return Returns negative integer, zero, or positive integer based on
      * weather {@literal l1} is less than, equal to, or greater than

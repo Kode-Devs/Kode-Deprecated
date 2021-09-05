@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2020 Kode Devs
  *
  * This program is free software: you can redistribute it and/or modify
@@ -18,6 +18,7 @@ package kode;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import kni.KodeObject;
 
 /**
@@ -56,7 +57,7 @@ class Environment {
     }
 
     /**
-     * Retrieve the value of an variable from the Symbol Table and its parent,
+     * Retrieve the value of a variable from the Symbol Table and its parent,
      * by using its name.
      *
      * @param name Variable Name as Token Object.
@@ -64,16 +65,16 @@ class Environment {
      * @throws RuntimeError If the variable with the specified name not found.
      */
     KodeObject get(Token name) {
-        try{
+        try {
             return this.get(name.lexeme);
-        } catch (RuntimeError error){
+        } catch (RuntimeError error) {
             error.token.add(name);
             throw error;
         }
     }
 
     /**
-     * Recursively Retrieve the value of an variable from the Symbol Table and
+     * Recursively Retrieve the value of a variable from the Symbol Table and
      * its parents, by using its name.
      *
      * @param name Variable Name as String.
@@ -96,20 +97,20 @@ class Environment {
         throw new RuntimeError(
                 "Undefined variable '" + name + "'.");
     }
-    
+
     /**
      * Recursively Assigns a new value to a variable if and only if the variable
      * is already present in the symbol table or its parents.
      *
-     * @param name Variable Name as Token Object.
+     * @param name  Variable Name as Token Object.
      * @param value New value of the variable.
      * @throws RuntimeError If the variable with the specified name not found in
-     * the symbol table.
+     *                      the symbol table.
      */
     void assign(Token name, KodeObject value) {
-        try{
+        try {
             this.assign(name.lexeme, value);
-        } catch (RuntimeError error){
+        } catch (RuntimeError error) {
             error.token.add(name);
             throw error;
         }
@@ -119,10 +120,10 @@ class Environment {
      * Recursively Assigns a new value to a variable if and only if the variable
      * is already present in the symbol table or its parents.
      *
-     * @param name Variable Name as Token Object.
+     * @param name  Variable Name as Token Object.
      * @param value New value of the variable.
      * @throws RuntimeError If the variable with the specified name not found in
-     * the symbol table.
+     *                      the symbol table.
      */
     void assign(String name, KodeObject value) {
         if (values.containsKey(name)) {
@@ -147,7 +148,7 @@ class Environment {
     /**
      * Stores a new variable in the symbol table, with an initial value.
      *
-     * @param name Variable Name as String.
+     * @param name  Variable Name as String.
      * @param value Initial Value of the Variable.
      */
     void define(String name, KodeObject value) {
@@ -172,11 +173,11 @@ class Environment {
     }
 
     /**
-     * Retrieve the value of an variable from the ancestor table having a
+     * Retrieve the value of a variable from the ancestor table having a
      * specific distance from the current Symbol Table , by using its name.
      *
      * @param distance The distance between the current table and its ancestor.
-     * @param name Name of the Variable as String.
+     * @param name     Name of the Variable as String.
      * @return Returns the value stored in the variable, if found, or
      * {@code null} if not found.
      */
@@ -190,8 +191,8 @@ class Environment {
      * by using its name.
      *
      * @param distance The distance between the current table and its ancestor.
-     * @param name Name of the Variable as Token Object.
-     * @param value New value to be assigned.
+     * @param name     Name of the Variable as Token Object.
+     * @param value    New value to be assigned.
      */
     void assignAt(int distance, Token name, KodeObject value) {
         ancestor(distance).values.put(name.lexeme, value);

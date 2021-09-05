@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2020 Kode Devs
  *
  * This program is free software: you can redistribute it and/or modify
@@ -54,7 +54,7 @@ abstract class KodeCallable implements ExtKodeObject {
      *
      * @param arguments Array of parameters as per declaration.
      * @return The result after ending its execution or {@code null} if void.
-     * For classes it returns the generated object.
+     * For classes, it returns the generated object.
      */
     abstract KodeObject __call__(KodeObject... arguments);
 

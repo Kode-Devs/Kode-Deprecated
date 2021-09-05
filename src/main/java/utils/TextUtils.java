@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2020 Kode Devs
  *
  * This program is free software: you can redistribute it and/or modify
@@ -17,8 +17,9 @@
 package utils;
 
 /**
+ * Utility Class for Text handling
  *
- * @author dell
+ * @author Arpan Mahanty < edumate696@gmail.com >
  */
 public class TextUtils {
 
@@ -29,9 +30,9 @@ public class TextUtils {
      * @param str_obj The String to be processed.
      * @return Processed String.
      * @throws IllegalArgumentException if an error occurs during processing
-     * escape sequence.
+     *                                  escape sequence.
      */
-    public static final String translateEscapes(Object str_obj) throws IllegalArgumentException {
+    public static String translateEscapes(Object str_obj) throws IllegalArgumentException {
         String str = str_obj.toString();
         if (str.isEmpty()) {
             return "";
@@ -89,7 +90,7 @@ public class TextUtils {
                         ch = (char) code;
                         break;
                     case 'u':
-                        String token = "";
+                        StringBuilder token = new StringBuilder();
                         int max = Integer.min(from + 4, length);
                         while (from < max) {
                             ch = chars[from];
@@ -97,13 +98,13 @@ public class TextUtils {
                                 break;
                             }
                             from++;
-                            token += ch;
+                            token.append(ch);
                         }
                         if (token.length() != 4) {
                             throw new IllegalArgumentException(String.format(
-                                "Invalid escape sequence: \\u%s", token));
+                                    "Invalid escape sequence: \\u%s", token));
                         }
-                        ch = (char) Integer.parseInt(token, 16);
+                        ch = (char) Integer.parseInt(token.toString(), 16);
                         break;
                     default:
                         throw new IllegalArgumentException(String.format(

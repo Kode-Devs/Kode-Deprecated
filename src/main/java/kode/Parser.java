@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2020 Kode Devs
  *
  * This program is free software: you can redistribute it and/or modify
@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static kode.TokenType.*;
+
 import math.KodeNumber;
 
 /**
@@ -36,8 +37,8 @@ import math.KodeNumber;
  * Lexical Analyzer.</p>
  *
  * @author Arpan Mahanty < edumate696@gmail.com >
- * @see parse()
- * @see Parser(java.util.List)
+ * @see Parser#parse()
+ * @see Parser( List)
  */
 class Parser {
 
@@ -71,14 +72,14 @@ class Parser {
 
     /**
      * Generates the AST from the associated list of Tokens following the syntax
-     * rules defined. It also check for the multi-lined string attached at the
+     * rules defined. It also checks for the multi-lined string attached at the
      * beginning of the source file as documentation/help string.
      *
      * @return Returns the AST i.e., the root element/node of the AST. Note that
      * each element in the returned list is the root for each statement defined
      * at the global scope.
      * @see Parser
-     * @see declaration
+     * @see Parser#declaration
      */
     List<Stmt> parse() {
         // Check for help/doc text.
@@ -97,7 +98,7 @@ class Parser {
      * Scans for Expressions.
      *
      * @see Expr
-     * @see assignment
+     * @see Parser#assignment
      */
     private Expr expression() {
         return assignment();
@@ -106,10 +107,10 @@ class Parser {
     /**
      * Scans for Declaration statements for Classes, Functions and Variables.
      *
-     * @see classDeclaration
-     * @see function
-     * @see varDeclaration
-     * @see statement
+     * @see Parser#classDeclaration
+     * @see Parser#function
+     * @see Parser#varDeclaration
+     * @see Parser#statement
      * @see Stmt
      */
     private Stmt declaration() {
@@ -134,7 +135,7 @@ class Parser {
         }
         if (match(EXCEPT)) {
             // EXCEPT statement must be consumed during consuming try statement.
-            // And can not be comsumed independently.
+            // And can not be consumed independently.
             throw error(previous(), "'except' without 'try' is not possible");
         }
         if (match(FOR)) {
@@ -379,7 +380,7 @@ class Parser {
             ----------------------------------------------
             try {
                 // code to be executed
-            } except(error_type as inst_alise) {
+            } except(error_type as inst_alias) {
                 // code to be executed in case of failure
             }
          */
@@ -898,7 +899,7 @@ class Parser {
 
             return new Expr.Array(paren, array);
         }
-        
+
         throw error(peek(), "Expect expression.");
     }
 
@@ -910,7 +911,7 @@ class Parser {
      * @return Returns {@code true} if the current token belongs to one of the
      * following enlisted token types, else {@code false}.
      * @see TokenType
-     * @see advance()
+     * @see Parser#advance()
      */
     private boolean match(TokenType... types) {
         for (TokenType type : types) {
@@ -927,13 +928,13 @@ class Parser {
      * Consumes the current token if it matches the specified token type, else
      * generate an error with the error message provided.
      *
-     * @param type The specified token type.
+     * @param type    The specified token type.
      * @param message Error message if it fails to consume the current token.
      * @return Returns the consumed token.
      * @see Token
      * @see TokenType
-     * @see advance
-     * @see error
+     * @see Parser#advance
+     * @see Parser#error
      */
     private Token consume(TokenType type, String message) {
         if (check(type)) {
@@ -947,7 +948,7 @@ class Parser {
      * Checks whether the current token belongs to the specified token type, or
      * not, without consuming it. Returns {@code false} if at end.
      *
-     * @see peek
+     * @see Parser#peek
      */
     private boolean check(TokenType type) {
         if (isAtEnd()) {
@@ -963,8 +964,8 @@ class Parser {
      * @return Returns the Token addressed by the current token pointer before
      * update.
      * @see Token
-     * @see current
-     * @see previous
+     * @see Parser#current
+     * @see Parser#previous
      */
     private Token advance() {
         if (!isAtEnd()) {
@@ -1007,7 +1008,7 @@ class Parser {
      * Generates an instance of error having a specific message, including a
      * token as reference.
      *
-     * @param token A token instance as reference.
+     * @param token   A token instance as reference.
      * @param message Error message describing the error instance.
      * @return The error instance generated.
      * @see RuntimeError

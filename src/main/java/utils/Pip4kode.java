@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2020 Kode Devs
  *
  * This program is free software: you can redistribute it and/or modify
@@ -28,18 +28,19 @@ import java.nio.file.Paths;
 import java.util.Comparator;
 import java.util.Map;
 import javax.net.ssl.HttpsURLConnection;
+
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.TextProgressMonitor;
 import org.fusesource.jansi.Ansi;
-import org.fusesource.jansi.AnsiConsole;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 /**
+ * Pip4Kode downloads and handles all libraries from their online repositories
  *
- * @author dell
+ * @author Arpan Mahanty < edumate696@gmail.com >
  */
 public class Pip4kode {
 
@@ -58,7 +59,7 @@ public class Pip4kode {
 
     public Pip4kode(String pkg) throws Exception {
         if (((HttpsURLConnection) new URL("https://www.github.com").openConnection()).getResponseCode() != HttpsURLConnection.HTTP_OK) {
-            throw new PipError("Internet Connection Unavialable."); // Checks weather Internet is accessible
+            throw new PipError("Internet Connection Unavailable."); // Checks weather Internet is accessible
         }
         this.pkg = pkg;
     }
@@ -66,7 +67,7 @@ public class Pip4kode {
     public void init(String desPath) throws Exception {
         URL url = new URL("https://github.com/Kode-Devs/package-" + pkg);
         if (((HttpsURLConnection) url.openConnection()).getResponseCode() != HttpsURLConnection.HTTP_OK) {
-            throw new PipError("Package '" + this.pkg + "' not avialable in Repository."); // Checks validation of the package
+            throw new PipError("Package '" + this.pkg + "' not available in Repository."); // Checks validation of the package
         }
         sizeInWords = calculateSize(pkg);
         File file = new File(desPath);
@@ -75,7 +76,7 @@ public class Pip4kode {
             while (file.exists()) {
                 Files.walk(file.toPath()).sorted(Comparator.reverseOrder())
                         .map(Path::toFile)
-                        .forEach(a -> a.delete());
+                        .forEach(File::delete);
                 i++;
                 if (i == 5) {
                     throw new PipError("Can not clear the old local copy. Try manually removing it from '" + file.getAbsolutePath() + "'"); // Can not clear the old version
@@ -87,17 +88,17 @@ public class Pip4kode {
                 .setDirectory(file)
                 .setBranch(Constants.HEAD)
                 .setCloneSubmodules(true)
-                .setProgressMonitor(new TextProgressMonitor(new PrintWriter(new OutputStreamWriter(AnsiConsole.out))));
+                .setProgressMonitor(new TextProgressMonitor(new PrintWriter(new OutputStreamWriter(System.out))));
     }
 
     public boolean download() {
         try {
-            AnsiConsole.out.print(Ansi.ansi().fgBlue());
+            System.out.print(Ansi.ansi().fgBlue());
             call.call();
-            AnsiConsole.out.print(Ansi.ansi().reset());
+            System.out.print(Ansi.ansi().reset());
             return true;
         } catch (Throwable e) {
-            AnsiConsole.out.print(Ansi.ansi().reset());
+            System.out.print(Ansi.ansi().reset());
             return false;
         }
     }
@@ -116,14 +117,14 @@ public class Pip4kode {
 
     private String BytesToString(long byteCount) {
         String[] suf = new String[]{"KB", "MB", "GB", "TB", "PB", "EB"};
-        Double len = Double.valueOf(byteCount);
+        double len = (double) byteCount;
         int order = 0;
         while (len >= 1024 && order < suf.length) {
             order++;
             len /= 1024;
         }
-        return (len.toString().endsWith(".0")
-                ? len.toString().substring(0, len.toString().length() - 2)
+        return (Double.toString(len).endsWith(".0")
+                ? Double.toString(len).substring(0, Double.toString(len).length() - 2)
                 : String.format("%.2f", len))
                 + " " + suf[order];
     }
@@ -150,13 +151,14 @@ public class Pip4kode {
         } catch (Throwable e) {
             return false;
         }
-        
+
         return !localVersion.contentEquals(remoteVersion);
     }
-    
-    static String readVersion(String version) throws ParseException{
-        JSONParser parser = new JSONParser();
-        Map parse = (Map) parser.parse(version);
-        return parse.get("version").toString();
+
+    static String readVersion(String version) throws ParseException {
+        Object parse = new JSONParser().parse(version);
+        if (parse instanceof Map)
+            return ((Map) parse).get("version").toString();
+        else return "un-versioned";
     }
 }

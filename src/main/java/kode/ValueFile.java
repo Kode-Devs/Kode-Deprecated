@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2020 Kode Devs
  *
  * This program is free software: you can redistribute it and/or modify
@@ -17,16 +17,16 @@
 package kode;
 
 /**
+ * File DataType
  *
- * @author dell
+ * @author Arpan Mahanty < edumate696@gmail.com >
  */
 class ValueFile extends Value {
 
     static Value val = new ValueFile(new Interpreter());
 
     static KodeInstance create(String filename, String mode, String encoding) {
-        KodeInstance instance = new KodeInstance(val);
-        return instance;
+        return new KodeInstance(val);
     }
 
     private ValueFile(Interpreter interpreter) {
@@ -38,7 +38,7 @@ class ValueFile extends Value {
 //</editor-fold>
     }
 
-    final static boolean isFile(KodeInstance i) {
+    static boolean isFile(KodeInstance i) {
         return instanceOf(i.klass, ValueFile.class);
     }
 

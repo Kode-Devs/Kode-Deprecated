@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2020 Kode Devs
  *
  * This program is free software: you can redistribute it and/or modify
@@ -18,6 +18,7 @@ package kode;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+
 import kni.KodeObject;
 
 /**
@@ -35,13 +36,13 @@ final class KodeBuiltinFunction extends KodeFunction {
     /**
      * Generates a new builtin function/method/constructor object.
      *
-     * @param name Name of the function.
+     * @param name  Name of the function.
      * @param inter Associated interpreter reference.
-     * @param doc Doc-string or help text associated with the function, or
-     * {@code null} for missing documentation.
+     * @param doc   Doc-string or help text associated with the function, or
+     *              {@code null} for missing documentation.
      * @param arity Arity of the function.
-     * @param call A lambda method defining the actual work of the function or
-     * the body of the function written in Java.
+     * @param call  A lambda method defining the actual work of the function or
+     *              the body of the function written in Java.
      */
     KodeBuiltinFunction(String name, Interpreter inter, String doc, int arity, VarArgFunction call) {
         super(null, null, inter, false);
@@ -72,13 +73,13 @@ final class KodeBuiltinFunction extends KodeFunction {
     public KodeObject __call__(KodeObject... arguments) {
         KodeInstance This = this.instance;
         if (This != null) {
-            ArrayList<KodeObject> asList = new ArrayList(Arrays.asList(arguments));
+            ArrayList<KodeObject> asList = new ArrayList<>(Arrays.asList(arguments));
             asList.add(0, This);
             arguments = asList.toArray(arguments);
         }
         return this.call.apply(arguments);
     }
-    
+
     @FunctionalInterface
     public interface VarArgFunction {
 

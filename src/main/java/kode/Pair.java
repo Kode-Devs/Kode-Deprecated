@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2020 Kode Devs
  *
  * This program is free software: you can redistribute it and/or modify
@@ -21,7 +21,7 @@ package kode;
  *
  * @author Arpan Mahanty < edumate696@gmail.com >
  */
-class Pair<T1, T2> implements Cloneable {
+class Pair<T1, T2> {
 
     public T1 item1;
     public T2 item2;

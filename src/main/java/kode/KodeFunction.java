@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2020 Kode Devs
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,6 +19,7 @@ package kode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 import kni.KodeObject;
 
 /**
@@ -43,12 +44,12 @@ class KodeFunction extends KodeCallable {
     /**
      * Generates a new non-builtin function/method/constructor object.
      *
-     * @param declaration Actual declaration of the function i.e., the function
-     * node from the AST.
-     * @param closure Associated Symbol table.
-     * @param inter Associated interpreter.
+     * @param declaration   Actual declaration of the function i.e., the function
+     *                      node from the AST.
+     * @param closure       Associated Symbol table.
+     * @param inter         Associated interpreter.
      * @param isInitializer {@link boolean} value representing weather this
-     * function is a constructor of an class or not.
+     *                      function is a constructor of a class or not.
      */
     KodeFunction(Stmt.Function declaration, Environment closure, Interpreter inter, boolean isInitializer) {
         this.instance = null;
@@ -92,7 +93,7 @@ class KodeFunction extends KodeCallable {
     public KodeObject __call__(KodeObject... arguments) {
         KodeInstance This = this.instance;
         if (This != null) {
-            ArrayList<KodeObject> asList = new ArrayList(Arrays.asList(arguments));
+            ArrayList<KodeObject> asList = new ArrayList<>(Arrays.asList(arguments));
             asList.add(0, This);
             arguments = asList.toArray(arguments);
         }
@@ -103,11 +104,8 @@ class KodeFunction extends KodeCallable {
                 environment.define(declaration.params[i].lexeme, arguments[i]);
             }
             if (declaration.params[declaration.params.length - 1].lexeme.equals(Kode.VARARGIN)) {
-                List<Object> varargin = new ArrayList<>();
-                for (int j = declaration.params.length - 1; j < arguments.length; j++) {
-                    varargin.add(arguments[j]);
-                }
-                environment.define(Kode.VARARGIN, this.interpreter.toKodeValue(varargin));
+                List<Object> varargin = new ArrayList<>(Arrays.asList(arguments).subList(declaration.params.length - 1, arguments.length));
+                environment.define(Kode.VARARGIN, Interpreter.toKodeValue(varargin));
             } else {
                 environment.define(declaration.params[declaration.params.length - 1].lexeme, arguments[declaration.params.length - 1]);
             }

@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2020 Kode Devs
  *
  * This program is free software: you can redistribute it and/or modify
@@ -17,21 +17,19 @@
 package kode;
 
 /**
+ * NotImplemented Error
  *
- * @author dell
+ * @author Arpan Mahanty < edumate696@gmail.com >
  */
 class NotImplemented extends RuntimeError {
 
-    /**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	NotImplemented() {
+    NotImplemented() {
         super(ValueNotImplemented.create());
     }
-    
-    NotImplemented(KodeInstance instance){
+
+    NotImplemented(KodeInstance instance) {
         super(instance);
     }
 

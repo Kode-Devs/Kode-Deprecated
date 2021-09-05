@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2020 Kode Devs
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,8 +19,9 @@ package kode;
 import kni.KodeObject;
 
 /**
+ * NotImplemented Error DataType
  *
- * @author dell
+ * @author Arpan Mahanty < edumate696@gmail.com >
  */
 class ValueNotImplemented extends Value {
 
@@ -36,13 +37,13 @@ class ValueNotImplemented extends Value {
         super("NotImplemented", ValueError.val, interpreter);
         //<editor-fold defaultstate="collapsed" desc="init">
         this.methods.put(Kode.INIT, new KodeBuiltinFunction(Kode.INIT, interpreter, null, 1, args -> {
-                KodeObject This = args[0];
-                if (This instanceof KodeInstance) {
-                    ((KodeInstance) This).klass.superclass.findMethod(Kode.INIT).bind((KodeInstance) This)
-                            .call(this.interpreter.toKodeValue("This method is not implemented yet."));
-                }
-                return This;
-            }));
+            KodeObject This = args[0];
+            if (This instanceof KodeInstance) {
+                ((KodeInstance) This).klass.superclass.findMethod(Kode.INIT).bind((KodeInstance) This)
+                        .call(Interpreter.toKodeValue("This method is not implemented yet."));
+            }
+            return This;
+        }));
 //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="init subclass">
         this.methods.put(Kode.INIT_SUBCLASS, new KodeBuiltinFunction(Kode.INIT_SUBCLASS, interpreter, null, -3, args -> {
@@ -51,7 +52,7 @@ class ValueNotImplemented extends Value {
 //</editor-fold>
     }
 
-    final static boolean isNotImplemented(KodeInstance i) {
+    static boolean isNotImplemented(KodeInstance i) {
         return instanceOf(i.klass, ValueNotImplemented.class);
     }
 

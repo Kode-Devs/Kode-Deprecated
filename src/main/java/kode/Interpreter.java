@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2020 Kode Devs
  *
  * This program is free software: you can redistribute it and/or modify
@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
 import kni.KodeObject;
 import math.KodeMath;
 import math.KodeNumber;
@@ -49,7 +50,7 @@ import math.KodeNumber;
  * the Syntax Analyzer and verified by the Semantic Analyzer.</p>
  *
  * @author Arpan Mahanty < edumate696@gmail.com >
- * @see interpret(java.util.List)
+ * @see Interpreter#interpret(List)
  * @see Interpreter()
  */
 class Interpreter implements Expr.Visitor<KodeObject>, Stmt.Visitor<KodeObject> {
@@ -90,7 +91,7 @@ class Interpreter implements Expr.Visitor<KodeObject>, Stmt.Visitor<KodeObject> 
      * @return Returns the result of the last statement from the list.
      * @see Stmt
      */
-    KodeObject interpret(List<Stmt> statements) throws Exception {
+    KodeObject interpret(List<Stmt> statements) {
         try {
             KodeObject ret = null;
             for (Stmt statement : statements) {
@@ -110,7 +111,7 @@ class Interpreter implements Expr.Visitor<KodeObject>, Stmt.Visitor<KodeObject> 
 
     @Override
     public KodeObject visitLiteralExpr(Expr.Literal expr) {
-        return this.toKodeValue(expr.value);
+        return toKodeValue(expr.value);
     }
 
     @Override
@@ -181,7 +182,7 @@ class Interpreter implements Expr.Visitor<KodeObject>, Stmt.Visitor<KodeObject> 
     }
 
     /**
-     * Stores the expression node reference and it associated scope depth into
+     * Stores the expression node reference, and it associated scope depth into
      * the instance of the interpreter.
      */
     void resolve(Expr expr, int depth) {
@@ -268,9 +269,7 @@ class Interpreter implements Expr.Visitor<KodeObject>, Stmt.Visitor<KodeObject> 
     @Override
     public KodeObject visitRequireStmt(Stmt.Require stmt) {
         List<String> dir = new ArrayList<>();
-        stmt.dir.forEach((item) -> {
-            dir.add(item.lexeme);
-        });
+        stmt.dir.forEach((item) -> dir.add(item.lexeme));
 
         String join = String.join(File.separator, dir);
         try {
@@ -280,7 +279,7 @@ class Interpreter implements Expr.Visitor<KodeObject>, Stmt.Visitor<KodeObject> 
             } else {
                 module = new KodeModule(String.join(".", dir), join);
                 Kode.ModuleRegistry.put(join, module);
-                module.inter.globals.define(Kode.__NAME__, module.inter.toKodeValue(stmt.imp.fn));
+                module.inter.globals.define(Kode.__NAME__, toKodeValue(stmt.imp.fn));
                 try {
                     module.runModule();
                 } catch (Throwable e) {
@@ -289,9 +288,7 @@ class Interpreter implements Expr.Visitor<KodeObject>, Stmt.Visitor<KodeObject> 
                 }
             }
             if (stmt.methods != null) {
-                stmt.methods.forEach((item) -> {
-                    environment.define(item.lexeme, module.get(item));
-                });
+                stmt.methods.forEach((item) -> environment.define(item.lexeme, module.get(item)));
             } else {
                 environment.define(stmt.alias != null ? stmt.alias.lexeme : dir.get(dir.size() - 1), module);
             }
@@ -319,7 +316,7 @@ class Interpreter implements Expr.Visitor<KodeObject>, Stmt.Visitor<KodeObject> 
                 throw e;
             }
         }
-        throw new RuntimeError("Can only raise intances of Error class or its sub-classes but found element of type '"
+        throw new RuntimeError("Can only raise instances of Error class or its sub-classes but found element of type '"
                 + Kode.type(value) + "'.", stmt.keyword);
     }
 
@@ -363,7 +360,7 @@ class Interpreter implements Expr.Visitor<KodeObject>, Stmt.Visitor<KodeObject> 
                 execute(stmt.body);
             } catch (Break b) {
                 break;
-            } catch (Continue c) {
+            } catch (Continue ignored) {
             }
         }
         return null;
@@ -379,7 +376,7 @@ class Interpreter implements Expr.Visitor<KodeObject>, Stmt.Visitor<KodeObject> 
                 execute(stmt.body);
             } catch (Break b) {
                 break;
-            } catch (Continue c) {
+            } catch (Continue ignored) {
             }
             if (stmt.increment != null) {
                 execute(stmt.increment);
@@ -412,37 +409,37 @@ class Interpreter implements Expr.Visitor<KodeObject>, Stmt.Visitor<KodeObject> 
      * <code>right.rop(left)</code>. Again on similar failure it generates
      * suitable error message for the binary operation.
      *
-     * @param left Left Value
+     * @param left  Left Value
      * @param right Right Value
-     * @param lop Name of associated function in left object.
-     * @param rop Name of associated function in right object.
-     * @param op Operator as a reference for the error message.
+     * @param lop   Name of associated function in left object.
+     * @param rop   Name of associated function in right object.
+     * @param op    Operator as a reference for the error message.
      * @return Returns the resultant value.
      */
     private KodeObject BinOP(KodeObject left, KodeObject right, String lop, String rop, Token op) {
         if (left instanceof KodeInstance) {
             try {
-                Object fun = ((KodeInstance) left).get(lop);
+                Object fun = left.get(lop);
                 if (fun instanceof KodeFunction) {
                     return ((KodeFunction) fun).call(right);
                 }
-            } catch (NotImplemented e1) {
+            } catch (NotImplemented ignored) {
             }
         }
         if (right instanceof KodeInstance) {
             try {
-                Object fun = ((KodeInstance) right).get(rop);
+                Object fun = right.get(rop);
                 if (fun instanceof KodeFunction) {
                     return ((KodeFunction) fun).call(left);
                 }
-            } catch (NotImplemented e2) {
+            } catch (NotImplemented ignored) {
             }
         }
         if (lop.equals(rop) && lop.equals(Kode.EQ)) {
-            return this.toKodeValue(Objects.equals(left, right));
+            return toKodeValue(Objects.equals(left, right));
         }
         if (lop.equals(rop) && lop.equals(Kode.NE)) {
-            return this.toKodeValue(!Objects.equals(left, right));
+            return toKodeValue(!Objects.equals(left, right));
         }
         throw new RuntimeError("Binary Operation '" + op.lexeme + "' can not be performed between operands of type '"
                 + Kode.type(left) + "' and '" + Kode.type(right) + "'.", op);
@@ -487,7 +484,7 @@ class Interpreter implements Expr.Visitor<KodeObject>, Stmt.Visitor<KodeObject> 
             default:
                 throw new RuntimeError(
                         "Binary Operation '" + expr.operator + "' can not be performed between operands of type '"
-                        + Kode.type(left) + "' and '" + Kode.type(right) + "'.",
+                                + Kode.type(left) + "' and '" + Kode.type(right) + "'.",
                         expr.operator);
         }
     }
@@ -562,15 +559,15 @@ class Interpreter implements Expr.Visitor<KodeObject>, Stmt.Visitor<KodeObject> 
 
         switch (expr.operator.type) {
             case BANG:
-                return this.toKodeValue(!isTruthy(right));
+                return toKodeValue(!isTruthy(right));
             case MINUS:
                 if (right instanceof KodeInstance) {
                     try {
-                        Object fun = ((KodeInstance) right).get(Kode.NEG);
+                        Object fun = right.get(Kode.NEG);
                         if (fun instanceof KodeFunction) {
                             return ((KodeFunction) fun).call();
                         }
-                    } catch (NotImplemented e2) {
+                    } catch (NotImplemented ignored) {
                     }
                 }
                 throw new RuntimeError("Unary Operation '" + expr.operator.lexeme
@@ -578,11 +575,11 @@ class Interpreter implements Expr.Visitor<KodeObject>, Stmt.Visitor<KodeObject> 
             case PLUS:
                 if (right instanceof KodeInstance) {
                     try {
-                        Object fun = ((KodeInstance) right).get(Kode.POS);
+                        Object fun = right.get(Kode.POS);
                         if (fun instanceof KodeFunction) {
                             return ((KodeFunction) fun).call();
                         }
-                    } catch (NotImplemented e2) {
+                    } catch (NotImplemented ignored) {
                     }
                 }
                 throw new RuntimeError("Unary Operation '" + expr.operator.lexeme
@@ -596,9 +593,7 @@ class Interpreter implements Expr.Visitor<KodeObject>, Stmt.Visitor<KodeObject> 
     @Override
     public KodeObject visitArrayExpr(Expr.Array expr) {
         List<Object> arr = new ArrayList<>();
-        expr.array.forEach((ex) -> {
-            arr.add(evaluate(ex));
-        });
+        expr.array.forEach((ex) -> arr.add(evaluate(ex)));
         return toKodeValue(arr);
     }
 
@@ -611,7 +606,7 @@ class Interpreter implements Expr.Visitor<KodeObject>, Stmt.Visitor<KodeObject> 
     public KodeObject visitNativeExpr(Expr.Native expr) {
         List<String> temp = new ArrayList<>();
         expr.path.forEach(i -> temp.add(i.lexeme));
-        String className = String.join(".", temp);
+//        String className = String.join(".", temp);
         throw new RuntimeError("Deprecated", expr.nav);
     }
 
@@ -626,6 +621,7 @@ class Interpreter implements Expr.Visitor<KodeObject>, Stmt.Visitor<KodeObject> 
                 if (err_type instanceof ValueError) {
                     cls = (ValueError) err_type;
                 } else {
+                    assert c.ErrorType != null;
                     throw new RuntimeError(c.ErrorType.name.lexeme + " is not a Error class name", c.ErrorType.name);
                 }
                 if (Kode.instanceOf(e.instance, cls)) {
@@ -694,7 +690,7 @@ class Interpreter implements Expr.Visitor<KodeObject>, Stmt.Visitor<KodeObject> 
     }
 
     /**
-     * Converts an Java object to suitable KODE object. If it fails to do its
+     * Converts a Java object to suitable KODE object. If it fails to do its
      * task, then it returns the object without converting it.
      */
     static KodeObject toKodeValue(Object value) {
@@ -712,9 +708,7 @@ class Interpreter implements Expr.Visitor<KodeObject>, Stmt.Visitor<KodeObject> 
             return ValueBool.create((Boolean) value);
         } else if (value instanceof List) {
             final List<KodeObject> ll = new ArrayList<>();
-            ((List<?>) value).forEach((item) -> {
-                ll.add(Interpreter.toKodeValue(item));
-            });
+            ((List<?>) value).forEach((item) -> ll.add(Interpreter.toKodeValue(item)));
             return ValueList.create(ll);
         } else if (value.getClass().isArray()) {
             return Interpreter.toKodeValue(ArrayObject2List(value));
@@ -726,7 +720,7 @@ class Interpreter implements Expr.Visitor<KodeObject>, Stmt.Visitor<KodeObject> 
     }
 
     /**
-     * Converts an Java Array data-type to List data-type when pass as an single
+     * Converts a Java Array data-type to List data-type when pass as a single
      * object.
      */
     static private List<Object> ArrayObject2List(Object array) {

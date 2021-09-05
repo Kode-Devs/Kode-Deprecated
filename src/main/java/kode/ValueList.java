@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2020 Kode Devs
  *
  * This program is free software: you can redistribute it and/or modify
@@ -18,11 +18,13 @@ package kode;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import kni.KodeObject;
 
 /**
+ * List DataType
  *
- * @author dell
+ * @author Arpan Mahanty < edumate696@gmail.com >
  */
 class ValueList extends Value {
 
@@ -51,7 +53,7 @@ class ValueList extends Value {
         this.methods.put(Kode.INIT_SUBCLASS, new KodeBuiltinFunction(Kode.INIT_SUBCLASS, interpreter, null, -3, args -> {
             KodeObject This = args[1];
             if (This instanceof KodeInstance) {
-                ((KodeInstance) This).data = new ArrayList();
+                ((KodeInstance) This).data = new ArrayList<>();
             }
             return null;
         }));
@@ -64,16 +66,16 @@ class ValueList extends Value {
                 if (ValueList.isList((KodeInstance) This)) {
                     try {
                         KodeObject i;
-                        if (!((KodeInstance) This).reccured) {
-                            ((KodeInstance) This).reccured = true;
-                            i = interpreter.toKodeValue(Kode.stringify(ValueList.toList(This)));
+                        if (!((KodeInstance) This).recurred) {
+                            ((KodeInstance) This).recurred = true;
+                            i = Interpreter.toKodeValue(Kode.stringify(ValueList.toList(This)));
                         } else {
-                            i = interpreter.toKodeValue(Kode.stringify("[...]"));
+                            i = Interpreter.toKodeValue(Kode.stringify("[...]"));
                         }
-                        ((KodeInstance) This).reccured = false;
+                        ((KodeInstance) This).recurred = false;
                         return i;
                     } catch (Throwable e) {
-                        ((KodeInstance) This).reccured = false;
+                        ((KodeInstance) This).recurred = false;
                         throw e;
                     }
                 }
@@ -86,7 +88,7 @@ class ValueList extends Value {
             KodeObject This = args[0];
             if (This instanceof KodeInstance) {
                 if (ValueList.isList((KodeInstance) This)) {
-                    return interpreter.toKodeValue(Interpreter.isTruthy(ValueList.toList(This)));
+                    return Interpreter.toKodeValue(Interpreter.isTruthy(ValueList.toList(This)));
                 }
             }
             throw new NotImplemented();
@@ -110,7 +112,7 @@ class ValueList extends Value {
             KodeObject obj = args[1];
             if (This instanceof KodeInstance) {
                 if (ValueList.isList((KodeInstance) This)) {
-                    ValueList.toList(This).add(interpreter.toKodeValue(obj));
+                    ValueList.toList(This).add(Interpreter.toKodeValue(obj));
                     return null;
                 }
             }
@@ -120,10 +122,10 @@ class ValueList extends Value {
     }
 
     //<editor-fold defaultstate="collapsed" desc="toList">
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({"unchecked"})
     static List<KodeObject> toList(KodeObject x) {
         KodeObject a = x;
-        for (;;) {
+        for (; ; ) {
             if (x instanceof KodeInstance) {
                 if (ValueList.isList((KodeInstance) x)) {
                     return (List<KodeObject>) ((KodeInstance) x).data;
@@ -148,7 +150,7 @@ class ValueList extends Value {
     }
 //</editor-fold>
 
-    final static boolean isList(KodeInstance i) {
+    static boolean isList(KodeInstance i) {
         return instanceOf(i.klass, ValueList.class);
     }
 

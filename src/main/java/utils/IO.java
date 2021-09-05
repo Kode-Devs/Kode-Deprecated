@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2020 Kode Devs
  *
  * This program is free software: you can redistribute it and/or modify
@@ -22,22 +22,19 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
+
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.AnsiConsole;
 
 /**
+ * Performs IO operation i.e., Read or Write to the Console
  *
- * @author dell
+ * @author Arpan Mahanty < edumate696@gmail.com >
  */
 public abstract class IO {
 
     static {
-        System.setErr(new PrintStream(new OutputStream() {
-            @Override
-            public void write(int b) throws IOException {
-
-            }
-        }));
+        AnsiConsole.systemInstall();
     }
 
     private static final boolean CONSOLE_LESS = System.console() == null;
@@ -45,25 +42,25 @@ public abstract class IO {
     private static final BufferedReader ALT_CONSOLE = new BufferedReader(new InputStreamReader(System.in));
 
     public static void printf(Object obj) {
-        AnsiConsole.out.print(Ansi.ansi().fg(Ansi.Color.WHITE).a(String.valueOf(obj)).reset());
+        System.out.print(Ansi.ansi().fg(Ansi.Color.WHITE).a(String.valueOf(obj)).reset());
     }
 
-    public final static void printfln(Object obj) {
-        AnsiConsole.out.println(Ansi.ansi().fg(Ansi.Color.WHITE).a(String.valueOf(obj)).reset());
+    public static void printfln(Object obj) {
+        System.out.println(Ansi.ansi().fg(Ansi.Color.WHITE).a(String.valueOf(obj)).reset());
     }
 
     public static void printf_err(Object obj) {
-        AnsiConsole.out.print(Ansi.ansi().fg(Ansi.Color.YELLOW).a(String.valueOf(obj)).reset());
+        System.out.print(Ansi.ansi().fg(Ansi.Color.YELLOW).a(String.valueOf(obj)).reset());
     }
 
-    public final static void printfln_err(Object obj) {
-        AnsiConsole.out.println(Ansi.ansi().fg(Ansi.Color.YELLOW).a(String.valueOf(obj)).reset());
+    public static void printfln_err(Object obj) {
+        System.out.println(Ansi.ansi().fg(Ansi.Color.YELLOW).a(String.valueOf(obj)).reset());
     }
 
     public static String scanf() throws IOException {
-        AnsiConsole.out.print(Ansi.ansi().fgCyan());
+        System.out.print(Ansi.ansi().fgCyan());
         String res = CONSOLE_LESS ? ALT_CONSOLE.readLine() : SYS_CONSOLE.readLine();
-        AnsiConsole.out.print(Ansi.ansi().reset());
+        System.out.print(Ansi.ansi().reset());
         return res;
     }
 
@@ -72,22 +69,22 @@ public abstract class IO {
     }
 
     public static void resetLine() {
-        AnsiConsole.out.print(Ansi.ansi().eraseLine(Ansi.Erase.ALL).cursorToColumn(0));
+        System.out.print(Ansi.ansi().eraseLine(Ansi.Erase.ALL).cursorToColumn(0));
     }
 
     public static void clc() {
         try {
-            new ProcessBuilder("cmd","/c","cls").inheritIO().start().waitFor();
+            new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
         } catch (Throwable e1) {
             try {
                 Runtime.getRuntime().exec("clear");
             } catch (Throwable e2) {
-                AnsiConsole.out.print(Ansi.ansi().eraseScreen(Ansi.Erase.ALL).cursor(0, 0));
+                System.out.print(Ansi.ansi().eraseScreen(Ansi.Erase.ALL).cursor(0, 0));
             }
         }
     }
 
-    public static final void exit(int status) {
+    public static void exit(int status) {
         System.exit(status);
     }
 

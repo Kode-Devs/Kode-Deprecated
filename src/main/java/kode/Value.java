@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2020 Kode Devs
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,8 +19,9 @@ package kode;
 import java.util.HashMap;
 
 /**
+ * Value DataType
  *
- * @author dell
+ * @author Arpan Mahanty < edumate696@gmail.com >
  */
 abstract class Value extends KodeClass {
 
@@ -32,12 +33,12 @@ abstract class Value extends KodeClass {
         super(name, superclass, new HashMap<>(), interpreter);
         this.__doc__ = doc();
     }
-    
-    String doc(){
-        return null; 
+
+    String doc() {
+        return null;
     }
 
-    final static boolean instanceOf(KodeClass i, Class<?> c) {
+    static boolean instanceOf(KodeClass i, Class<?> c) {
         if (i == null) {
             return false;
         }

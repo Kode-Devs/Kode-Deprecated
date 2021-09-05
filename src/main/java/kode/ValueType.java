@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2020 Kode Devs
  *
  * This program is free software: you can redistribute it and/or modify
@@ -17,11 +17,13 @@
 package kode;
 
 import java.util.Objects;
+
 import kni.KodeObject;
 
 /**
+ * Type DataType
  *
- * @author dell
+ * @author Arpan Mahanty < edumate696@gmail.com >
  */
 class ValueType extends Value {
 
@@ -50,7 +52,7 @@ class ValueType extends Value {
             if (This instanceof KodeInstance) {
                 Object data = ((KodeInstance) This).data;
                 if (data != null) {
-                    return interpreter.toKodeValue("<type '" + (data instanceof KodeObject
+                    return Interpreter.toKodeValue("<type '" + (data instanceof KodeObject
                             ? Kode.type((KodeObject) data) : data.getClass().getName()) + "'>");
                 }
             }
@@ -64,11 +66,11 @@ class ValueType extends Value {
             KodeObject klass = args[1];
             if (This instanceof KodeInstance) {
                 if (klass instanceof KodeClass && ((KodeInstance) This).data instanceof KodeInstance) {
-                    return interpreter.toKodeValue(
-                            Objects.equals(((KodeInstance) ((KodeInstance) This).data).klass, (KodeClass) klass));
+                    return Interpreter.toKodeValue(
+                            Objects.equals(((KodeInstance) ((KodeInstance) This).data).klass, klass));
                 }
             }
-            return interpreter.toKodeValue(Comparator.eq(This, klass, interpreter));
+            return Interpreter.toKodeValue(Comparator.eq(This, klass, interpreter));
         }));
         //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="ne">
@@ -77,11 +79,11 @@ class ValueType extends Value {
             KodeObject klass = args[1];
             if (This instanceof KodeInstance) {
                 if (klass instanceof KodeClass && ((KodeInstance) This).data instanceof KodeInstance) {
-                    return interpreter.toKodeValue(
-                            !Objects.equals(((KodeInstance) ((KodeInstance) This).data).klass, (KodeClass) klass));
+                    return Interpreter.toKodeValue(
+                            !Objects.equals(((KodeInstance) ((KodeInstance) This).data).klass, klass));
                 }
             }
-            return interpreter.toKodeValue(Comparator.ne(This, klass, interpreter));
+            return Interpreter.toKodeValue(Comparator.ne(This, klass, interpreter));
         }));
         //</editor-fold>
     }

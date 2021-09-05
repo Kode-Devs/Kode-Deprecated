@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2020 Kode Devs
  *
  * This program is free software: you can redistribute it and/or modify
@@ -24,11 +24,8 @@ import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
 import kni.KNI;
 import kni.MethodDef;
 import kni.KodeObject;
@@ -36,8 +33,9 @@ import utils.IO;
 import utils.Pip4kode;
 
 /**
+ * Module
  *
- * @author dell
+ * @author Arpan Mahanty < edumate696@gmail.com >
  */
 class KodeModule implements ExtKodeObject {
 
@@ -61,13 +59,11 @@ class KodeModule implements ExtKodeObject {
      * @implSpec The interpreter must have permissions to write or modify files
      * in its installation location for its proper working. Else the
      * download/update feature will not work.
-     *
-     * @throws Throwable
      * @see Kode#run
      */
-    void runModule() throws Throwable {
-        String pkgname = Paths.get(path).getName(0).toString();
-        String initial_path = Paths.get(Kode.LIBPATH, "package-" + pkgname).toAbsolutePath().toString();
+    void runModule() {
+        String pkg_name = Paths.get(path).getName(0).toString();
+        String initial_path = Paths.get(Kode.LIB_PATH, "package-" + pkg_name).toAbsolutePath().toString();
         try {
             // Check w.r.t working directory.
             Path temp_path = Paths.get("./", path + "." + Kode.EXTENSION).toAbsolutePath();
@@ -77,10 +73,10 @@ class KodeModule implements ExtKodeObject {
                 return;
             }
 
-            // Check for avialibility of update for the package.
-            if (Pip4kode.checkUpdate(pkgname, initial_path)) {
-                IO.printf_err("[Info]: Package '" + pkgname + "' needs an update.\n"
-                        + "Do you want to update the package '" + pkgname + "' ? [y/n] ");
+            // Check for availability of update for the package.
+            if (Pip4kode.checkUpdate(pkg_name, initial_path)) {
+                IO.printf_err("[Info]: Package '" + pkg_name + "' needs an update.\n"
+                        + "Do you want to update the package '" + pkg_name + "' ? [y/n] ");
                 if (IO.scanf().equalsIgnoreCase("y")) {
                     throw new Exception(); // Accepted for update
                 }
@@ -89,7 +85,7 @@ class KodeModule implements ExtKodeObject {
             // Check w.r.t package directory.
             temp_path = Paths.get(initial_path, path + "." + Kode.EXTENSION).toAbsolutePath();
             if (temp_path.toFile().exists()) {
-                this.__doc__ = Kode.run(temp_path.toFile().getName(), new String(Files.readAllBytes(temp_path), Kode.ENCODING), inter).item1;
+                this.__doc__ = Kode.run(temp_path.toFile().getName(), Files.readString(temp_path, Kode.ENCODING), inter).item1;
                 return;
             }
 
@@ -109,9 +105,9 @@ class KodeModule implements ExtKodeObject {
             IO.printfln_err("[Info]: Library file '" + name + "' not found in your device.");
             throw new Exception();
         } catch (Exception e) {
-            // Download from online reposerity to local system.
+            // Download from online repository to local system.
             try {
-                Pip4kode pip = new Pip4kode(pkgname);
+                Pip4kode pip = new Pip4kode(pkg_name);
                 IO.printfln("Reading package metadata from repository ...");
                 pip.init(initial_path);
                 IO.printf("Do you want to download the package '" + pip.pkg + "' (" + pip.sizeInWords + ") ? [y/n] ");
@@ -120,7 +116,7 @@ class KodeModule implements ExtKodeObject {
                 }
                 if (pip.download()) {
                     IO.printfln("Download Finished");
-                    runModule(); // Re-run Module Scan On Download Compleation
+                    runModule(); // Re-run Module Scan On Download Completion
                     return;
                 } else {
                     IO.printfln_err("Download Failed");
@@ -129,7 +125,7 @@ class KodeModule implements ExtKodeObject {
                 throw new RuntimeError(ex.getMessage());
             } catch (RuntimeError ex) {
                 throw ex;
-            } catch (Throwable ex) {
+            } catch (Throwable ignored) {
             }
             throw new RuntimeError("Requirement '" + name + "' not satisfied.");
         }
@@ -142,21 +138,21 @@ class KodeModule implements ExtKodeObject {
             urls.addAll(KodeModule.listURLs(Paths.get(initial_path, "shared-lib")));
             URLClassLoader urlClassLoader = new URLClassLoader(urls.toArray(new URL[]{}), Kode.class.getClassLoader());
             Class<?> klass = Class.forName(name, true, urlClassLoader);
-            KNI anno = klass.getAnnotation(KNI.class);
-            if (anno == null) {
+            KNI annotation = klass.getAnnotation(KNI.class);
+            if (annotation == null) {
                 return false;
             } else {
-                this.__doc__ = anno.doc();
+                this.__doc__ = annotation.doc();
                 for (Field f : klass.getFields()) {
                     try {
-                        String fname = f.getName();
-                        if (!fname.matches("^[A-Za-z_][A-Za-z0-9_]*$")) {
+                        String f_name = f.getName();
+                        if (!f_name.matches("^[A-Za-z_][A-Za-z0-9_]*$")) {
                             continue;
                         }
                         Object value = f.get(null);
                         if (value instanceof MethodDef) {
                             final MethodDef md = (MethodDef) value;
-                            inter.globals.define(fname, new KodeBuiltinFunction(fname, inter, md.doc,
+                            inter.globals.define(f_name, new KodeBuiltinFunction(f_name, inter, md.doc,
                                     md.params_name.length == 0 ? md.params_name.length
                                             : md.params_name.length * (md.params_name[md.params_name.length - 1].equals(Kode.VARARGIN) ? -1 : 1),
                                     arguments -> {
@@ -166,10 +162,7 @@ class KodeModule implements ExtKodeObject {
                                                 env.put(md.params_name[i], arguments[i]);
                                             }
                                             if (md.params_name[md.params_name.length - 1].equals(Kode.VARARGIN)) {
-                                                List<KodeObject> varargin = new ArrayList<>();
-                                                for (int j = md.params_name.length - 1; j < arguments.length; j++) {
-                                                    varargin.add(arguments[j]);
-                                                }
+                                                List<KodeObject> varargin = new ArrayList<>(Arrays.asList(arguments).subList(md.params_name.length - 1, arguments.length));
                                                 env.put(Kode.VARARGIN, ValueList.create(varargin));
                                             } else {
                                                 env.put(md.params_name[md.params_name.length - 1], arguments[md.params_name.length - 1]);
@@ -178,9 +171,9 @@ class KodeModule implements ExtKodeObject {
                                         return md.call(env);
                                     }));
                         } else {
-                            inter.globals.define(fname, inter.toKodeValue(value));
+                            inter.globals.define(f_name, Interpreter.toKodeValue(value));
                         }
-                    } catch (Throwable e) {
+                    } catch (Throwable ignored) {
                     }
                 }
             }
@@ -203,7 +196,7 @@ class KodeModule implements ExtKodeObject {
         List<URL> urls = new ArrayList<>();
         try {
             urls.add(path.toUri().toURL());
-        } catch (Throwable e) {
+        } catch (Throwable ignored) {
         }
         File[] listFiles = path.toFile().listFiles();
         if (listFiles != null) {
@@ -212,7 +205,7 @@ class KodeModule implements ExtKodeObject {
                     if (file.getName().endsWith(".jar")) {
                         urls.add(file.toURI().toURL());
                     }
-                } catch (Throwable e) {
+                } catch (Throwable ignored) {
                 }
             }
         }

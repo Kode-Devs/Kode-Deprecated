@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2020 Kode Devs
  *
  * This program is free software: you can redistribute it and/or modify
@@ -17,8 +17,9 @@
 package kode;
 
 /**
+ * Token
  *
- * @author dell
+ * @author Arpan Mahanty < edumate696@gmail.com >
  */
 class Token {
 
@@ -29,7 +30,7 @@ class Token {
     final int line;
     final String fn;
 
-    Token(TokenType type, String lexeme, Object literal, int line,String line_text,String fn) {
+    Token(TokenType type, String lexeme, Object literal, int line, String line_text, String fn) {
         this.type = type;
         this.lexeme = lexeme;
         this.literal = literal;

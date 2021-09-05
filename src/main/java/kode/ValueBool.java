@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2020 Kode Devs
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,8 +19,9 @@ package kode;
 import kni.KodeObject;
 
 /**
+ * Bool DataType
  *
- * @author dell
+ * @author Arpan Mahanty < edumate696@gmail.com >
  */
 class ValueBool extends Value {
 
@@ -55,7 +56,7 @@ class ValueBool extends Value {
             KodeObject This = args[0];
             if (This instanceof KodeInstance) {
                 if (ValueBool.isBool((KodeInstance) This)) {
-                    return interpreter.toKodeValue(Kode.stringify(ValueBool.toBoolean(This)));
+                    return Interpreter.toKodeValue(Kode.stringify(ValueBool.toBoolean(This)));
                 }
             }
             throw new NotImplemented();
@@ -77,7 +78,7 @@ class ValueBool extends Value {
             KodeObject This = args[0];
             if (This instanceof KodeInstance) {
                 if (ValueBool.isBool((KodeInstance) This)) {
-                    return interpreter.toKodeValue(Interpreter.isTruthy(ValueBool.toBoolean(This)) ? 1 : 0);
+                    return Interpreter.toKodeValue(Interpreter.isTruthy(ValueBool.toBoolean(This)) ? 1 : 0);
                 }
             }
             throw new NotImplemented();
@@ -87,7 +88,7 @@ class ValueBool extends Value {
 
     //<editor-fold defaultstate="collapsed" desc="toBoolean">
     static Boolean toBoolean(KodeObject x) {
-        for (;;) {
+        for (; ; ) {
             if (x instanceof KodeInstance) {
                 if (ValueBool.isBool((KodeInstance) x)) {
                     return (Boolean) ((KodeInstance) x).data;
@@ -102,7 +103,7 @@ class ValueBool extends Value {
                         }
                         x = ((KodeInstance) x).klass.findMethod(Kode.BOOLEAN).bind((KodeInstance) x).call();
                         continue;
-                    } catch (NotImplemented e) {
+                    } catch (NotImplemented ignored) {
                     }
                 }
             }
@@ -111,7 +112,7 @@ class ValueBool extends Value {
     }
 //</editor-fold>
 
-    final static boolean isBool(KodeInstance i) {
+    static boolean isBool(KodeInstance i) {
         return instanceOf(i.klass, ValueBool.class);
     }
 

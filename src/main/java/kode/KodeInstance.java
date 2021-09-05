@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2020 Kode Devs
  *
  * This program is free software: you can redistribute it and/or modify
@@ -18,14 +18,15 @@ package kode;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import kni.KodeObject;
 
 /**
- * This class is used to represent an instance of an class.
+ * This class is used to represent an instance of a class.
  *
  * @author Arpan Mahanty < edumate696@gmail.com >
  */
-class KodeInstance implements ExtKodeObject{
+class KodeInstance implements ExtKodeObject {
 
     /**
      * Doc-string or help text associated with the instance, or {@code null} for
@@ -49,7 +50,7 @@ class KodeInstance implements ExtKodeObject{
      * {@literal true} value represents that the instance has already been
      * encountered, else not.
      */
-    boolean reccured = false;
+    boolean recurred = false;
 
     /**
      * Map data structure to store the associated fields.
@@ -71,11 +72,10 @@ class KodeInstance implements ExtKodeObject{
     /**
      * Retrieves a field/method by using its name from the object of the class.
      *
-     * @implNote It first scans for a field with the given name an then goes for
-     * method, if no such field exits.
-     *
      * @param name Name of the attribute as Token object.
      * @return Returns the associated field/method.
+     * @implNote It first scans for a field with the given name and then goes for
+     * method, if no such field exits.
      */
     @Override
     public KodeObject get(Token name) {
@@ -96,11 +96,10 @@ class KodeInstance implements ExtKodeObject{
     /**
      * Retrieves a field/method by using its name from the object of the class.
      *
-     * @implNote It first scans for a field with the given name an then goes for
-     * method, if no such field exits.
-     *
      * @param name Name of the attribute as String object.
      * @return Returns the associated field/method.
+     * @implNote It first scans for a field with the given name and then goes for
+     * method, if no such field exits.
      */
     @Override
     public KodeObject get(String name) {
@@ -121,7 +120,7 @@ class KodeInstance implements ExtKodeObject{
      * Defines or assigns a field with a new value by using its name w.r.t., the
      * object of the class.
      *
-     * @param name Name of the attribute as Token object.
+     * @param name  Name of the attribute as Token object.
      * @param value New Value for the field.
      */
     @Override
@@ -133,7 +132,7 @@ class KodeInstance implements ExtKodeObject{
      * Defines or assigns a field with a new value by using its name w.r.t., the
      * object of the class.
      *
-     * @param name Name of the attribute as String object.
+     * @param name  Name of the attribute as String object.
      * @param value New Value for the field.
      */
     @Override

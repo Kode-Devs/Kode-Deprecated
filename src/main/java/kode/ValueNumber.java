@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2020 Kode Devs
  *
  * This program is free software: you can redistribute it and/or modify
@@ -20,8 +20,9 @@ import kni.KodeObject;
 import math.KodeNumber;
 
 /**
+ * Number DataType
  *
- * @author dell
+ * @author Arpan Mahanty < edumate696@gmail.com >
  */
 class ValueNumber extends Value {
 
@@ -60,7 +61,7 @@ class ValueNumber extends Value {
             KodeObject This = args[0];
             if (This instanceof KodeInstance) {
                 if (ValueNumber.isNumber((KodeInstance) This)) {
-                    return interpreter.toKodeValue(Kode.stringify(ValueNumber.toNumber(This)));
+                    return Interpreter.toKodeValue(Kode.stringify(ValueNumber.toNumber(This)));
                 }
             }
             throw new NotImplemented();
@@ -82,7 +83,7 @@ class ValueNumber extends Value {
             KodeObject This = args[0];
             if (This instanceof KodeInstance) {
                 if (ValueNumber.isNumber((KodeInstance) This)) {
-                    return interpreter.toKodeValue(Interpreter.isTruthy(ValueNumber.toNumber(This)));
+                    return Interpreter.toKodeValue(Interpreter.isTruthy(ValueNumber.toNumber(This)));
                 }
             }
             throw new NotImplemented();
@@ -94,7 +95,7 @@ class ValueNumber extends Value {
             KodeObject This = args[0];
             if (This instanceof KodeInstance) {
                 if (ValueNumber.isNumber((KodeInstance) This)) {
-                    return interpreter.toKodeValue(ValueNumber.toNumber(This).isInteger());
+                    return Interpreter.toKodeValue(ValueNumber.toNumber(This).isInteger());
                 }
             }
             throw new NotImplemented();
@@ -106,7 +107,7 @@ class ValueNumber extends Value {
             if (This instanceof KodeInstance) {
                 if (ValueNumber.isNumber((KodeInstance) This)) {
                     try {
-                        return interpreter.toKodeValue(ValueNumber.toNumber(This).getInteger());
+                        return Interpreter.toKodeValue(ValueNumber.toNumber(This).getInteger());
                     } catch (ArithmeticException e) {
                         throw new RuntimeError("Has fractional part.");
                     }
@@ -120,7 +121,7 @@ class ValueNumber extends Value {
             KodeObject This = args[0];
             if (This instanceof KodeInstance) {
                 if (ValueNumber.isNumber((KodeInstance) This)) {
-                    return interpreter.toKodeValue(ValueNumber.toNumber(This).getFloat());
+                    return Interpreter.toKodeValue(ValueNumber.toNumber(This).getFloat());
                 }
             }
             throw new NotImplemented();
@@ -132,7 +133,7 @@ class ValueNumber extends Value {
             if (This instanceof KodeInstance) {
                 if (ValueNumber.isNumber((KodeInstance) This)) {
                     try {
-                        return interpreter.toKodeValue(ValueNumber.toNumber(This).getAsIndex());
+                        return Interpreter.toKodeValue(ValueNumber.toNumber(This).getAsIndex());
                     } catch (ArithmeticException ex) {
                         throw new RuntimeError("Its value falls beyond range of Indexing.");
                     }
@@ -146,7 +147,7 @@ class ValueNumber extends Value {
     //<editor-fold defaultstate="collapsed" desc="toNumber">
     static KodeNumber toNumber(KodeObject x) {
         KodeObject a = x;
-        for (;;) {
+        for (; ; ) {
             if (x instanceof KodeInstance) {
                 if (ValueNumber.isNumber((KodeInstance) x)) {
                     return (KodeNumber) ((KodeInstance) x).data;
@@ -171,7 +172,7 @@ class ValueNumber extends Value {
     }
 //</editor-fold>
 
-    final static boolean isNumber(KodeInstance i) {
+    static boolean isNumber(KodeInstance i) {
         return instanceOf(i.klass, ValueNumber.class);
     }
 

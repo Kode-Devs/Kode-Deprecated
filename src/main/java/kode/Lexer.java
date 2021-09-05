@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2020 Kode Devs
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,14 +16,14 @@
  */
 package kode;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static kode.TokenType.*;
 import math.KodeNumber;
 import utils.TextUtils;
+
+import java.util.*;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+
+import static kode.TokenType.*;
 
 /**
  * <B><center>--- Lexical Analyzer for KODE interpreter ---</center></B>
@@ -38,8 +38,8 @@ import utils.TextUtils;
  * {@code scr} is the source code snippet.</p>
  *
  * @author Arpan Mahanty < edumate696@gmail.com >
- * @see scanTokens()
- * @see Lexer(String fn, String scr)
+ * @see Lexer#scanTokens()
+ * @see Lexer(String, String)
  */
 class Lexer {
 
@@ -47,7 +47,7 @@ class Lexer {
      *                      --- PROJECT NOTE ---
      *
      * AIM -> To build a lexical analyzer for the interpreter, which breaks down
-     * the source code into list of tokens such that each tokens contains fields
+     * the source code into list of tokens such that each token contains fields
      * denoting its token type, value, corresponding file name and position.
      *
      * Note - The structure of this lexer has been derived from jLox
@@ -98,9 +98,9 @@ class Lexer {
      * Creates an instance of the Lexical Analyzer for a specific snippet of
      * source code.
      *
-     * @param fn Associated File name.
+     * @param fn     Associated File name.
      * @param source The snippet of the source code to be converted into
-     * {@link Tokens}.
+     *               {@link Token}.
      */
     Lexer(String fn, String source) {
         this.fn = fn;
@@ -116,11 +116,11 @@ class Lexer {
     }
 
     /**
-     * Scans the whole source code and finally convert it into {@link Tokens}.
+     * Scans the whole source code and finally convert it into {@link Token}.
      *
      * @return Returns the produced tokens in the form of a {@link List}.
      * @see Lexer
-     * @see scanToken
+     * @see Lexer#scanToken
      */
     List<Token> scanTokens() {
         while (!isAtEnd()) {
@@ -144,7 +144,7 @@ class Lexer {
      * Scans the next most token available in the source code and throws an
      * error if the token isn't a valid one.
      *
-     * @see scanTokens
+     * @see Lexer#scanTokens
      */
     private void scanToken() {
         char c = advance();
@@ -282,7 +282,7 @@ class Lexer {
     /**
      * Appends a new Token at the end of the result.
      *
-     * @param type TokenType associated with the new Token.
+     * @param type    TokenType associated with the new Token.
      * @param literal Value associated with the new Token.
      */
     private void addToken(TokenType type, Object literal) {
@@ -310,7 +310,7 @@ class Lexer {
     /**
      * Returns the current character from the source code without consuming it.
      * If the current index pointer is at end then it returns null character (
-     * ACSII value 0 ).
+     * ASCII value 0 ).
      */
     private char peek() {
         if (isAtEnd()) {
@@ -321,8 +321,8 @@ class Lexer {
 
     /**
      * Returns the next character from the source code without consuming it. If
-     * the current index pointer is at last charecter or it has no next
-     * character, then it returns null character ( ACSII value 0 ).
+     * the current index pointer is at last character, or it has no next
+     * character, then it returns null character ( ASCII value 0 ).
      */
     private char peekNext() {
         if (current + 1 >= source.length()) {
@@ -346,10 +346,10 @@ class Lexer {
      * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ 'extends to the next
      * line.';</code></p>
      *
-     * @see TextUtils#translateEscapes(java.lang.Object)
+     * @see TextUtils#translateEscapes(Object)
      */
     private void string(char quote) {
-        String text = "";
+        StringBuilder text = new StringBuilder();
 
         while (!isAtEnd()) {
             if (peek() == quote) {
@@ -360,7 +360,7 @@ class Lexer {
                 break;
             }
 
-            text += advance();
+            text.append(advance());
         }
 
         // Unterminated string.
@@ -371,26 +371,24 @@ class Lexer {
 
         //Processing
         try {
-            text = TextUtils.translateEscapes(text);
+            text = new StringBuilder(TextUtils.translateEscapes(text.toString()));
         } catch (IllegalArgumentException e) {
             error(fn, line, e.getMessage());
             return;
         }
 
-        addToken(STRING, text);
+        addToken(STRING, text.toString());
     }
 
     /**
      * Scans for multi-line string literals surrounded by the {@literal `}
-     * character. Also it checks for unterminated strings and process escape
+     * character. Also, it checks for unterminated strings and process escape
      * character sequences. The indents used are auto collapsed relatively.
      *
-     * @see TextUtils#translateEscapes(java.lang.Object)
-     * @see String#stripIndent()
+     * @see TextUtils#translateEscapes(Object)
      */
-    @SuppressWarnings("removal")
     private void multilineString() {
-        String text = "";
+        StringBuilder text = new StringBuilder();
 
         while (!isAtEnd()) {
             if (peek() == '`') {
@@ -401,7 +399,7 @@ class Lexer {
                 line++;
             }
 
-            text += advance();
+            text.append(advance());
         }
 
         // Unterminated string.
@@ -411,27 +409,26 @@ class Lexer {
         }
 
         //Processing
-        text = text.stripIndent();
-        if (text.startsWith("\n")) {
-            text = text.substring(1);
+        if (text.toString().startsWith("\n")) {
+            text = new StringBuilder(text.substring(1));
         }
-        if (text.endsWith("\n")) {
-            text = text.substring(0, text.length() - 1);
+        if (text.toString().endsWith("\n")) {
+            text = new StringBuilder(text.substring(0, text.length() - 1));
         }
         try {
-            text = TextUtils.translateEscapes(text);
+            text = new StringBuilder(TextUtils.translateEscapes(text.toString()));
         } catch (IllegalArgumentException e) {
             error(fn, line, e.getMessage());
             return;
         }
 
-        addToken(MLSTRING, text);
+        addToken(MLSTRING, text.toString());
     }
 
     /**
      * Scans for numeric literals.
      *
-     * @see isDigit
+     * @see Lexer#isDigit
      */
     private void number() {
         while (isDigit(peek())) {
@@ -448,7 +445,7 @@ class Lexer {
             }
         }
 
-        // Look for a exponential part.
+        // Look for an exponential part.
         if ((peek() == 'e' || peek() == 'E') && (isDigit(peekNext()) || peekNext() == '+' || peekNext() == '-')) {
             // Consume the "e"
             advance();
@@ -466,7 +463,7 @@ class Lexer {
     /**
      * Scans for identifiers or keywords.
      *
-     * @see KEYWORDS
+     * @see Lexer#KEYWORDS
      */
     private void identifier() {
         while (isAlphaNumeric(peek())) {
@@ -491,7 +488,7 @@ class Lexer {
     }
 
     /**
-     * Checks weather the character resembles either an alphabet or a
+     * Checks weather the character resembles either an alphabet or an
      * underscore, or not.
      */
     private boolean isAlpha(char c) {
@@ -502,10 +499,10 @@ class Lexer {
 
     /**
      * Checks weather the character resembles either an alphabet or a single
-     * digit or a underscore, or not.
+     * digit or an underscore, or not.
      *
-     * @see isAlpha
-     * @see isDigit
+     * @see Lexer#isAlpha
+     * @see Lexer#isDigit
      */
     private boolean isAlphaNumeric(char c) {
         return isAlpha(c) || isDigit(c);
@@ -516,8 +513,8 @@ class Lexer {
      * and an error message, whenever the lexer finds or encounters an error and
      * thus is reported to the user.
      *
-     * @param fn Associated file name.
-     * @param line Current line number.
+     * @param fn      Associated file name.
+     * @param line    Current line number.
      * @param message Error Message to be display.
      * @see RuntimeError
      */

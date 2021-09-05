@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2020 Kode Devs
  *
  * This program is free software: you can redistribute it and/or modify
@@ -20,8 +20,9 @@ import kni.KodeObject;
 import math.KodeNumber;
 
 /**
+ * String DataType
  *
- * @author dell
+ * @author Arpan Mahanty < edumate696@gmail.com >
  */
 class ValueString extends Value {
 
@@ -71,7 +72,7 @@ class ValueString extends Value {
             if (This instanceof KodeInstance) {
                 if (ValueString.isString((KodeInstance) This)) {
                     try {
-                        return interpreter.toKodeValue(String2Num.toNumber(ValueString.toStr(This)));
+                        return Interpreter.toKodeValue(String2Num.toNumber(ValueString.toStr(This)));
                     } catch (Exception ex) {
                         throw new RuntimeError(ex.getMessage(), null);
                     }
@@ -85,7 +86,7 @@ class ValueString extends Value {
             KodeObject This = args[0];
             if (This instanceof KodeInstance) {
                 if (ValueString.isString((KodeInstance) This)) {
-                    return interpreter.toKodeValue(Interpreter.isTruthy(ValueString.toStr(This)));
+                    return Interpreter.toKodeValue(Interpreter.isTruthy(ValueString.toStr(This)));
                 }
             }
             throw new NotImplemented();
@@ -96,7 +97,7 @@ class ValueString extends Value {
             KodeObject This = args[0];
             if (This instanceof KodeInstance) {
                 if (ValueString.isString((KodeInstance) This)) {
-                    return interpreter.toKodeValue(ValueString.toStr(This).toCharArray());
+                    return Interpreter.toKodeValue(ValueString.toStr(This).toCharArray());
                 }
             }
             throw new NotImplemented();
@@ -107,7 +108,7 @@ class ValueString extends Value {
     //<editor-fold defaultstate="collapsed" desc="toStr">
     static String toStr(KodeObject x) {
         KodeObject a = x;
-        for (;;) {
+        for (; ; ) {
             if (x instanceof KodeInstance) {
                 if (ValueString.isString((KodeInstance) x)) {
                     return (String) ((KodeInstance) x).data;
@@ -132,7 +133,7 @@ class ValueString extends Value {
     }
 //</editor-fold>
 
-    final static boolean isString(KodeInstance i) {
+    static boolean isString(KodeInstance i) {
         return instanceOf(i.klass, ValueString.class);
     }
 
@@ -185,7 +186,7 @@ class ValueString extends Value {
                 }
             }
 
-            // Look for a exponential part.
+            // Look for an exponential part.
             if ((charAt(num, i) == 'e' || charAt(num, i) == 'E') && (isDigit(charAt(num, i + 1)) || charAt(num, i + 1) == '+' || charAt(num, i + 1) == '-')) {
                 // Consume the "e"
                 i++;

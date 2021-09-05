@@ -61,6 +61,7 @@ public abstract class IO {
         System.out.print(Ansi.ansi().fgCyan());
         String res = CONSOLE_LESS ? ALT_CONSOLE.readLine() : SYS_CONSOLE.readLine();
         System.out.print(Ansi.ansi().reset());
+        if (res == null) exit(1);
         return res;
     }
 

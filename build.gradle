@@ -33,6 +33,21 @@ startScripts {
     applicationName = 'kode'
 }
 
+installDist {
+    doLast {
+        delete {
+            delete '.packages'
+            delete 'bin'
+            delete 'lib'
+        }
+        copy {
+            from installDist.destinationDir
+            into project.projectDir
+        }
+        delete installDist.destinationDir
+    }
+}
+
 repositories {
     mavenLocal()
     mavenCentral()
@@ -49,6 +64,9 @@ dependencies {
 
     // https://mvnrepository.com/artifact/com.googlecode.json-simple/json-simple
     implementation 'com.googlecode.json-simple:json-simple:1.1.1'
+
+    // https://mvnrepository.com/artifact/org.slf4j/slf4j-simple
+    implementation 'org.slf4j:slf4j-simple:1.7.32'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.2'

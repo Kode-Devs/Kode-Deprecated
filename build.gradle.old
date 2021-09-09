@@ -1,0 +1,56 @@
+plugins {
+//    id 'java'
+    id 'application'
+}
+
+group 'org.edumate'
+version '1.0-SNAPSHOT'
+
+application {
+    mainClass = 'kode.Kode'
+}
+
+run {
+    // By Default standardInput is set to empty stream
+    standardInput = System.in
+}
+
+startScripts {
+    // Rename Application
+    applicationName = 'kode'
+}
+
+installDist {
+    doLast {
+        delete {
+            delete 'bin'
+            delete 'lib'
+        }
+        copy {
+            from installDist.destinationDir
+            into project.projectDir
+        }
+        delete installDist.destinationDir
+    }
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(":engine")
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.2'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+wrapper {
+    gradleVersion = 7.2
+    distributionType = Wrapper.DistributionType.ALL
+}

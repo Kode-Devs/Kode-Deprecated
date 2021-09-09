@@ -1,3 +1,9 @@
 rootProject.name = 'Kode'
 
-include 'kni'
+includeBuild('plugins')
+
+include ":engine", ":kni", ":tools"
+
+project(':engine').projectDir = new File('packages/engine')
+project(':kni').projectDir = new File('packages/kni')
+project(':tools').projectDir = new File('packages/tools')

@@ -1,0 +1,22 @@
+//noinspection GroovyAssignabilityCheck
+plugins {
+    id 'java'
+}
+
+group 'org.edumate'
+version '1.2.0'
+
+//noinspection GroovyAssignabilityCheck
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.2'
+}
+
+test {
+    useJUnitPlatform()
+}

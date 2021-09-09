@@ -1,0 +1,11 @@
+//noinspection GroovyAssignabilityCheck
+plugins {
+    id 'kode.java-common'
+    id 'application'
+}
+
+//noinspection GroovyAssignabilityCheck
+run {
+    // By Default standardInput is set to empty stream
+    standardInput = System.in
+}

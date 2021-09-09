@@ -1,0 +1,26 @@
+plugins {
+    id 'kode.java-application'
+}
+
+startScripts {
+    // Rename Application
+    applicationName = 'kode'
+}
+
+application {
+    mainClass = 'hello'
+}
+
+installDist {
+    doLast {
+        delete {
+            delete "${rootProject.projectDir}/bin"
+            delete "${rootProject.projectDir}/lib"
+        }
+        copy {
+            from installDist.destinationDir
+            into rootProject.projectDir
+        }
+        delete installDist.destinationDir
+    }
+}

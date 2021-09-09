@@ -1,0 +1,5 @@
+//noinspection GroovyAssignabilityCheck
+plugins {
+    id 'kode.java-common'
+    id 'java-library'
+}

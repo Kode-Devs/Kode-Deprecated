@@ -1,0 +1,28 @@
+
+fun System(varargin){
+    return native lib.os.system(varargin);
+}
+
+fun getProperty(name){
+    if(isinstance(name, String))
+        return native lib.os.getProperties(name);
+    else
+        raise Error('Property name must be a String.');
+}
+
+fun setProperty(name, value){
+    if(isinstance(name, String) and isinstance(value, String))
+        return native lib.os.setProperties(name, value);
+    else 
+        raise Error('Property name and value must be a String.');
+}
+
+var name = getProperty('os.name');
+
+fun getPwd(){
+    return getProperty('user.dir');
+}
+
+fun getHome(){
+    return getProperty('user.home');
+}

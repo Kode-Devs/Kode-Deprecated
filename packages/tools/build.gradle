@@ -8,14 +8,15 @@ startScripts {
 }
 
 application {
-    mainClass = 'hello'
+    mainClass = 'kode.Kode'
 }
 
 installDist {
     doLast {
         delete {
-            delete "${rootProject.projectDir}/bin"
-            delete "${rootProject.projectDir}/lib"
+            for (i in installDist.destinationDir.listFiles()) {
+                delete "${rootProject.projectDir}/${i.name}"
+            }
         }
         copy {
             from installDist.destinationDir
@@ -23,4 +24,8 @@ installDist {
         }
         delete installDist.destinationDir
     }
+}
+
+dependencies {
+    implementation project(":engine")
 }

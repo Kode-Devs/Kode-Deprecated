@@ -67,11 +67,11 @@ goto fail
 :execute
 @rem Setup the command line
 
-set CLASSPATH=%APP_HOME%\lib\tools-1.2.0.jar
+set CLASSPATH=%APP_HOME%\lib\tools-1.2.0.jar;%APP_HOME%\lib\engine-1.2.0.jar;%APP_HOME%\lib\kni-1.2.0.jar;%APP_HOME%\lib\jansi-2.3.4.jar;%APP_HOME%\lib\org.eclipse.jgit-5.12.0.202106070339-r.jar;%APP_HOME%\lib\json-simple-1.1.1.jar;%APP_HOME%\lib\slf4j-simple-1.7.32.jar;%APP_HOME%\lib\JavaEWAH-1.1.7.jar;%APP_HOME%\lib\slf4j-api-1.7.32.jar;%APP_HOME%\lib\junit-4.10.jar;%APP_HOME%\lib\hamcrest-core-1.1.jar
 
 
 @rem Execute kode
-"%JAVA_EXE%" %DEFAULT_JVM_OPTS% %JAVA_OPTS% %KODE_OPTS%  -classpath "%CLASSPATH%" hello %*
+"%JAVA_EXE%" %DEFAULT_JVM_OPTS% %JAVA_OPTS% %KODE_OPTS%  -classpath "%CLASSPATH%" kode.Kode %*
 
 :end
 @rem End local scope for the variables with windows NT shell

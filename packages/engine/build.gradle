@@ -6,7 +6,7 @@ processResources {
     doFirst {
         def prop = new Properties()
         prop.setProperty("project.name", rootProject.name)
-        prop.setProperty("project.version", rootProject.version.toString())
+        prop.setProperty("project.version", "$version")
 
         def propFile = new File("${project.projectDir}/src/main/resources/build.properties")
         propFile.parentFile.mkdirs()

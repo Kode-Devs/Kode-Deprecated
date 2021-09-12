@@ -60,6 +60,10 @@ abstract class Kode {
     static Long curr_time = null;
 
     static {
+        Thread.currentThread().setUncaughtExceptionHandler((Thread t, Throwable e) -> {
+            System.out.println("System Panicked: " + e + " [Thread " + t + "]");
+            IO.exit(1); // Panic State
+        });
         try {
             Properties prop = new Properties();
             prop.load(
@@ -69,8 +73,8 @@ abstract class Kode {
                             )
                     )
             );
-            NAME = prop.getProperty("project.name");
-            VERSION = prop.getProperty("project.version");
+            NAME = prop.getProperty("name");
+            VERSION = prop.getProperty("version");
         } catch (Exception ignored) {
         }
     }
@@ -82,10 +86,6 @@ abstract class Kode {
      *             contains the KODE version number.
      */
     public static void main(String[] args) {
-        Thread.currentThread().setUncaughtExceptionHandler((Thread t, Throwable e) -> {
-            System.out.println("System Panicked: " + e + " [Thread " + t + "]");
-            IO.exit(1); // Panic State
-        });
         switch (args.length) {
             case 0:
                 // Executed in case of no-arg in cmd i.e., starts the shell.

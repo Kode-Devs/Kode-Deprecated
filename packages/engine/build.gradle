@@ -2,18 +2,14 @@ plugins {
     id 'kode.java-library'
 }
 
-processResources {
-    doFirst {
-        def prop = new Properties()
-        prop.setProperty("project.name", rootProject.name)
-        prop.setProperty("project.version", "$version")
+def prop = new Properties()
+prop.setProperty("name", rootProject.name)
+prop.setProperty("version", "$version")
 
-        def propFile = new File("${project.projectDir}/src/main/resources/build.properties")
-        propFile.parentFile.mkdirs()
-        propFile.createNewFile()
-        prop.store(new FileWriter(propFile), null)
-    }
-}
+def propFile = new File("${project.projectDir}/src/main/resources/build.properties")
+propFile.parentFile.mkdirs()
+propFile.createNewFile()
+prop.store(new FileWriter(propFile), null)
 
 dependencies {
     implementation project(":kni")

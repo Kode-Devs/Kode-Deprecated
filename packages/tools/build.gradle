@@ -2,13 +2,13 @@ plugins {
     id 'kode.java-application'
 }
 
+application {
+    mainClass = 'tools.Executable'
+}
+
 startScripts {
     // Rename Application
     applicationName = 'kode'
-}
-
-application {
-    mainClass = 'kode.Kode'
 }
 
 installDist {
@@ -28,4 +28,10 @@ installDist {
 
 dependencies {
     implementation project(":engine")
+
+    // https://mvnrepository.com/artifact/info.picocli/picocli
+    implementation 'info.picocli:picocli:4.6.1'
+
+    // https://mvnrepository.com/artifact/org.fusesource.jansi/jansi
+    implementation 'org.fusesource.jansi:jansi:2.3.4'
 }

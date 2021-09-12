@@ -42,7 +42,7 @@ Update your path
 
 ### In Windows
 
-If you wish to run Kode commands in the regular Windows console, take these steps to add Kode to the `PATH` environment
+If you wish to run Kode tools.commands in the regular Windows console, take these steps to add Kode to the `PATH` environment
 variable:
 
 - From the Start search bar, enter ‘env’ and select **Edit environment variables for your account**.

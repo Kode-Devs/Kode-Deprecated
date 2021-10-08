@@ -1,10 +1,11 @@
 //noinspection GroovyAssignabilityCheck
 plugins {
     id 'java'
+    id 'idea'
 }
 
 group 'org.edumate'
-version '1.2.2'
+version '1.2.5'
 
 //noinspection GroovyAssignabilityCheck
 repositories {

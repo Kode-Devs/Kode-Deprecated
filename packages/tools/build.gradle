@@ -3,7 +3,7 @@ plugins {
 }
 
 application {
-    mainClass = 'tools.Executable'
+    mainClass = 'org.edumate.kode.Tools.Executable'
 }
 
 startScripts {

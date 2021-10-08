@@ -1,4 +1,4 @@
-package tools.commands;
+package org.edumate.kode.Tools.commands;
 
 import picocli.CommandLine;
 

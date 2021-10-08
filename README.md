@@ -14,7 +14,7 @@ System requirements
 To install and run Kode, your development environment must meet these minimum requirements:
 
 - [X] **Operating Systems:**
-- [X] **Tools:** Kode depends on these tools being available in your environment.
+- [X] **Tools:** Kode depends on these org.edumate.kode.Tools being available in your environment.
     - [Java SE Development Kit 11](https://www.oracle.com/in/java/technologies/javase-jdk11-downloads.html) or newer
 
 Installation
@@ -42,7 +42,7 @@ Update your path
 
 ### In Windows
 
-If you wish to run Kode tools.commands in the regular Windows console, take these steps to add Kode to the `PATH` environment
+If you wish to run Kode org.edumate.kode.Tools.commands in the regular Windows console, take these steps to add Kode to the `PATH` environment
 variable:
 
 - From the Start search bar, enter ‘env’ and select **Edit environment variables for your account**.

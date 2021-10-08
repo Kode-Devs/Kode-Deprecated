@@ -1,28 +1,8 @@
+//noinspection GroovyAssignabilityCheck
 plugins {
     id 'kode.java-library'
 }
 
-def prop = new Properties()
-prop.setProperty("name", rootProject.name)
-prop.setProperty("version", "$version")
-
-def propFile = new File("${project.projectDir}/src/main/resources/build.properties")
-propFile.parentFile.mkdirs()
-propFile.createNewFile()
-prop.store(new FileWriter(propFile), null)
-
 dependencies {
-    implementation project(":kni")
-
-    // https://mvnrepository.com/artifact/org.fusesource.jansi/jansi
-    implementation 'org.fusesource.jansi:jansi:2.3.4'
-
-    // https://mvnrepository.com/artifact/org.eclipse.jgit/org.eclipse.jgit
-    implementation 'org.eclipse.jgit:org.eclipse.jgit:5.12.0.202106070339-r'
-
-    // https://mvnrepository.com/artifact/com.googlecode.json-simple/json-simple
-    implementation 'com.googlecode.json-simple:json-simple:1.1.1'
-
-    // https://mvnrepository.com/artifact/org.slf4j/slf4j-simple
-    implementation 'org.slf4j:slf4j-simple:1.7.32'
 }
+

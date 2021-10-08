@@ -1,9 +1,15 @@
 rootProject.name = 'Kode'
 
-includeBuild('plugins')
+includeBuild("${rootProject.projectDir}/plugins")
 
-include ":engine", ":kni", ":tools"
+new File("${rootProject.projectDir}/packages").eachDir() { pkg ->
+    print "Found Package : ${pkg.name}"
 
-project(':engine').projectDir = new File('packages/engine')
-project(':kni').projectDir = new File('packages/kni')
-project(':tools').projectDir = new File('packages/tools')
+    if (pkg.name.endsWith '.old') {
+        println " [OLD]"
+        return
+    } else println ''
+
+    include ":${pkg.name}"
+    project(":${pkg.name}").projectDir = pkg
+}

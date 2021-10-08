@@ -1,4 +1,4 @@
-package tools;
+package org.edumate.kode.Tools;
 
 import org.fusesource.jansi.AnsiConsole;
 import picocli.CommandLine;
@@ -6,9 +6,9 @@ import picocli.CommandLine.*;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Model.OptionSpec;
 import picocli.CommandLine.Model.PositionalParamSpec;
-import tools.commands.Eval;
-import tools.commands.Upgrade;
-import tools.commands.Version;
+import org.edumate.kode.Tools.commands.Eval;
+import org.edumate.kode.Tools.commands.Upgrade;
+import org.edumate.kode.Tools.commands.Version;
 
 import java.util.ArrayList;
 
@@ -82,7 +82,6 @@ public class Executable implements Runnable {
                 return;
             }
         } catch (Exception ignore) {
-            System.exit(1);
         }
 
         // Execute Args

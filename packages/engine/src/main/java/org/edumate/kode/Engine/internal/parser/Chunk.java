@@ -61,4 +61,8 @@ public class Chunk {
         if (index < 0 || index >= constants.size()) return null;
         return constants.get(index);
     }
+
+    public int count() {
+        return code.size();
+    }
 }

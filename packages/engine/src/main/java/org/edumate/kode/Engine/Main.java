@@ -4,6 +4,17 @@ import org.edumate.kode.Engine.internal.Debugger;
 
 public class Main {
     public static void main(String[] args) {
-        Debugger.debugTokenStream("123 + 456;\n \"hi\";");
+        final String source = "123 + 456 * 567";
+
+        System.out.println("Source: " + source);
+
+        System.out.println("\nTokens\n<---------------------------------------->");
+        Debugger.debugLexer(source);
+
+        System.out.println("\nInstructions\n<---------------------------------------->");
+        Debugger.debugCompiler(source);
+
+        System.out.println("\nExecution\n<---------------------------------------->");
+        Debugger.debugVM(source);
     }
 }

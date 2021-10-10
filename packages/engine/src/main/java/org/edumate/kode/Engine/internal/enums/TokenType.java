@@ -73,12 +73,12 @@ public enum TokenType {
     TOKEN_TRY(KEYWORD, null),
     TOKEN_EXCEPT(KEYWORD, null),
     TOKEN_RAISE(KEYWORD, null),
+    TOKEN_PRINT(KEYWORD, null),
 
     // Specials
     TOKEN_ERROR(SPECIAL, null),
     TOKEN_EOF(SPECIAL, null),
     ;
-
     /**
      * Classification of token.
      */

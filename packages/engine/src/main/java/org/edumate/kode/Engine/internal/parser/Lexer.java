@@ -2,11 +2,22 @@ package org.edumate.kode.Engine.internal.parser;
 
 import org.edumate.kode.Engine.internal.enums.TokenType;
 
+import java.util.*;
+
 public final class Lexer {
     private final String source;
     private int start = 0;
     private int current = 0;
     private int line = 1;
+
+    private static final Map<String, TokenType> keywords = new HashMap<>();
+
+    static {
+        keywords.put("true", TokenType.TOKEN_TRUE);
+        keywords.put("false", TokenType.TOKEN_FALSE);
+        keywords.put("print", TokenType.TOKEN_PRINT);
+        keywords.put("none", TokenType.TOKEN_NONE);
+    }
 
     /**
      * Creates an instance of the Lexical Analyzer for a specific snippet of
@@ -129,6 +140,10 @@ public final class Lexer {
     }
 
     private TokenType identifierType() {
+        final var identifierName = source.substring(this.start, this.current);
+        if (keywords.containsKey(identifierName)) {
+            return keywords.get(identifierName);
+        }
         return TokenType.TOKEN_IDENTIFIER;
     }
 

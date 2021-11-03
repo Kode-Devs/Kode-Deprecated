@@ -4,7 +4,7 @@ import org.edumate.kode.Engine.internal.Debugger;
 
 public class Main {
     public static void main(String[] args) {
-        final String source = "123 + 456 * 567";
+        final String source = "print 1 + (2 + 3);";
 
         System.out.println("Source: " + source);
 

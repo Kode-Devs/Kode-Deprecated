@@ -1,44 +1,61 @@
 package org.edumate.kode.Engine.internal.runtime;
 
-import java.util.concurrent.atomic.LongAdder;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public abstract class ScriptObject implements Cloneable {
+public class ScriptObject {
+
+    private final PropertyMap _propertyMap;
 
     protected ScriptObject() {
-        if (Context.DEBUG) {
-            count.increment();
-        }
+        _propertyMap = new PropertyMap();
     }
 
+    @NotNull
+    public PropertyMap selfMap() {
+        return _propertyMap;
+    }
+
+    @NotNull
+    public ScriptObject runtimeType() {
+        return this;
+    }
+
+    @Nullable
+    public final FindProperty findProperty(final Object key, final Boolean deep) {
+        final PropertyMap selfMap = this.selfMap();
+        final Property currentProperty = selfMap.find(key);
+        if (currentProperty != null) {
+            return new FindProperty(this, this.runtimeType(), currentProperty);
+        }
+
+        if (deep) {
+            final ScriptObject runtimeType = this.runtimeType();
+
+            return runtimeType.findProperty(key, true);
+        }
+
+        return null;
+    }
+
+    // ------------------------------------------------------------------------------------------ temp func
+
+    private Object value = null;
+
+    @Deprecated
+    public ScriptObject(Object value) {
+        this();
+        this.value = value;
+    }
+
+    @Deprecated
+    protected <T> T value() {
+        return (T) value;
+    }
+
+    @Deprecated
     @Override
-    public ScriptObject clone() {
-        try {
-            ScriptObject clone = (ScriptObject) super.clone();
-            // TODO: copy mutable state here, so the clone can't change the internals of the original
-            return clone;
-        } catch (CloneNotSupportedException e) {
-            throw new AssertionError();
-        }
-    }
-
-    /**
-     * This is updated only in debug mode - counts number of {@code ScriptObject} instances created
-     */
-    private static LongAdder count;
-
-    static {
-        if (Context.DEBUG) {
-            count = new LongAdder();
-        }
-    }
-
-    /**
-     * Get number of {@code ScriptObject} instances created. If not running in debug
-     * mode this is always 0
-     *
-     * @return number of ScriptObjects created
-     */
-    public static long getCount() {
-        return count != null ? count.longValue() : 0;
+    public String toString() {
+        return value.toString();
     }
 }

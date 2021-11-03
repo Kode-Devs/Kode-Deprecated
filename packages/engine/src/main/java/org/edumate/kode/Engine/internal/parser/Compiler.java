@@ -9,7 +9,7 @@ import java.util.Map;
 
 public final class Compiler {
 
-    private final Lexer lexer;
+    private Lexer lexer;
     private final Chunk compilingChunk;
     private final String source;
     private final String fileName;
@@ -20,18 +20,19 @@ public final class Compiler {
     private boolean panicMode;
 
     public Compiler(final String fileName, final String source, final Chunk chunk) {
-        this.lexer = new Lexer(source);
         this.compilingChunk = chunk;
         this.source = source;
         this.fileName = fileName;
     }
 
     public boolean compile() {
+        this.lexer = new Lexer(source);
         this.hadError = false;
         this.panicMode = false;
         advance();
-        expression();
-        consume(TokenType.TOKEN_EOF, "Expect end of expression.");
+        while (!match(TokenType.TOKEN_EOF)) {
+            declaration();
+        }
         endCompiler();
         return !this.hadError;
     }
@@ -46,14 +47,64 @@ public final class Compiler {
         parsePrecedence(Precedence.PREC_ASSIGNMENT);
     }
 
+    private void expressionStatement() {
+        expression();
+        consume(TokenType.TOKEN_SEMICOLON, "Expect ';' after expression.");
+        emitByte(OpCode.OP_POP);
+    }
+
+    private void printStatement() {
+        expression();
+        consume(TokenType.TOKEN_SEMICOLON, "Expect ';' after value.");
+        emitByte(OpCode.OP_PRINT);
+    }
+
+    private void synchronize() {
+        this.panicMode = false;
+
+        while (this.current.type != TokenType.TOKEN_EOF) {
+            if (this.previous.type == TokenType.TOKEN_SEMICOLON) return;
+            switch (this.current.type) {
+                case TOKEN_CLASS:
+                case TOKEN_FUN:
+                case TOKEN_VAR:
+                case TOKEN_FOR:
+                case TOKEN_IF:
+                case TOKEN_WHILE:
+                case TOKEN_PRINT:
+                case TOKEN_RETURN:
+                    return;
+
+                default:
+                    ; // Do nothing.
+            }
+
+            advance();
+        }
+    }
+
+    private void declaration() {
+        statement();
+
+        if (this.panicMode) synchronize();
+    }
+
+    private void statement() {
+        if (match(TokenType.TOKEN_PRINT)) {
+            printStatement();
+        } else {
+            expressionStatement();
+        }
+    }
+
     private void number() {
         final double value = Double.parseDouble(toLiteral(this.previous));
-        emitConstant(new ScriptObject() {
-            @Override
-            public String toString() {
-                return "" + value;
-            }
-        });
+        emitConstant(new ScriptObject(value));
+    }
+
+    private void string() {
+        final String value = source.substring(this.previous.start + 1, this.previous.start + this.previous.length - 1);
+        emitConstant(new ScriptObject(value));
     }
 
     private void grouping() {
@@ -92,6 +143,20 @@ public final class Compiler {
                 break;
             case TOKEN_SLASH:
                 emitByte(OpCode.OP_DIVIDE);
+                break;
+        }
+    }
+
+    private void literal() {
+        switch (this.previous.type) {
+            case TOKEN_FALSE:
+                emitByte(OpCode.OP_FALSE);
+                break;
+            case TOKEN_NONE:
+                emitByte(OpCode.OP_NONE);
+                break;
+            case TOKEN_TRUE:
+                emitByte(OpCode.OP_TRUE);
                 break;
         }
     }
@@ -142,22 +207,22 @@ public final class Compiler {
         rules.put(TokenType.TOKEN_LESS, new ParseRule(null, null, Precedence.PREC_NONE));
         rules.put(TokenType.TOKEN_LESS_EQUAL, new ParseRule(null, null, Precedence.PREC_NONE));
         rules.put(TokenType.TOKEN_IDENTIFIER, new ParseRule(null, null, Precedence.PREC_NONE));
-        rules.put(TokenType.TOKEN_STRING, new ParseRule(null, null, Precedence.PREC_NONE));
+        rules.put(TokenType.TOKEN_STRING, new ParseRule(this::string, null, Precedence.PREC_NONE));
         rules.put(TokenType.TOKEN_NUMBER, new ParseRule(this::number, null, Precedence.PREC_NONE));
         rules.put(TokenType.TOKEN_AND, new ParseRule(null, null, Precedence.PREC_NONE));
         rules.put(TokenType.TOKEN_CLASS, new ParseRule(null, null, Precedence.PREC_NONE));
         rules.put(TokenType.TOKEN_ELSE, new ParseRule(null, null, Precedence.PREC_NONE));
-        rules.put(TokenType.TOKEN_FALSE, new ParseRule(null, null, Precedence.PREC_NONE));
+        rules.put(TokenType.TOKEN_FALSE, new ParseRule(this::literal, null, Precedence.PREC_NONE));
         rules.put(TokenType.TOKEN_FOR, new ParseRule(null, null, Precedence.PREC_NONE));
         rules.put(TokenType.TOKEN_FUN, new ParseRule(null, null, Precedence.PREC_NONE));
         rules.put(TokenType.TOKEN_IF, new ParseRule(null, null, Precedence.PREC_NONE));
-        rules.put(TokenType.TOKEN_NONE, new ParseRule(null, null, Precedence.PREC_NONE));
+        rules.put(TokenType.TOKEN_NONE, new ParseRule(this::literal, null, Precedence.PREC_NONE));
         rules.put(TokenType.TOKEN_OR, new ParseRule(null, null, Precedence.PREC_NONE));
         rules.put(TokenType.TOKEN_PRINT, new ParseRule(null, null, Precedence.PREC_NONE));
         rules.put(TokenType.TOKEN_RETURN, new ParseRule(null, null, Precedence.PREC_NONE));
         rules.put(TokenType.TOKEN_SUPER, new ParseRule(null, null, Precedence.PREC_NONE));
         rules.put(TokenType.TOKEN_THIS, new ParseRule(null, null, Precedence.PREC_NONE));
-        rules.put(TokenType.TOKEN_TRUE, new ParseRule(null, null, Precedence.PREC_NONE));
+        rules.put(TokenType.TOKEN_TRUE, new ParseRule(this::literal, null, Precedence.PREC_NONE));
         rules.put(TokenType.TOKEN_VAR, new ParseRule(null, null, Precedence.PREC_NONE));
         rules.put(TokenType.TOKEN_WHILE, new ParseRule(null, null, Precedence.PREC_NONE));
         rules.put(TokenType.TOKEN_ERROR, new ParseRule(null, null, Precedence.PREC_NONE));
@@ -180,6 +245,16 @@ public final class Compiler {
     private void consume(final TokenType type, final String message) {
         if (this.current.type == type) advance();
         else errorAtCurrent(message);
+    }
+
+    private boolean match(TokenType type) {
+        if (!check(type)) return false;
+        advance();
+        return true;
+    }
+
+    private boolean check(TokenType type) {
+        return this.current.type == type;
     }
 
     private String toLiteral(final Token token) {

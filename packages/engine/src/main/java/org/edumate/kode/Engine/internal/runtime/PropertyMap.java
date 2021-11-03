@@ -1,13 +1,21 @@
 package org.edumate.kode.Engine.internal.runtime;
 
-import java.util.Iterator;
+import java.util.HashMap;
+import java.util.Map;
 
-public class PropertyMap implements Iterable<Object> {
+public class PropertyMap {
 
-    private final transient PropertyHashMap map = new PropertyHashMap();
+    private final transient Map<String, Property> properties = new HashMap<>();
 
-    @Override
-    public Iterator<Object> iterator() {
-        return map.keySet().iterator();
+    public void define(final Object key, final ScriptObject value) {
+        final String propName = key.toString();
+
+        final Property newProp = new Property(propName, value);
+
+        properties.put(propName, newProp);
+    }
+
+    public Property find(final Object key) {
+        return properties.get(key.toString());
     }
 }

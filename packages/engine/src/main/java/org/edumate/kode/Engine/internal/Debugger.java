@@ -55,21 +55,28 @@ public final class Debugger {
 
         if (instruction == OpCode.OP_LINENUMBER) {
             System.out.printf("%04d %4d ", offset, (int) chunk.readByte(offset + 1));
-            offset += 2;
-            instruction = chunk.readByte(offset);
+//            offset += 2;
+//            instruction = chunk.readByte(offset);
         } else {
             System.out.printf("%04d    | ", offset);
         }
 
         if (instruction instanceof OpCode) {
             switch ((OpCode) instruction) {
+                case OP_LINENUMBER:
+                    return lineNumberInstruction(chunk, offset);
                 case OP_CONSTANT:
                     return constantInstruction(chunk, offset);
+                case OP_NONE:
+                case OP_TRUE:
+                case OP_FALSE:
+                case OP_POP:
                 case OP_ADD:
                 case OP_SUBTRACT:
                 case OP_MULTIPLY:
                 case OP_DIVIDE:
                 case OP_NEGATE:
+                case OP_PRINT:
                 case OP_RETURN:
                     return simpleInstruction((OpCode) instruction, offset);
             }
@@ -79,8 +86,14 @@ public final class Debugger {
         return offset + 1;
     }
 
-    private static int constantInstruction(Chunk chunk, int offset) {
-        int constant = chunk.readByte(offset + 1);
+    private static int lineNumberInstruction(final Chunk chunk, int offset) {
+        final int lineNumber = chunk.readByte(offset + 1);
+        System.out.printf("%-16s %4d \n", OpCode.OP_LINENUMBER, lineNumber);
+        return offset + 2;
+    }
+
+    private static int constantInstruction(final Chunk chunk, final int offset) {
+        final int constant = chunk.readByte(offset + 1);
         System.out.printf("%-16s %4d '", OpCode.OP_CONSTANT, constant);
         System.out.print(chunk.readConstant(constant));
         System.out.printf("'\n");
@@ -94,9 +107,12 @@ public final class Debugger {
 
     // -------------------------------------------------------------------------------------------
 
-    public static void debugVM(final String source) {
-        System.out.printf("== test vm ==\n");
+    public static void debugVM(final String source){
         VirtualMachine vm = new VirtualMachine("test");
+        debugVM(source, vm);
+    }
+    public static void debugVM(final String source, final VirtualMachine vm) {
+        System.out.printf("== test vm ==\n");
         //noinspection InstantiationOfUtilityClass
         vm.setDebugger(new Debugger());
         vm.interpret(source);

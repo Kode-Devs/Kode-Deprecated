@@ -1,6 +1,10 @@
 package org.edumate.kode.Engine.api.scripting;
 
+import org.apache.commons.io.IOUtils;
+import org.edumate.kode.Engine.internal.runtime.VirtualMachine;
+
 import javax.script.*;
+import java.io.IOException;
 import java.io.Reader;
 
 /**
@@ -15,6 +19,7 @@ public class KodeScriptEngine extends AbstractScriptEngine implements Compilable
 
     // the factory that created this engine
     private final KodeScriptEngineFactory factory;
+    private final VirtualMachine virtualMachine = new VirtualMachine("engine");
 
     KodeScriptEngine(final KodeScriptEngineFactory factory, final String[] args, final ClassLoader appLoader, final ClassFilter classFilter) {
         assert args != null : "null argument array";
@@ -65,11 +70,16 @@ public class KodeScriptEngine extends AbstractScriptEngine implements Compilable
 
     @Override
     public Object eval(String script, ScriptContext context) throws ScriptException {
-        return null;
+        return virtualMachine.interpret(script);
     }
 
     @Override
     public Object eval(Reader reader, ScriptContext context) throws ScriptException {
-        return null;
+        try {
+            final String script = IOUtils.toString(reader);
+            return eval(script);
+        } catch (IOException e) {
+            throw new ScriptException(e);
+        }
     }
 }

@@ -67,7 +67,7 @@ goto fail
 :execute
 @rem Setup the command line
 
-set CLASSPATH=%APP_HOME%\lib\tools-1.2.5.jar;%APP_HOME%\lib\engine-1.2.5.jar;%APP_HOME%\lib\picocli-4.6.1.jar;%APP_HOME%\lib\jansi-2.3.4.jar
+set CLASSPATH=%APP_HOME%\lib\tools-1.2.5.jar;%APP_HOME%\lib\engine-1.2.5.jar;%APP_HOME%\lib\picocli-4.6.1.jar;%APP_HOME%\lib\jansi-2.3.4.jar;%APP_HOME%\lib\annotations-20.1.0.jar;%APP_HOME%\lib\commons-io-2.11.0.jar
 
 
 @rem Execute kode

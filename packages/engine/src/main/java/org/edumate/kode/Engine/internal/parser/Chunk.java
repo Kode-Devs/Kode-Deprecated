@@ -1,5 +1,6 @@
 package org.edumate.kode.Engine.internal.parser;
 
+import org.edumate.kode.Engine.internal.enums.OpCode;
 import org.edumate.kode.Engine.internal.runtime.ScriptObject;
 
 import java.util.*;
@@ -10,6 +11,7 @@ import java.util.*;
 public class Chunk {
     private final List<Object> code;
     private final List<ScriptObject> constants;
+    private int lastLineNumber = -1;
 
     public Chunk() {
         code = new ArrayList<>(8);
@@ -25,6 +27,14 @@ public class Chunk {
      */
     public <T> int writeByte(final T code, final int line) {
         Objects.requireNonNull(code);
+        assert line >= 0;
+
+        if (line != lastLineNumber) {
+            this.code.add(OpCode.OP_LINENUMBER);
+            this.code.add(line);
+            lastLineNumber = line;
+        }
+
         this.code.add(code);
         return this.code.size() - 1;
     }
@@ -54,6 +64,7 @@ public class Chunk {
 
     /**
      * Reads the Constant at the given constant pool pointer.
+     *
      * @param index the given constant pool pointer
      * @return Returns the Constant
      */

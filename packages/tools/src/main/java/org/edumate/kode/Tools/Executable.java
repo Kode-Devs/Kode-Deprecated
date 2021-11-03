@@ -6,7 +6,7 @@ import picocli.CommandLine.*;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Model.OptionSpec;
 import picocli.CommandLine.Model.PositionalParamSpec;
-import org.edumate.kode.Tools.commands.Eval;
+import org.edumate.kode.Tools.commands.Shell;
 import org.edumate.kode.Tools.commands.Upgrade;
 import org.edumate.kode.Tools.commands.Version;
 
@@ -53,7 +53,7 @@ public class Executable implements Runnable {
 
         // add subcommands programmatically (not necessary if the parent command
         // declarative registers the subcommands via annotation)
-        commandLine.addSubcommand(new Eval());
+        commandLine.addSubcommand(new Shell());
         commandLine.addSubcommand(new Upgrade());
 
         // Check for verbose and help

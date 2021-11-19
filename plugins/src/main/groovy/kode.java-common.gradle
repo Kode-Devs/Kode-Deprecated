@@ -21,3 +21,10 @@ dependencies {
 test {
     useJUnitPlatform()
 }
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(11)
+        vendor = JvmVendorSpec.ORACLE
+    }
+}

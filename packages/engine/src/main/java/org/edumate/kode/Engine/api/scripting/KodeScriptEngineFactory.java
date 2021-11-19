@@ -78,7 +78,7 @@ public final class KodeScriptEngineFactory implements ScriptEngineFactory {
                 return "Kode";
             case ScriptEngine.ENGINE_VERSION:
             case ScriptEngine.LANGUAGE_VERSION:
-                return "ECMA - 262 Edition 5.1";
+                return "Unknown";
             case "THREADING":
                 // The engine implementation is not thread-safe. Can't be
                 // used to execute scripts concurrently on multiple threads.

@@ -16,6 +16,8 @@ public class Shell implements Runnable {
             ScriptEngine engine = manager.getEngineByName("kode");
             Scanner scanner = new Scanner(System.in);
 
+            System.out.println(engine.getFactory().getLanguageName() + " " + engine.getFactory().getLanguageVersion());
+
             while (true) {
                 System.out.print(">>> ");
                 final String input = scanner.nextLine();

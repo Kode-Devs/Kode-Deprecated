@@ -11,20 +11,22 @@ startScripts {
     applicationName = 'kode'
 }
 
-installDist {
-    doLast {
-        delete {
-            for (i in installDist.destinationDir.listFiles()) {
-                delete "${rootProject.projectDir}/${i.name}"
-            }
-        }
-        copy {
-            from installDist.destinationDir
-            into rootProject.projectDir
-        }
-        delete installDist.destinationDir
-    }
-}
+//installDist {
+//    doLast {
+//        delete {
+//            for (i in installDist.destinationDir.listFiles()) {
+//                delete "${rootProject.projectDir}/${i.name}"
+//            }
+//        }
+//        copy {
+//            from installDist.destinationDir
+//            into rootProject.projectDir
+//        }
+//        delete installDist.destinationDir
+//    }
+//}
+
+installDist.destinationDir = new File("${rootProject.projectDir}/bin/cache/engine")
 
 dependencies {
     implementation project(":engine")
